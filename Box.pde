@@ -7,22 +7,26 @@ class Box {
   float c = 175;
   color clr = color(0, 0, 200);
   boolean fixed = false;
-
+  Vec2 pos = new Vec2();
   float density;
+
+  Building parent;
+
   //Constructor
-  Box(Vec2 pos, Vec2 size, boolean fixed_, float density) {
+  Box(Vec2 _pos, Vec2 size, boolean fixed_, float density) {
     this.density = density;
+    this.pos=_pos;
     w = size.x;
     h = size.y;
     this.fixed = fixed_;//Fixed makes it Static usualy for rope ends
 
-    MakeBox(pos);
+    MakeBox(_pos);
     body.setUserData(new Object[]{"box", "alive"});
   }
 
 
 
- /*
+  /*
   *TThis Function Destroys the body of the box from the box2d world
    *
    */
@@ -39,9 +43,9 @@ class Box {
    *
    */
   void display(color cl) {
-    Vec2 pos = box2d.getBodyPixelCoord(body);
+     pos = box2d.getBodyPixelCoord(body);
     float a = body.getAngle();
-    
+
     pushMatrix();
     translate(pos.x, pos.y);    // Using the Vec2 position and float angle to
     rotate(-a);              // translate and rotate the rectangle
@@ -89,6 +93,20 @@ class Box {
     // Attach Fixture to Body               
     body.createFixture(fd);
   }
-  
-  
+
+  void Explode() {
+    Vec2 newPos = pos;
+    Vec2 size = new Vec2(30,15);
+    parent.boxes.add(new Box(newPos, size, false, .1 ));
+    newPos.x-=30;
+    parent.boxes.add(new Box(newPos, size, false, .1 ));
+    newPos.x-=30;
+    parent.boxes.add(new Box(newPos, size, false, .1 ));
+    newPos.y+=15;    
+    parent.boxes.add(new Box(newPos, size, false, .1 ));
+    newPos.x+=30;
+    parent.boxes.add(new Box(newPos, size, false, .1 ));
+    newPos.x+=30;
+    parent.boxes.add(new Box(newPos, size, false, .1 ));
+  }
 }

@@ -32,8 +32,12 @@ class Building {
 
   void display() {
     for (Box b : boxes) {
+      if(b.parent!=null&&b.parent.getClass()==Building.class){ //Check for parent to see if this is a building piee or rouge block
       Object[] o1 = (Object[])b.body.getUserData();
-      if (o1[1]=="dead") boxesToKill.add(b);
+      if (o1[1]=="dead") {
+        boxesToKill.add(b);
+      }
+      }
       b.display(175);
     }
   }
@@ -53,7 +57,9 @@ class Building {
     for (int i =0; i <rand; i++) {
       Vec2 newSize = new Vec2(95, 37); 
       Vec2 newPos = new Vec2(pos.x, pos.y-((newSize.y+1)*(i+1)));
-      boxes.add(new Box(newPos, newSize, false, .1 ));
+      Box b = new Box(newPos, newSize, false, .1 );
+      b.parent = this;
+      boxes.add(b);
     }
   }
 
@@ -68,18 +74,31 @@ class Building {
         newPos = new Vec2(pos.x-35, pos.y-(47*(i+1)));
       }
 
-      boxes.add(new Box(newPos, new Vec2( 25, 40 ), false, .1)); 
+      Box b = new Box(newPos, new Vec2( 25, 40 ), false, .1 );
+      b.parent = this;
+      boxes.add(b);
+      
       newPos.x+=45;
-      boxes.add(new Box(newPos, new Vec2( 25, 40 ), false, .1)); 
+      Box c = new Box(newPos, new Vec2( 25, 40 ), false, .1 );
+      c.parent = this;  
+      boxes.add(c); 
+      
+      
       newPos.x-=25;
       newPos.y-=34;
-      boxes.add(new Box(newPos, new Vec2( 90, 10 ), false, .1));
+
+      Box d = new Box(newPos, new Vec2( 90, 10 ), false, .1 );
+      d.parent = this;
+      boxes.add(d);
     }
   }
 
   void HandleDeaths() {
+
     for (Box b : boxesToKill) {
       b.destroyBody();
+      b.Explode();
+
       boxes.remove(b);
       //remove box from its array of boxes in either rope or building
     }

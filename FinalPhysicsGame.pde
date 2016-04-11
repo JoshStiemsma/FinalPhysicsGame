@@ -33,6 +33,7 @@ ArrayList<Building> buildingsToCreate = new ArrayList<Building>();
 ArrayList<Rope> ropesToKill = new ArrayList<Rope>();
 ArrayList<Rope> ropesToCreate = new ArrayList<Rope>();
 
+//ArrayList<Box> rougeBoxesToCreate = new ArrayList<Box>();
 
 /////////////////Landscape class  
 Landscape landscape;
@@ -55,14 +56,14 @@ float incline = 0;
 Input in = new Input();
 
 
-
-
 float framesSinceLastUpdate;
 //float lastUpdate = 0;
 
 boolean resetGame= false;
 
-
+int score =0;
+int highScore=0;
+float timeSinceLastStart=2;
 void setup() {
   size(900, 600, P2D); 
   cover = loadImage("Empty.png");
@@ -91,19 +92,14 @@ void setup() {
 void draw() {
   background(255);
 
-
-
-
   pushMatrix();
   translate(-viewOffset, viewOffset);
   HandleDeaths();
-
   HandleBirths();
   UpdateDisplays();
   popMatrix();
 
   box2d.step(); //always step the physics world
-
   if (!player.dead) {
     landscape.UpdateTerrainEveryNFrame(9);
     viewOffset+=1;
@@ -121,6 +117,7 @@ void ResetGame() {
   player.reset(); 
   viewOffset=0;
   resetGame=false;
+  timeSinceLastStart=millis()/1000;
 }
 
 void resetArrays() {
@@ -163,13 +160,25 @@ void UpdateDisplays() {
 }
 
 
-
+/*
+* DrawHud is responsible for drawing hud elements to the screen.
+ *
+ */
 void drawHud() {
-  if (player.dead) {
-    textSize(40);
-    text("Press enter to restart", width/2, height/2);
-  }
+  if (!player.dead) score = int(millis()/1000-timeSinceLastStart); 
+if(score>highScore) highScore=score;
+
+  pushStyle();
+  fill(200);
+  textSize(40);
+  text("Score:       "+ score, 50, 50);
+  text("Highscore:  "+ highScore, 50,100);
+  if (player.dead)  text("Press enter to restart",width/2-100, height/2);
+  
+  
+  popStyle();
 }
+
 
 
 

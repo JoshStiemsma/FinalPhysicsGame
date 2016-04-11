@@ -16,7 +16,7 @@ class Player {
 
 
   void display() {
-    CheckInput();
+    if(!dead) ApplyInput();
     Vec2 pos = box2d.getBodyPixelCoord(body);
 
     float a = body.getAngle();
@@ -42,12 +42,13 @@ class Player {
 
   void reset() {
     platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
+    body.setLinearVelocity(new Vec2(0,0));
     body.setTransform(box2d.coordPixelsToWorld(startingPosition), float(0));
     dead=false;
   }
 
 
-  void CheckInput() {
+  void ApplyInput() {
     if (in.Up==true) Thrust(); 
     if (in.Left==true) body.setAngularVelocity(2);
     if (in.Right==true) body.setAngularVelocity(-2);
