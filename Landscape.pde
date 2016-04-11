@@ -5,8 +5,9 @@ class Landscape {
   Body lowBody;
   Body topBody;
 
-Landscape(ArrayList<Vec2> topPoints, ArrayList<Vec2> lowPoints){
-   lowChain = new ChainShape();
+
+  Landscape(ArrayList<Vec2> topPoints, ArrayList<Vec2> lowPoints) {
+    lowChain = new ChainShape();
     topChain = new ChainShape();
     //With our arraylist  
     //We need to convert them to Box2d coordinates
@@ -35,9 +36,7 @@ Landscape(ArrayList<Vec2> topPoints, ArrayList<Vec2> lowPoints){
     BodyDef lowbd = new BodyDef();
     lowbd.position.set(0.0f, 0.0f);
     lowBody = box2d.createBody(lowbd);
-
-
-
+    
     //Define a fixture 
     FixtureDef topfd = new FixtureDef();
     topfd.shape = topChain;
@@ -54,13 +53,15 @@ Landscape(ArrayList<Vec2> topPoints, ArrayList<Vec2> lowPoints){
 
     lowBody.createFixture(lowfd);
     topBody.createFixture(topfd);
-    //Shortcut
-    //body.createFixture(cahin,1.0);
+    
+    lowBody.setUserData(new Object[]{"ground","alive"});
+    topBody.setUserData(new Object[]{"ground","alive"});
+  }
 
- topBody.setUserData(Landscape.class);
- lowBody.setUserData(Landscape.class);
-}
-  
+
+  void Reset() {
+    killBody();
+  }
   // This function removes the particle from the box2d world
   void killBody() {
     box2d.destroyBody(lowBody);
@@ -85,7 +86,25 @@ Landscape(ArrayList<Vec2> topPoints, ArrayList<Vec2> lowPoints){
     }
     endShape();
   }
-  
-  
-  
+
+  void   UpdateTerrainEveryNFrame(float n) {
+
+    if (framesSinceLastUpdate>=n) {//UpdateTerrain
+      if (flatLand) {//if peviously rolled a flatLAnd terrain
+        flatCounter++;//keep going and tally the flat ground
+      } else {
+        RollForObsticle();//keep going but roll for chance of falt
+      }  //end if flat land is ture
+
+      if (flatCounter>4&&flatCounter<6) buildingsToCreate.add(new Building(lowLandPoints.get(0),false ));//if in middle of flat land, place building
+      if (flatCounter>10) {   //if added 10 points of flattness stop and reset the flat counter
+        flatLand=false;
+        flatCounter=0;
+      }
+      UpdateChainArray();//update chain array 
+      framesSinceLastUpdate=0;//Reset framecounting of update
+    } else {//still hasn't been n frames
+      framesSinceLastUpdate++;
+    }//Close if it has been n frame since last terrain update
+  }
 }

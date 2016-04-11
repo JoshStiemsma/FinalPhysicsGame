@@ -23,18 +23,15 @@ Player player;
 ////////////Object Arrays w/ Sorting Arrays
 ArrayList<Building> buildings = new ArrayList<Building>();
 ArrayList<Platform> platforms = new ArrayList<Platform>();
+ArrayList<Rope> ropes = new ArrayList<Rope>();
+
 
 ArrayList<Platform> platformsToCreate = new ArrayList<Platform>();
 ArrayList<Platform> platformsToKill = new ArrayList<Platform>();
-
-
 ArrayList<Building> buildingsToKill = new ArrayList<Building>();
 ArrayList<Building> buildingsToCreate = new ArrayList<Building>();
-
-ArrayList<Rope> ropes = new ArrayList<Rope>();
 ArrayList<Rope> ropesToKill = new ArrayList<Rope>();
 ArrayList<Rope> ropesToCreate = new ArrayList<Rope>();
-
 
 
 /////////////////Landscape class  
@@ -46,7 +43,7 @@ FloatList lowPoints = new FloatList();
 FloatList highPoints = new FloatList();
 
 
-float offset;
+float viewOffset;
 float xoff = 0.0;
 boolean flatLand = false;
 int flatCounter = 0;
@@ -59,14 +56,11 @@ Input in = new Input();
 
 
 
-float fps =0;
-float lastFps = 0;
-float timeSinceLastFrame;
-float lastFrameTime;
+
 float framesSinceLastUpdate;
-float lastUpdate = 0;
+//float lastUpdate = 0;
 
-
+boolean resetGame= false;
 
 
 void setup() {
@@ -84,15 +78,115 @@ void setup() {
   player=new Player();
   CreateChainArray(); 
   landscape= new Landscape(topLandPoints, lowLandPoints);
- //landscape.topBody.setUserData(Landscape.class);
- //landscape.lowBody.setUserData(Landscape.class);
   UpdateChainArray();
 }
 
 
 
-void UpdateChainArray() {
 
+
+
+
+
+void draw() {
+  background(255);
+
+
+
+
+  pushMatrix();
+  translate(-viewOffset, viewOffset);
+  HandleDeaths();
+
+  HandleBirths();
+  UpdateDisplays();
+  popMatrix();
+
+  box2d.step(); //always step the physics world
+
+  if (!player.dead) {
+    landscape.UpdateTerrainEveryNFrame(9);
+    viewOffset+=1;
+  } else {
+    if (in.Enter)resetGame=true;
+  }
+
+  drawHud();
+  if (resetGame) ResetGame();
+}
+
+void ResetGame() {
+  resetArrays();
+  ResetLandscape();
+  player.reset(); 
+  viewOffset=0;
+  resetGame=false;
+}
+
+void resetArrays() {
+
+  for (Building b : buildings) buildingsToKill.add(b);
+  for (Platform p : platforms) platformsToKill.add(p);
+  for (Rope r : ropes) ropesToKill.add(r);
+  buildings=new ArrayList<Building>();
+  platforms = new ArrayList<Platform>();
+  ropes = new ArrayList<Rope>();
+  buildingsToCreate= new ArrayList<Building>();
+  platformsToCreate = new ArrayList<Platform>();
+  ropesToCreate= new ArrayList<Rope>();
+}
+
+void ResetLandscape() {
+  flatLand=false;
+  xoff=0.0;
+  flatCounter=0;
+  incline=0;
+  CreateChainArray(); 
+  UpdateChainArray();//in update it kills the body and then makes a landscape intoa  ewn landscpe
+}
+
+
+
+
+void UpdateDisplays() {
+  landscape.display();
+  player.display();
+  // Display all the obsticls
+  for (Building b : buildings)   b.display();
+  for (Platform p : platforms)  p.display();
+  for (Rope r : ropes)  r.display();
+
+  //Destroy OBsticls if past window frame
+  for (Building b : buildings)  if (b.position.x-viewOffset<0)buildingsToKill.add(b);
+  for (Platform p : platforms)  if (p.position.x-viewOffset<0)platformsToKill.add(p);  
+  for (Rope r : ropes) if (r.position.x-viewOffset<0)ropesToKill.add(r);
+}
+
+
+
+void drawHud() {
+  if (player.dead) {
+    textSize(40);
+    text("Press enter to restart", width/2, height/2);
+  }
+}
+
+
+
+void playerDied() {
+  player.dead=true;
+}
+
+
+
+
+
+
+/*
+*These chain functions need to be in the main tab
+ *
+ */
+void UpdateChainArray() {
   //If currenlty in flat land mode then make then y same as previouse y aka end of points array
   float y=0;
   if (flatLand)y= lowLandPoints.get(0).y;
@@ -104,7 +198,7 @@ void UpdateChainArray() {
   newLowLand.add( new Vec2(lowLandPoints.get(0).x+10, y)); 
   newTopLand.add( new Vec2(topLandPoints.get(0).x+10, y-height+random(-10-(flatCounter*10), 10-(flatCounter*10)))); 
 
-  for (int i = 0; i <100; i++) {
+  for (int i = 0; i <110; i++) {
     newLowLand.add(lowLandPoints.get(i));
     newTopLand.add(topLandPoints.get(i));
   }
@@ -113,12 +207,9 @@ void UpdateChainArray() {
   topLandPoints = newTopLand;
   landscape.killBody();
   landscape = new Landscape(topLandPoints, lowLandPoints);
-  //CreateChainArray();
 
   xoff+=.01+random(-1, 1);
   incline+=10;
-  //cut shorter than seconds for more precision
-  lastUpdate= millis()/10;
 }
 
 /*
@@ -132,17 +223,17 @@ void RollForObsticle() {
   } else if (rand>75) {
     int n = int(random(2, 12));
     int l = n*15;
-    ropes.add(new Rope(l, n, topLandPoints.get(0)));
+    ropesToCreate.add(new Rope(l, n, topLandPoints.get(0), false));
   }
 }
-
-
-
 /*
 *This function is called durring setup to creat the initial inclined low and high points 
  *used for the terrain
  */
 void CreateChainArray() {
+  lowLandPoints = new ArrayList<Vec2>();
+  topLandPoints = new ArrayList<Vec2>();
+
   for (float x=width+100; x>-100; x -= 10) {
     float y = incline+height*.3;
     lowLandPoints.add( new Vec2(x, y));    
@@ -155,68 +246,9 @@ void CreateChainArray() {
   incline=0;
 }
 
-void draw() {
-  background(255);
 
 
-//println(player.killed);
 
-  //always step
-  box2d.step();
-
-  UpdateTerrainEveryNFrame(9);
-  pushMatrix();
-  translate(-offset, offset);
-
-
-  UpdateDisplays();
-  UpdateBirthsDeaths();
-  popMatrix();
-  offset+=1;
-}
-
-void UpdateDisplays() {
-  landscape.display();
-  player.display();
-  // Display all the boxes
-  for (Building b : buildings)   b.display();
-  for (Building b : buildings)  if (b.position.x-offset<0)buildingsToKill.add(b);
-
-
-  for (Platform p : platforms)  if (p.position.x-offset<0)platformsToKill.add(p);   
-  for (Platform p : platforms)  p.display();
-
-
-  for (Rope r : ropes) if (r.position.x-offset<0)ropesToKill.add(r);
-  for (Rope r : ropes)  r.display();
-}
-
-void UpdateBirthsDeaths() {
-  HandleBirths();
-  HandleDeaths();
-}
-
-
-void   UpdateTerrainEveryNFrame(float n) {
-
-  if (framesSinceLastUpdate>=n) {//UpdateTerrain
-    if (flatLand) {//if peviously rolled a flatLAnd terrain
-      flatCounter++;//keep going and tally the flat ground
-    } else {
-      RollForObsticle();//keep going but roll for chance of falt
-    }  //end if flat land is ture
-
-    if (flatCounter>4&&flatCounter<6) PlaceBuilding(lowLandPoints.get(0));//if in middle of flat land, place building
-    if (flatCounter>10) {   //if added 10 points of flattness stop and reset the flat counter
-      flatLand=false;
-      flatCounter=0;
-    }
-    UpdateChainArray();//update chain array 
-    framesSinceLastUpdate=0;//Reset framecounting of update
-  } else {//still hasn't been n frames
-    framesSinceLastUpdate++;
-  }//Close if it has been n frame since last terrain update
-}
 
 /*
 *This function handles the births of most objects in the game
@@ -229,10 +261,10 @@ void HandleBirths() {
   for (Platform p : platformsToCreate) platforms.add(new Platform(p.x, p.y));
   platformsToCreate= new ArrayList<Platform>();
 
-  for (Building b : buildingsToCreate) buildings.add( new Building(b.position));
+  for (Building b : buildingsToCreate) buildings.add( new Building(b.position, true));
   buildingsToCreate = new ArrayList<Building>();
 
-  for (Rope r : ropesToCreate) ropes.add(new Rope(r.totalLength, r.numPoints, r.position));
+  for (Rope r : ropesToCreate) ropes.add(new Rope(r.totalLength, r.numPoints, r.position, true));
   ropesToCreate = new ArrayList<Rope>();
 }
 
@@ -245,37 +277,32 @@ void HandleBirths() {
  *This helps destroy any object from an array right now and only not to save from arraylist erros
  */
 void HandleDeaths() {
-  for (Platform p : platformsToKill) platforms.remove(p);
+  for (Platform p : platformsToKill) {
+    p.destroy();
+    platforms.remove(p);
+  }
   platformsToKill = new ArrayList<Platform>();
-
-  for (Building b : buildingsToKill) buildings.remove(b);
+  for (Building b : buildings) b.HandleDeaths();
+  for (Building b : buildingsToKill) {
+    b.destroy();
+    buildings.remove(b);
+  }
   buildingsToKill = new ArrayList<Building>();
 
-  for (Rope r : ropesToKill) ropes.remove(r);
+
+  for (Rope r : ropes) r.HandleDeaths();
+  for (Rope r : ropesToKill) {
+    r.destroy();
+    ropes.remove(r);
+  }
   ropesToKill = new ArrayList<Rope>();
 }
-
-
-
-/*
-*This function adds a building to the buildings to creat list at a specific location
- *@param Vec2 points is the location of the bottom of the new building
- */
-void PlaceBuilding(Vec2 point) {
-  buildings.add(new Building(point));
-}
-
-
-
-
-
-
 /*
 *This function handles the presseing of all keys
  *and passes the keycode and state to the input class's handlekey function 
  */
 void keyPressed() {
-  // println(keyCode);
+  println(keyCode);
   in.handleKey(keyCode, true);
 }
 /*

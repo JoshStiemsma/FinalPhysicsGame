@@ -15,11 +15,15 @@ class Platform{
    this.y=y;
    this.position = new Vec2(x,y);
    MakePlat();
-    b.setUserData(this);
+    //b.setUserData(this);
+    b.setUserData(new Object[]{"platform","alive"});
+
  }
   
   
-  
+  void destroy(){
+     box2d.destroyBody(b); 
+  }
   
  
   void display() {

@@ -3,12 +3,13 @@ class Player {
   //the players body
   Body body;
 
-boolean killed= false;
+  boolean dead= false;
   //Constructor
   Player() {
     MakePlayersBody();
-    platforms.add(new Platform(startingPosition.x-30,startingPosition.y));
-     body.setUserData(this);
+    platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
+    body.setUserData(new Object[]{"player","alive"});
+
   }
 
   PVector startingPosition = new PVector(350, 450);
@@ -39,6 +40,13 @@ boolean killed= false;
   }//end display
 
 
+  void reset() {
+    platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
+    body.setTransform(box2d.coordPixelsToWorld(startingPosition), float(0));
+    dead=false;
+  }
+
+
   void CheckInput() {
     if (in.Up==true) Thrust(); 
     if (in.Left==true) body.setAngularVelocity(2);
@@ -56,53 +64,49 @@ boolean killed= false;
     body.applyForce(force, pos);
   }//end apply force
 
- void Thrust(){
-   float a = body.getAngle();
-   
-  if(abs(a)>TWO_PI){
-   int d= int(abs(a)/TWO_PI); 
-    if(a>0)a-=(d*TWO_PI);
-    if(a<0)a+=(d*TWO_PI);
-  }
-   a=a+HALF_PI;
-   Vec2 force = new Vec2(1500*cos(a),1500*sin(a));
+  void Thrust() {
+    float a = body.getAngle();
+
+    if (abs(a)>TWO_PI) {
+      int d= int(abs(a)/TWO_PI); 
+      if (a>0)a-=(d*TWO_PI);
+      if (a<0)a+=(d*TWO_PI);
+    }
+    a=a+HALF_PI;
+    Vec2 force = new Vec2(1500*cos(a), 1500*sin(a));
     Vec2 pos = body.getWorldCenter();
     body.applyForce(force, pos);
- }
+  }
 
-void CheckBoundaries(){
-  
-  Vec2 pos =  box2d.getBodyPixelCoord(body);
-  
-  if(pos.x>width+offset) {
-    float a = body.getAngle();
-   
-  if(abs(a)>TWO_PI){
-   int d= int(abs(a)/TWO_PI); 
-    if(a>0)a-=(d*TWO_PI);
-    if(a<0)a+=(d*TWO_PI);
+  void CheckBoundaries() {
+
+    Vec2 pos =  box2d.getBodyPixelCoord(body);
+
+    if (pos.x>width+viewOffset) {
+      float a = body.getAngle();
+
+      if (abs(a)>TWO_PI) {
+        int d= int(abs(a)/TWO_PI); 
+        if (a>0)a-=(d*TWO_PI);
+        if (a<0)a+=(d*TWO_PI);
+      }
+      a=a+HALF_PI;
+
+      body.applyForce(  new Vec2(-100, 0), body.getWorldCenter());
+    }
+    if (pos.y<0-viewOffset) {
+      float a = body.getAngle();
+
+      if (abs(a)>TWO_PI) {
+        int d= int(abs(a)/TWO_PI); 
+        if (a>0)a-=(d*TWO_PI);
+        if (a<0)a+=(d*TWO_PI);
+      }
+      a=a+HALF_PI;
+
+      body.applyForce(  new Vec2(0, -100), body.getWorldCenter());
+    }
   }
-   a=a+HALF_PI;
-   
-   body.applyForce(  new Vec2(-100,0),body.getWorldCenter()); 
-    
-  }
-  if(pos.y<0-offset) {
-    float a = body.getAngle();
-   
-  if(abs(a)>TWO_PI){
-   int d= int(abs(a)/TWO_PI); 
-    if(a>0)a-=(d*TWO_PI);
-    if(a<0)a+=(d*TWO_PI);
-  }
-   a=a+HALF_PI;
-   
-   body.applyForce(  new Vec2(0,-100),body.getWorldCenter()); 
-    
-  }
-  
-  
-}
 
 
   void MakePlayersBody() {
