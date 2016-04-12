@@ -43,7 +43,7 @@ class Box {
    *
    */
   void display(color cl) {
-     pos = box2d.getBodyPixelCoord(body);
+    pos = box2d.getBodyPixelCoord(body);
     float a = body.getAngle();
 
     pushMatrix();
@@ -96,17 +96,58 @@ class Box {
 
   void Explode() {
     Vec2 newPos = pos;
-    Vec2 size = new Vec2(30,15);
-    parent.boxes.add(new Box(newPos, size, false, .1 ));
-    newPos.x-=30;
-    parent.boxes.add(new Box(newPos, size, false, .1 ));
-    newPos.x-=30;
-    parent.boxes.add(new Box(newPos, size, false, .1 ));
-    newPos.y+=15;    
-    parent.boxes.add(new Box(newPos, size, false, .1 ));
-    newPos.x+=30;
-    parent.boxes.add(new Box(newPos, size, false, .1 ));
-    newPos.x+=30;
-    parent.boxes.add(new Box(newPos, size, false, .1 ));
+    Vec2 vel = player.body.getLinearVelocity();
+    newPos.x+=40;
+    Vec2 size = new Vec2(30, 15);
+float level =3;
+  for(float j=0;j<((w+h)/2)/10;j++){
+    float s = size.x/ (((w+h)/2)/10);
+    Box box = new Box( newPos,size,false, .1);
+    box.body.setLinearVelocity(vel.add(new Vec2 (random(-50,50),random(-50,50))));
+    box.body.setAngularVelocity(random(-10,10));
+    parent.boxes.add(box);
+
+    newPos.x-=32;
+    if(j/level>1){
+      newPos.y+=25;
+    level+=3;
+    }
+  }
+
+    //Box a = new Box(newPos, size, false, .1);
+    //a.body.setLinearVelocity(vel.add(new Vec2 (random(-50,50),random(-50,50))));
+    //a.body.setAngularVelocity(random(-10,10));
+    //parent.boxes.add(a);
+
+    //newPos.x-=32;
+    //Box b = new Box(newPos, size, false, .1);
+    //b.body.setLinearVelocity(vel.add(new Vec2 (random(-50,50),random(-50,50))));
+    //b.body.setAngularVelocity(random(-10,10));
+    //parent.boxes.add(b);   
+
+    //newPos.x-=32;
+    //Box c = new Box(newPos, size, false, .1);
+    //c.body.setLinearVelocity(vel.add(new Vec2 (random(-50,50),random(-50,50))));
+    //c.body.setAngularVelocity(random(-10,10));
+    //parent.boxes.add(c);
+
+
+    //newPos.y+=25;    
+    //Box d = new Box(newPos, size, false, .1);
+    //d.body.setLinearVelocity(vel.add(new Vec2 (random(-50,50),random(-50,50))));
+    //d.body.setAngularVelocity(random(-10,10));
+    //parent.boxes.add(d);
+
+    //newPos.x+=32;
+    //Box e = new Box(newPos, size, false, .1);
+    //e.body.setLinearVelocity(vel.add(new Vec2 (random(-50,50),random(-50,50))));
+    //e.body.setAngularVelocity(random(-10,10));
+    //parent.boxes.add(e);
+
+    //newPos.x+=32;
+    //Box f = new Box(newPos, size, false, .1);
+    //f.body.setLinearVelocity(vel.add(new Vec2 (random(-50,50),random(-50,50))));
+    //f.body.setAngularVelocity(random(-10,10));
+    //parent.boxes.add(f);
   }
 }

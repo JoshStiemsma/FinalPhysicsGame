@@ -4,8 +4,13 @@ public class Input {
   boolean Right = false;
   boolean Up = false;
   boolean Enter = false;
+  boolean Space = false;
+
   void handleKey(int keyCode, boolean state) {
     switch(keyCode) {
+    case 32:
+      Space=state;
+      break;
     case 37:
       Left = state;
       break;

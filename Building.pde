@@ -32,11 +32,11 @@ class Building {
 
   void display() {
     for (Box b : boxes) {
-      if(b.parent!=null&&b.parent.getClass()==Building.class){ //Check for parent to see if this is a building piee or rouge block
-      Object[] o1 = (Object[])b.body.getUserData();
-      if (o1[1]=="dead") {
-        boxesToKill.add(b);
-      }
+      if (b.parent!=null&&b.parent.getClass()==Building.class) { //Check for parent to see if this is a building piee or rouge block
+        Object[] o1 = (Object[])b.body.getUserData();
+        if (o1[1]=="dead") {
+          boxesToKill.add(b);
+        }
       }
       b.display(175);
     }
@@ -77,13 +77,20 @@ class Building {
       Box b = new Box(newPos, new Vec2( 25, 40 ), false, .1 );
       b.parent = this;
       boxes.add(b);
+
+      newPos.x+=20;
+      int random = int(random(1, 10));
+      if (random<=1) {
+        Pickup p = new Pickup("life", newPos, false);
+        pickupsToCreate.add(p);
+      }
       
-      newPos.x+=45;
+      newPos.x+=25;
       Box c = new Box(newPos, new Vec2( 25, 40 ), false, .1 );
       c.parent = this;  
       boxes.add(c); 
-      
-      
+
+
       newPos.x-=25;
       newPos.y-=34;
 

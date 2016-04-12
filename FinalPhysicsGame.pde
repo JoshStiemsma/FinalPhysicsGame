@@ -24,6 +24,7 @@ Player player;
 ArrayList<Building> buildings = new ArrayList<Building>();
 ArrayList<Platform> platforms = new ArrayList<Platform>();
 ArrayList<Rope> ropes = new ArrayList<Rope>();
+ArrayList<Pickup> pickups = new ArrayList<Pickup>();
 
 
 ArrayList<Platform> platformsToCreate = new ArrayList<Platform>();
@@ -32,6 +33,11 @@ ArrayList<Building> buildingsToKill = new ArrayList<Building>();
 ArrayList<Building> buildingsToCreate = new ArrayList<Building>();
 ArrayList<Rope> ropesToKill = new ArrayList<Rope>();
 ArrayList<Rope> ropesToCreate = new ArrayList<Rope>();
+ArrayList<Pickup> pickupsToKill = new ArrayList<Pickup>();
+ArrayList<Pickup> pickupsToCreate = new ArrayList<Pickup>();
+
+
+
 
 //ArrayList<Box> rougeBoxesToCreate = new ArrayList<Box>();
 
@@ -64,6 +70,12 @@ boolean resetGame= false;
 int score =0;
 int highScore=0;
 float timeSinceLastStart=2;
+
+int lives = 3;
+
+
+
+
 void setup() {
   size(900, 600, P2D); 
   cover = loadImage("Empty.png");
@@ -100,6 +112,8 @@ void draw() {
   popMatrix();
 
   box2d.step(); //always step the physics world
+  if (lives<=0) player.dead=true;
+
   if (!player.dead) {
     landscape.UpdateTerrainEveryNFrame(9);
     viewOffset+=1;
@@ -125,12 +139,15 @@ void resetArrays() {
   for (Building b : buildings) buildingsToKill.add(b);
   for (Platform p : platforms) platformsToKill.add(p);
   for (Rope r : ropes) ropesToKill.add(r);
+  for (Pickup p: pickups) pickupsToKill.add(p);
   buildings=new ArrayList<Building>();
   platforms = new ArrayList<Platform>();
   ropes = new ArrayList<Rope>();
+  pickups = new ArrayList<Pickup>();
   buildingsToCreate= new ArrayList<Building>();
   platformsToCreate = new ArrayList<Platform>();
   ropesToCreate= new ArrayList<Rope>();
+  pickupsToCreate = new ArrayList<Pickup>();
 }
 
 void ResetLandscape() {
@@ -152,6 +169,7 @@ void UpdateDisplays() {
   for (Building b : buildings)   b.display();
   for (Platform p : platforms)  p.display();
   for (Rope r : ropes)  r.display();
+  for (Pickup p : pickups)p.display();
 
   //Destroy OBsticls if past window frame
   for (Building b : buildings)  if (b.position.x-viewOffset<0)buildingsToKill.add(b);
@@ -166,16 +184,21 @@ void UpdateDisplays() {
  */
 void drawHud() {
   if (!player.dead) score = int(millis()/1000-timeSinceLastStart); 
-if(score>highScore) highScore=score;
-
+  if (score>highScore) highScore=score;
+  for (int i = lives; i>0; i--) {
+    pushStyle();
+    fill(255, 0, 0);
+    ellipse(width-50-(i*30), height-20, 20, 20);
+    popStyle();
+  }
   pushStyle();
   fill(200);
   textSize(40);
   text("Score:       "+ score, 50, 50);
-  text("Highscore:  "+ highScore, 50,100);
-  if (player.dead)  text("Press enter to restart",width/2-100, height/2);
-  
-  
+  text("Highscore:  "+ highScore, 50, 100);
+  if (player.dead)  text("Press enter to restart", width/2-100, height/2);
+
+
   popStyle();
 }
 
@@ -275,6 +298,11 @@ void HandleBirths() {
 
   for (Rope r : ropesToCreate) ropes.add(new Rope(r.totalLength, r.numPoints, r.position, true));
   ropesToCreate = new ArrayList<Rope>();
+
+
+
+  for (Pickup p : pickupsToCreate) pickups.add(new Pickup(p.type, p.position, true));
+  pickupsToCreate= new ArrayList<Pickup>();
 }
 
 
@@ -305,6 +333,12 @@ void HandleDeaths() {
     ropes.remove(r);
   }
   ropesToKill = new ArrayList<Rope>();
+
+  for (Pickup p : pickupsToKill) {
+    p.destroy();
+    pickups.remove(p);
+  }
+  pickupsToKill = new ArrayList<Pickup>();
 }
 /*
 *This function handles the presseing of all keys

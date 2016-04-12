@@ -16,37 +16,22 @@ class CustomListener implements ContactListener {
     //Object obj2 = b2.getUserData();
     Object[] o1 = (Object[])b1.getUserData();
     Object[] o2 = (Object[])b2.getUserData();
-    //UserData u1 = new UserData( f1.getBody().getUserData());
-    if (o1[0]=="player") {
+
+    if (o1[0]=="player"||o2[0]=="player") {
+      
       if (o2[0]=="box") {
-        println("hitbox");
-        b2.setUserData(new Object[]{"box", "dead"});
-        player.dead=true;
-      } else if (o2[0]=="ground") {
-        println("hitGround");
+        b2.setUserData(new Object[]{"box", "dead"});//Explode Box
+      } else if (o2[0]=="ground"||o1[0]=="ground") {
+        if(millis()/1000-player.timeSinceLastWallHit>.5) {//hit wall take away life
+          lives-=1;
+         player.timeSinceLastWallHit=millis()/1000;
+        }
+      }else if(o2[0]=="life"){
+        if(lives<3)lives+=1;
+        b2.setUserData(new Object[]{"life", "dead"});//Collect pickup
       }
     }
-    // If object 1 is a Box, then object 2 must be a particle
-    // Note we are ignoring particle on particle collisions
-    //if (o1.getClass() == Player.class ) {
 
-    //  if (o2.getClass() == Platform.class) {
-    //    //println("plat");
-    //  } else if (o2.getClass() == Box.class) {
-    //    for (Building building : buildings) {
-    //      for (Box box : building.boxes) {
-    //        if(o2==box)  buildingsToKill.add(building);
-    //      }
-    //    }
-
-    //  } else {
-
-    //    if (!player.dead) {
-    //      println(b2.getUserData()+  "killed the player");
-    //      playerDied();
-    //    }
-    //  }
-    //}
   }
 
 
