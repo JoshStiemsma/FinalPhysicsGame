@@ -1,19 +1,44 @@
 class Player {
 
   //the players body
-  Body body;
+  Body basket;
 
   boolean dead= false;
 
   Vec2 position;
+
+  //These are used for storing relative data when making the body and linking joints
+  Circle ball1;
+  Circle ball2;
+  Circle ball3;
+  Body previouse;
+  Body ballStringEnd1;
+  Body ballStringEnd2;
+  Body ballStringEnd3;
+  Body ropeEnd1;
+  Body ropeEnd2;
+  Body centerLink;
+  ArrayList<Box>ball1chain = new ArrayList<Box>();
+  ArrayList<Box>ball2chain = new ArrayList<Box>();
+  ArrayList<Box>ball3chain = new ArrayList<Box>();
+
+
+
+  ArrayList<Box>boxes = new ArrayList<Box>();
+  ArrayList<Circle> circles = new ArrayList<Circle>();
+    ArrayList<Box>boxesToKill = new ArrayList<Box>();
+  ArrayList<Circle> circlesToKill = new ArrayList<Circle>();
+
+
   //Constructor
   Player() {
     MakePlayersBody();
-    platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
-    body.setUserData(new Object[]{"player", "alive"});
+    //platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
+    basket.setUserData(new Object[]{"player", "alive"});
   }
 
-  PVector startingPosition = new PVector(350, 450);
+  PVector startingPosition = new PVector(500, 450);
+  Vec2 spv = new Vec2(500,450);
 
   float timeSinceLastWallHit = 0;
 
@@ -22,10 +47,16 @@ class Player {
       ApplyInput();
       ApplyLift();
     }
-    position = box2d.getBodyPixelCoord(body);
-    float a = body.getAngle();
 
-    Fixture f = body.getFixtureList();
+    for (Box b : boxes) b.display(125);
+    for (int i=0; i<circles.size();i++){
+    if(i<3)  circles.get(i).display(color(255,0,0));
+      else circles.get(i).display(125);
+    }
+    position = box2d.getBodyPixelCoord(basket);
+    float a = basket.getAngle();
+
+    Fixture f = basket.getFixtureList();
     PolygonShape ps = (PolygonShape) f.getShape();
 
     CheckBoundaries();
@@ -49,37 +80,35 @@ class Player {
   void reset() {
     lives=3;
     platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
-    body.setLinearVelocity(new Vec2(0, 0));
-    body.setTransform(box2d.coordPixelsToWorld(startingPosition), float(0));
+    basket.setLinearVelocity(new Vec2(0, 0));
+    basket.setTransform(box2d.coordPixelsToWorld(startingPosition), float(0));
     dead=false;
   }
 
   void ApplyLift() {
-    Vec2 pos = body.getWorldCenter();
-    body.applyForce(new Vec2(0, 1250  ), pos);
+    
+    for(Circle c: circles){
+      Vec2 pos = c.body.getWorldCenter();
+    c.body.applyForce(new Vec2(0, 50  ), pos);
+    }
   }
   void ApplyInput() {
     if (in.Down) Thrust(); 
-   // if (in.Left) body.setAngularVelocity(.5);
-    //if (in.Right) body.setAngularVelocity(-.5);
-    Vec2 vel = body.getLinearVelocity();
-    if (in.Left) body.setLinearVelocity(new Vec2( vel.x-1, vel.y));
-    if (in.Right) body.setLinearVelocity(new Vec2( vel.x+1, vel.y));
+    Vec2 vel = basket.getLinearVelocity();
+    if (in.Left) basket.setLinearVelocity(new Vec2( vel.x-1, vel.y));
+    if (in.Right) basket.setLinearVelocity(new Vec2( vel.x+1, vel.y));
 
     //println(body.getAngularVelocity());
-    if (body.getAngularVelocity()!=0) {
-      body.setAngularVelocity(body.getAngularVelocity()*.64);
+    if (basket.getAngularVelocity()!=0) {
+      basket.setAngularVelocity(basket.getAngularVelocity()*.64);
     }
-    if (in.Space) {
-      Push();
-    } else {
-      println("not push");
-    }
+    if (in.Space)  Push();
+
   }
 
 
   void Push() {
-    println("push");
+    //println("push");
     for (Building building : buildings) {
       for (Box box : building.boxes) {
         Vec2 bPos = box2d.getBodyPixelCoord(box.body);
@@ -114,22 +143,14 @@ class Player {
    *This functions applies force to the player when given a Vec2 of force 
    */
   void applyForce(Vec2 force) {
-    Vec2 pos = body.getWorldCenter();
-    body.applyForce(force, pos);
+    Vec2 pos = basket.getWorldCenter();
+    basket.applyForce(force, pos);
   }//end apply force
 
   void Thrust() {
-    float a = body.getAngle();
 
-    if (abs(a)>TWO_PI) {
-      int d= int(abs(a)/TWO_PI); 
-      if (a>0)a-=(d*TWO_PI);
-      if (a<0)a+=(d*TWO_PI);
-    }
-    a=a+HALF_PI;
-    Vec2 force = new Vec2(-1500*cos(a), -1500*sin(a));
-    Vec2 pos = body.getWorldCenter();
-    body.applyForce(force, pos);
+    Vec2 pos = basket.getWorldCenter();
+    basket.applyForce(new Vec2(0, -200), pos);
   }
 
 
@@ -138,49 +159,206 @@ class Player {
    *And kills the player if they go too far out of view
    */
   void CheckBoundaries() {
-    Vec2 pos =  box2d.getBodyPixelCoord(body);
+    Vec2 pos =  box2d.getBodyPixelCoord(basket);
     if (pos.x>width+viewOffset||pos.y>height-viewOffset+30) player.dead=true;     //Kill Player if the go out of bounds
   }
 
-  /*
-*This Function creates the Box2d Body for the player
-   *
-   */
+
+
+
+
+void loseBalloon1(){
+  println("kill1");
+  circlesToKill.add(ball1);
+  for(Box b: ball1chain) boxesToKill.add(b);
+  
+}
+void loseBalloon2(){
+  println("kill2");
+  circlesToKill.add(ball2);
+  for(Box b: ball2chain) boxesToKill.add(b);
+  
+}
+void loseBalloon3(){
+  println("kill3");
+  circlesToKill.add(ball3);
+  for(Box b: ball3chain) boxesToKill.add(b);
+  
+}
+
+
+
+
+////////////////////////All body making stuff
   void MakePlayersBody() {
-    //define the plygon
-    PolygonShape sd = new PolygonShape();
+    boxes= new ArrayList<Box>();
+    circles = new ArrayList<Circle>();
+    ball1 = new Circle( new Vec2(spv.x, spv.y-100), 20, "b1");
+    circles.add(ball1);
+    ball2 = new Circle( new Vec2(spv.x+30, spv.y-100), 20, "b2");
+    circles.add(ball2);
+    ball3 = new Circle( new Vec2(spv.x-30, spv.y-100), 20, "b3");
+    circles.add(ball3);
 
 
-    Vec2[] vertices = new Vec2[5];
-    vertices[0] = box2d.vectorPixelsToWorld(new Vec2(0, -50));
-    vertices[1] = box2d.vectorPixelsToWorld(new Vec2(10, -35));
-    vertices[2] = box2d.vectorPixelsToWorld(new Vec2(10, 0));
-    vertices[3] = box2d.vectorPixelsToWorld(new Vec2(-10, 0));
-    vertices[4] = box2d.vectorPixelsToWorld(new Vec2(-10, -35));
+    FirstBall();
+    SecondBall();
+    ThirdBall();
+    CenterLink();
+    Basket();
+  }
+  void FirstBall() {
+    Box Link;
+    for (int i=0; i<=3; i++) {
+      Link = new Box(new Vec2(spv.x, spv.y-100+i*15), new Vec2(2, 10), false, .1);
+      boxes.add(Link);
+      ball1chain.add(Link);
+      RevoluteJointDef rjd = new RevoluteJointDef();
+
+      if (i==0) rjd.bodyA= ball1.body;
+      else rjd.bodyA=previouse;
+      rjd.bodyB = Link.body;
+      rjd.collideConnected=false;
+      if (i==0)  rjd.localAnchorA.set(0, -2);
+      else rjd.localAnchorA.set(0, -.3);
+      rjd.localAnchorB.set(0, 1);
+      RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
+
+      previouse = Link.body;
+      if (i==3)    ballStringEnd1 = Link.body;
+    }
+  }//Close FisrtBall
+  void SecondBall() {
+    Box Link;
+    for (int i=0; i<=3; i++) {
+      Link = new Box(new Vec2(spv.x+30, spv.y-100+i*15), new Vec2(2, 10), false, .1);
+      boxes.add(Link);
+      ball2chain.add(Link);
+      RevoluteJointDef rjd = new RevoluteJointDef();
+
+      if (i==0) rjd.bodyA= ball2.body;
+      else rjd.bodyA=previouse;
+      rjd.bodyB = Link.body;
+      rjd.collideConnected=false;
+      if (i==0)  rjd.localAnchorA.set(0, -2);
+      else rjd.localAnchorA.set(0, -.3);
+      rjd.localAnchorB.set(0, 1);
+      RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
+
+      previouse = Link.body;
+      if (i==3)    ballStringEnd2 = Link.body;
+    }
+  }
+  void ThirdBall() {
+    Box Link;
+    for (int i=0; i<=3; i++) {
+      Link = new Box(new Vec2(spv.x-30, spv.y-100+i*15), new Vec2(2, 10), false, .1);
+      boxes.add(Link);
+      ball3chain.add(Link);
+      RevoluteJointDef rjd = new RevoluteJointDef();
+
+      if (i==0) rjd.bodyA= ball3.body;
+      else rjd.bodyA=previouse;
+      rjd.bodyB = Link.body;
+      rjd.collideConnected=false;
+      if (i==0)  rjd.localAnchorA.set(0, -2);
+      else rjd.localAnchorA.set(0, -.3);
+      rjd.localAnchorB.set(0, 1);
+      RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
+
+      previouse = Link.body;
+      if (i==3)    ballStringEnd3 = Link.body;
+    }
+  }
+  void CenterLink() {
+    //Create Center Link box
+    Circle centerl =new Circle(new Vec2(spv.x, spv.y-50), 7, "Link");
+    circles.add(centerl);
+    centerLink = centerl.body;
+    //Link Center Link to last chain linkA
+    RevoluteJointDef rjd2 = new RevoluteJointDef();
+    rjd2.bodyA= centerl.body;
+    rjd2.bodyB = ballStringEnd3;
+    rjd2.collideConnected=false;
+    rjd2.localAnchorA.set(-1, .5);
+    rjd2.localAnchorB.set(0, -.4);
+    RevoluteJoint dj2 = (RevoluteJoint) box2d.world.createJoint(rjd2);
+
+    //Link center link to last chain linkB
+    RevoluteJointDef rjd1 = new RevoluteJointDef();
+    rjd1.bodyA= centerl.body;
+    rjd1.bodyB = ballStringEnd1;
+    rjd1.collideConnected=false;
+    rjd1.localAnchorA.set(0, 1);
+    rjd1.localAnchorB.set(0, -.4);
+    RevoluteJoint dj1 = (RevoluteJoint) box2d.world.createJoint(rjd1);
+    //Link center link to last chain link c
+    RevoluteJointDef rjd3 = new RevoluteJointDef();
+    rjd3.bodyA= centerl.body;
+    rjd3.bodyB = ballStringEnd2;
+    rjd3.collideConnected=false;
+    rjd3.localAnchorA.set(1, .5);
+    rjd3.localAnchorB.set(0, -.4);
+    RevoluteJoint dj3 = (RevoluteJoint) box2d.world.createJoint(rjd3);
+  }
 
 
-    sd.set(vertices, vertices.length);
 
-    //Define the bodydef and make it from the shape
-    //Define the TYPE and POSITION here
-    BodyDef bd = new BodyDef();
-    bd.type = BodyType.DYNAMIC;
-    bd.position.set(box2d.coordPixelsToWorld(startingPosition));
-    body = box2d.createBody(bd);
+  /*
+*This Function creates the Box2d Basket for the player
+   *As well as the two chains that connect it to the center link piece
+   */
+  void Basket() {
+    //Create Basket
+    Box Basket = new Box(spv, new Vec2(50, 30), false, .1);
+    basket = Basket.body;
+    //Create LEft Chain
+    Box Link;
+    for (int i=0; i<=3; i++) {
+      Link = new Box(new Vec2(spv.x+30, spv.y+5+i*10), new Vec2(2, 10), false, .1);
+      boxes.add(Link);
+      RevoluteJointDef rjd = new RevoluteJointDef();
+      if (i==0) rjd.bodyA= centerLink;
+      else rjd.bodyA=previouse;
+      rjd.bodyB = Link.body;
+      rjd.collideConnected=false;
+      if (i==0)  rjd.localAnchorA.set(0, -.5);
+      else rjd.localAnchorA.set(0, -.3);
+      rjd.localAnchorB.set(0, 1);
+      RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
+      previouse = Link.body;
+    }
+    //Create LEft Chain Joint
+    RevoluteJointDef rjd = new RevoluteJointDef();
+    rjd.bodyA= basket;
+    rjd.bodyB = previouse;
+    rjd.collideConnected=false;
+    rjd.localAnchorA.set(2.5, 1);
+    rjd.localAnchorB.set(0, .3);
+    RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
 
-    //Define a fixture 
-    FixtureDef fd = new FixtureDef();
-    fd.shape = sd;
-    fd.friction = .3;
-    fd.density = 2;
-    fd.restitution = 0.5;
-
-    body.createFixture(fd);
-    //Shortcut
-    //body.createFixture(sd,1.0);
-
-    //Functions to attach initial velocity and angle are
-    //body.setLinearVelocity(new Vec2(random(-5,5), random(2,5)));
-    //body.setAngularVelocity(random(-5,5));
-  }//end make player body
+    //Create Right Chain
+    for (int i=0; i<=3; i++) {
+      Link = new Box(new Vec2(spv.x+30, spv.y+5+i*10), new Vec2(2, 10), false, .1);
+      boxes.add(Link);
+      RevoluteJointDef rjd2 = new RevoluteJointDef();
+      if (i==0) rjd2.bodyA= centerLink;
+      else rjd2.bodyA=previouse;
+      rjd2.bodyB = Link.body;
+      rjd2.collideConnected=false;
+      if (i==0)  rjd2.localAnchorA.set(0, -.5);
+      else rjd2.localAnchorA.set(0, -.3);
+      rjd2.localAnchorB.set(0, 1);
+      RevoluteJoint dj2 = (RevoluteJoint) box2d.world.createJoint(rjd2);
+      previouse = Link.body;
+    }
+    //Create Right Chain Joint
+    RevoluteJointDef rjd2 = new RevoluteJointDef();
+    rjd2.bodyA= basket;
+    rjd2.bodyB = previouse;
+    rjd2.collideConnected=false;
+    rjd2.localAnchorA.set(-2.5, 1);
+    rjd2.localAnchorB.set(0, .3);
+    RevoluteJoint dj2 = (RevoluteJoint) box2d.world.createJoint(rjd2);
+  }//end make player Basket
 }

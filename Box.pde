@@ -96,7 +96,7 @@ class Box {
 
   void Explode() {
     Vec2 newPos = pos;
-    Vec2 vel = player.body.getLinearVelocity();
+    Vec2 vel = player.basket.getLinearVelocity();
     newPos.x+=w/2;
     Vec2 size = new Vec2(w/3, h/3);
 

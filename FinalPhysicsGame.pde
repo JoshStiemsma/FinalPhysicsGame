@@ -113,10 +113,10 @@ void draw() {
   popMatrix();
 
   box2d.step(); //always step the physics world
-  
-  
-  
-  
+
+
+
+
   if (lives<=0) player.dead=true;
 
   if (!player.dead) {
@@ -134,6 +134,9 @@ void ResetGame() {
   resetArrays();
   ResetLandscape();
   player.reset(); 
+  player = new Player();
+  lives=3;
+  //platforms.add(new Platform(player.startingPosition.x-30, player.startingPosition.y));
   viewOffset=0;
   resetGame=false;
   timeSinceLastStart=millis()/1000;
@@ -144,7 +147,7 @@ void resetArrays() {
   for (Building b : buildings) buildingsToKill.add(b);
   for (Platform p : platforms) platformsToKill.add(p);
   for (Rope r : ropes) ropesToKill.add(r);
-  for (Pickup p: pickups) pickupsToKill.add(p);
+  for (Pickup p : pickups) pickupsToKill.add(p);
   buildings=new ArrayList<Building>();
   platforms = new ArrayList<Platform>();
   ropes = new ArrayList<Rope>();
@@ -175,11 +178,9 @@ void UpdateDisplays() {
   for (Platform p : platforms)  p.display();
   for (Rope r : ropes)  r.display();
   for (Pickup p : pickups)p.display();
-
-  
 }
-void UpdateBoundaries(){
-  
+void UpdateBoundaries() {
+
   //Destroy OBsticls if past window frame
   for (Building b : buildings)  if (b.position.x-viewOffset<0)buildingsToKill.add(b);
   for (Platform p : platforms)  if (p.position.x-viewOffset<0)platformsToKill.add(p);  
@@ -322,6 +323,19 @@ void HandleBirths() {
  *This helps destroy any object from an array right now and only not to save from arraylist erros
  */
 void HandleDeaths() {
+  for(Circle c: player.circlesToKill){
+   c.destroyBody();
+   player.circles.remove(c);
+    
+  }
+  player.circlesToKill = new ArrayList<Circle>();
+  for(Box b: player.boxesToKill){
+   b.destroyBody();
+   player.boxes.remove(b);
+    
+  }
+    player.boxesToKill = new ArrayList<Box>();
+
   for (Platform p : platformsToKill) {
     p.destroy();
     platforms.remove(p);
