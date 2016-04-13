@@ -109,9 +109,14 @@ void draw() {
   HandleDeaths();
   HandleBirths();
   UpdateDisplays();
+  UpdateBoundaries();
   popMatrix();
 
   box2d.step(); //always step the physics world
+  
+  
+  
+  
   if (lives<=0) player.dead=true;
 
   if (!player.dead) {
@@ -171,12 +176,15 @@ void UpdateDisplays() {
   for (Rope r : ropes)  r.display();
   for (Pickup p : pickups)p.display();
 
+  
+}
+void UpdateBoundaries(){
+  
   //Destroy OBsticls if past window frame
   for (Building b : buildings)  if (b.position.x-viewOffset<0)buildingsToKill.add(b);
   for (Platform p : platforms)  if (p.position.x-viewOffset<0)platformsToKill.add(p);  
   for (Rope r : ropes) if (r.position.x-viewOffset<0)ropesToKill.add(r);
 }
-
 
 /*
 * DrawHud is responsible for drawing hud elements to the screen.

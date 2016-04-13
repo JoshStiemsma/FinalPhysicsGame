@@ -3,6 +3,7 @@ public class Input {
   boolean Left = false;
   boolean Right = false;
   boolean Up = false;
+  boolean Down = false;
   boolean Enter = false;
   boolean Space = false;
 
@@ -19,6 +20,9 @@ public class Input {
       break;
     case 39:
       Right=state;
+      break;
+      case 40:
+      Down=state;
       break;
     case 10:
       Enter=state;

@@ -84,7 +84,7 @@ class Building {
         Pickup p = new Pickup("life", newPos, false);
         pickupsToCreate.add(p);
       }
-      
+
       newPos.x+=25;
       Box c = new Box(newPos, new Vec2( 25, 40 ), false, .1 );
       c.parent = this;  

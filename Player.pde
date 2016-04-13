@@ -18,7 +18,10 @@ class Player {
   float timeSinceLastWallHit = 0;
 
   void display() {
-    if (!dead) ApplyInput();
+    if (!dead) {
+      ApplyInput();
+      ApplyLift();
+    }
     position = box2d.getBodyPixelCoord(body);
     float a = body.getAngle();
 
@@ -51,11 +54,18 @@ class Player {
     dead=false;
   }
 
-
+  void ApplyLift() {
+    Vec2 pos = body.getWorldCenter();
+    body.applyForce(new Vec2(0, 1250  ), pos);
+  }
   void ApplyInput() {
-    if (in.Up) Thrust(); 
-    if (in.Left) body.setAngularVelocity(2);
-    if (in.Right) body.setAngularVelocity(-2);
+    if (in.Down) Thrust(); 
+   // if (in.Left) body.setAngularVelocity(.5);
+    //if (in.Right) body.setAngularVelocity(-.5);
+    Vec2 vel = body.getLinearVelocity();
+    if (in.Left) body.setLinearVelocity(new Vec2( vel.x-1, vel.y));
+    if (in.Right) body.setLinearVelocity(new Vec2( vel.x+1, vel.y));
+
     //println(body.getAngularVelocity());
     if (body.getAngularVelocity()!=0) {
       body.setAngularVelocity(body.getAngularVelocity()*.64);
@@ -84,7 +94,7 @@ class Player {
       }
     }
     for (Rope r : ropes) {
-       for (Box box : r.boxes) {
+      for (Box box : r.boxes) {
         Vec2 bPos = box2d.getBodyPixelCoord(box.body);
         Vec2 distV = position.sub(bPos);
         if (mag(distV.x, distV.y)<200) {
@@ -95,9 +105,6 @@ class Player {
           box.body.setLinearVelocity(new Vec2(fx, fy));
         }
       }
-      
-      
-      
     }
   }
 
@@ -120,7 +127,7 @@ class Player {
       if (a<0)a+=(d*TWO_PI);
     }
     a=a+HALF_PI;
-    Vec2 force = new Vec2(1500*cos(a), 1500*sin(a));
+    Vec2 force = new Vec2(-1500*cos(a), -1500*sin(a));
     Vec2 pos = body.getWorldCenter();
     body.applyForce(force, pos);
   }

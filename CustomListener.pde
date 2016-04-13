@@ -20,7 +20,9 @@ class CustomListener implements ContactListener {
     if (o1[0]=="player"||o2[0]=="player") {
       
       if (o2[0]=="box") {
-        b2.setUserData(new Object[]{"box", "dead"});//Explode Box
+        Vec2 vel =b1.getLinearVelocity();
+        if(mag(vel.x,vel.y)>25) b2.setUserData(new Object[]{"box", "dead"});//Explode Box if players velocity is over a limit
+         
       } else if (o2[0]=="ground"||o1[0]=="ground") {
         if(millis()/1000-player.timeSinceLastWallHit>.5) {//hit wall take away life
           lives-=1;
