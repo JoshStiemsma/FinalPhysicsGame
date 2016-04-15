@@ -53,7 +53,7 @@ class Building {
 
 
   void MakeStack(Vec2 pos) {
-    int rand = int(random(2, 10));
+    int rand = int(random(2, 6));
     for (int i =0; i <rand; i++) {
       Vec2 newSize = new Vec2(95, 37); 
       Vec2 newPos = new Vec2(pos.x, pos.y-((newSize.y+1)*(i+1)));
@@ -65,7 +65,7 @@ class Building {
 
   void MakeBuilding(Vec2 pos) {
 
-    int rand = int(random(1, 10));
+    int rand = int(random(1, 6));
     for (int i =0; i <rand; i++) {
       Vec2 newPos = new Vec2(pos.x-35, pos.y-10);
       if (i==0) {

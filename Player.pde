@@ -2,9 +2,9 @@ class Player {
 
   //the players body
   Body basket;
-
+  Box basketBox;
   boolean dead= false;
-
+  int balloonCount = 3;
   Vec2 position;
 
   //These are used for storing relative data when making the body and linking joints
@@ -26,7 +26,7 @@ class Player {
 
   ArrayList<Box>boxes = new ArrayList<Box>();
   ArrayList<Circle> circles = new ArrayList<Circle>();
-    ArrayList<Box>boxesToKill = new ArrayList<Box>();
+  ArrayList<Box>boxesToKill = new ArrayList<Box>();
   ArrayList<Circle> circlesToKill = new ArrayList<Circle>();
 
 
@@ -38,8 +38,9 @@ class Player {
   }
 
   PVector startingPosition = new PVector(500, 450);
-  Vec2 spv = new Vec2(500,450);
-
+  Vec2 spv = new Vec2(500, 450);
+  Vec2 prevVel;
+  boolean setPrevVel = false;
   float timeSinceLastWallHit = 0;
 
   void display() {
@@ -48,11 +49,9 @@ class Player {
       ApplyLift();
     }
 
-    for (Box b : boxes) b.display(125);
-    for (int i=0; i<circles.size();i++){
-    if(i<3)  circles.get(i).display(color(255,0,0));
-      else circles.get(i).display(125);
-    }
+
+
+
     position = box2d.getBodyPixelCoord(basket);
     float a = basket.getAngle();
 
@@ -60,6 +59,12 @@ class Player {
     PolygonShape ps = (PolygonShape) f.getShape();
 
     CheckBoundaries();
+    pushStyle();
+    for (Box b : boxes) b.display(125);
+    for (int i=0; i<circles.size(); i++) {
+      if (i<3)  circles.get(i).display(color(255, 0, 0));
+      else circles.get(i).display(125);
+    }
 
     rectMode(CENTER);
     pushMatrix();
@@ -71,25 +76,81 @@ class Player {
       vertex(v.x, v.y);
     }
     endShape(CLOSE);
+    switch (lives) {
+    case 3:
+      break;
+    case 2:
+
+      line(25, 15, 15, 8);
+      line(15, 8, 10, 10);
+      line(10, 10, 7, 8);
+      line(15, 8, 3, 5);
+      line(3, 5, -2, -3);
+      line(3, 5, -2, 5);
+      line(15, 8, 20, 5);
+      line(20, 5, 18, -2);
+
+      break;
+    case 1:
+
+      line(25, 15, 15, 8);
+      line(15, 8, 10, 10);
+      line(10, 10, 7, 8);
+      line(7, 8, 10, 3);
+      line(15, 8, 3, 5);
+      line(3, 5, -2, -3);
+      line(-2, -3, -10, -12);
+      line(3, 5, -2, 5);
+      line(-2, 5, -5, 7);
+      line(15, 8, 20, 5);
+      line(20, 5, 18, -2);
+      line(20, 5, 15, -5);
+      line(18, -2, 23, 2);
+      break;
+    }
+
+
     popMatrix();
+    popStyle();
   }//end display
 
+  void touchedGround() {
+    println("hit ground");
+    if (millis()/1000-timeSinceLastWallHit>.5) {//hit wall take away life
+      lives-=1;
+      timeSinceLastWallHit=millis()/1000;
+    }
+  }
 
 
+  void destroyBodies() {
+    for (Box b : boxes) b.destroyBody();
+    for (Circle c : circles) c.destroyBody();
+    box2d.destroyBody(basket);
+  }
 
   void reset() {
     lives=3;
-    platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
+    //platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
     basket.setLinearVelocity(new Vec2(0, 0));
     basket.setTransform(box2d.coordPixelsToWorld(startingPosition), float(0));
     dead=false;
   }
 
   void ApplyLift() {
-    
-    for(Circle c: circles){
-      Vec2 pos = c.body.getWorldCenter();
-    c.body.applyForce(new Vec2(0, 50  ), pos);
+
+    for (Circle c : circles) {
+      if (balloonCount==3) {
+        Vec2 pos = c.body.getWorldCenter();
+        c.body.applyForce(new Vec2(0, 40  ), pos);
+      } else if (balloonCount==2) {
+        Vec2 pos = c.body.getWorldCenter();
+        c.body.applyForce(new Vec2(0, 50  ), pos);
+      }
+      if (balloonCount==1) {
+        Vec2 pos = c.body.getWorldCenter();
+        c.body.applyForce(new Vec2(0, 60  ), pos);
+      }
     }
   }
   void ApplyInput() {
@@ -103,7 +164,6 @@ class Player {
       basket.setAngularVelocity(basket.getAngularVelocity()*.64);
     }
     if (in.Space)  Push();
-
   }
 
 
@@ -167,29 +227,29 @@ class Player {
 
 
 
-void loseBalloon1(){
-  println("kill1");
-  circlesToKill.add(ball1);
-  for(Box b: ball1chain) boxesToKill.add(b);
-  
-}
-void loseBalloon2(){
-  println("kill2");
-  circlesToKill.add(ball2);
-  for(Box b: ball2chain) boxesToKill.add(b);
-  
-}
-void loseBalloon3(){
-  println("kill3");
-  circlesToKill.add(ball3);
-  for(Box b: ball3chain) boxesToKill.add(b);
-  
-}
+  void loseBalloon1() {
+    println("kill1");
+    circlesToKill.add(ball1);
+    for (Box b : ball1chain) boxesToKill.add(b);
+    balloonCount--;
+  }
+  void loseBalloon2() {
+    println("kill2");
+    circlesToKill.add(ball2);
+    for (Box b : ball2chain) boxesToKill.add(b);
+    balloonCount--;
+  }
+  void loseBalloon3() {
+    println("kill3");
+    circlesToKill.add(ball3);
+    for (Box b : ball3chain) boxesToKill.add(b);
+    balloonCount--;
+  }
 
 
 
 
-////////////////////////All body making stuff
+  ////////////////////////All body making stuff
   void MakePlayersBody() {
     boxes= new ArrayList<Box>();
     circles = new ArrayList<Circle>();

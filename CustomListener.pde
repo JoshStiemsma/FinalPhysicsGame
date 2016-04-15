@@ -16,23 +16,30 @@ class CustomListener implements ContactListener {
     //Object obj2 = b2.getUserData();
     Object[] o1 = (Object[])b1.getUserData();
     Object[] o2 = (Object[])b2.getUserData();
+if(player.dead!=true){
 
-    if (o1[0]=="player"||o2[0]=="player") {
+if (o1[0]=="player"&&o2[0]=="ground")player.touchedGround();
+if (o1[0]=="ground"&&o2[0]=="player")player.touchedGround();
+      
+
+    if (o1[0]=="player") {
 
       if (o2[0]=="box") {
         Vec2 vel =b1.getLinearVelocity();
-        if (mag(vel.x, vel.y)>25) b2.setUserData(new Object[]{"box", "dead"});//Explode Box if players velocity is over a limit
-      } else if (o2[0]=="ground"||o1[0]=="ground") {
-        if (millis()/1000-player.timeSinceLastWallHit>.5) {//hit wall take away life
-          lives-=1;
-          player.timeSinceLastWallHit=millis()/1000;
-        }
+        if (mag(vel.x, vel.y)>25) {
+        b2.setUserData(new Object[]{"box", "dead"});
+        player.prevVel = player.basket.getLinearVelocity();
+        player.setPrevVel=true;
+        }//Explode Box if players velocity is over a limit
+     
       } else if (o2[0]=="life") {
         if (lives<3)lives+=1;
         b2.setUserData(new Object[]{"life", "dead"});//Collect pickup
       }
 
-    }
+    }//END if first obj is PLAYER
+    
+    
       if (o2[0]=="b1") if (o1[0]=="ground")player.loseBalloon1();
       if (o2[0]=="b2") if (o1[0]=="ground")player.loseBalloon2();
       if (o2[0]=="b3") if (o1[0]=="ground")player.loseBalloon3();
@@ -43,7 +50,7 @@ class CustomListener implements ContactListener {
       
     
   }
-
+  }//End if player is alive
 
   void endContact(Contact contact) {
     // TODO Auto-generated method stub

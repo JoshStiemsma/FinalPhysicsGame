@@ -103,7 +103,10 @@ void setup() {
 
 void draw() {
   background(255);
-
+  if (player.setPrevVel) {
+    player.basket.setLinearVelocity(player.prevVel);
+    player.setPrevVel=false;
+  }
   pushMatrix();
   translate(-viewOffset, viewOffset);
   HandleDeaths();
@@ -119,6 +122,7 @@ void draw() {
 
   if (lives<=0) player.dead=true;
 
+
   if (!player.dead) {
     landscape.UpdateTerrainEveryNFrame(9);
     viewOffset+=1;
@@ -133,7 +137,9 @@ void draw() {
 void ResetGame() {
   resetArrays();
   ResetLandscape();
-  player.reset(); 
+
+  player.destroyBodies(); 
+
   player = new Player();
   lives=3;
   //platforms.add(new Platform(player.startingPosition.x-30, player.startingPosition.y));
@@ -323,18 +329,16 @@ void HandleBirths() {
  *This helps destroy any object from an array right now and only not to save from arraylist erros
  */
 void HandleDeaths() {
-  for(Circle c: player.circlesToKill){
-   c.destroyBody();
-   player.circles.remove(c);
-    
+  for (Circle c : player.circlesToKill) {
+    c.destroyBody();
+    player.circles.remove(c);
   }
   player.circlesToKill = new ArrayList<Circle>();
-  for(Box b: player.boxesToKill){
-   b.destroyBody();
-   player.boxes.remove(b);
-    
+  for (Box b : player.boxesToKill) {
+    b.destroyBody();
+    player.boxes.remove(b);
   }
-    player.boxesToKill = new ArrayList<Box>();
+  player.boxesToKill = new ArrayList<Box>();
 
   for (Platform p : platformsToKill) {
     p.destroy();
