@@ -59,9 +59,6 @@ class Landscape {
   }
 
 
-  void Reset() {
-    killBody();
-  }
   // This function removes the particle from the box2d world
   void killBody() {
     box2d.destroyBody(lowBody);
@@ -69,7 +66,10 @@ class Landscape {
   }
 
 
-
+/*
+  *This is the desiplay function and draws a shape for each the lowLAndPoints and the highLand Points 
+  *
+  */
   void display() {
 
     strokeWeight(2);
@@ -87,6 +87,14 @@ class Landscape {
     endShape();
   }
 
+
+/*
+  *Update Terrain Every n Frames
+  Param @ float n
+  *Responsible for selecting what kind of landscape might come next bye rolling for obsticle and if we are in flat land it
+  *handles that as well and places a building in the center
+  *and calls updatechain array whcih then takes care of this information via arrays and creating landscape
+  */
   void   UpdateTerrainEveryNFrame(float n) {
 
     if (framesSinceLastUpdate>=n) {//UpdateTerrain

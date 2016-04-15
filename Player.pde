@@ -43,6 +43,11 @@ class Player {
   boolean setPrevVel = false;
   float timeSinceLastWallHit = 0;
 
+
+  /*
+*Display presents all the players bodies to the screen in thier proper position
+   *IT uses the boxes and circles arrays of the players as well as the players basket box
+   */
   void display() {
     if (!dead) {
       ApplyInput();
@@ -62,7 +67,7 @@ class Player {
     pushStyle();
     for (Box b : boxes) b.display(125);
     for (int i=0; i<circles.size(); i++) {
-      if (i<3)  circles.get(i).display(color(255, 0, 0));
+      if (i<3)  circles.get(i).display(color(255, 0, 0));//First three circles are always gona be the baloons so olor them red atm
       else circles.get(i).display(125);
     }
 
@@ -76,7 +81,7 @@ class Player {
       vertex(v.x, v.y);
     }
     endShape(CLOSE);
-    switch (lives) {
+    switch (lives) {//Switch case for lives that adds cracks to the players basket
     case 3:
       break;
     case 2:
@@ -114,6 +119,12 @@ class Player {
     popStyle();
   }//end display
 
+  /*
+*touched Ground is called every time the player hits the ground
+   *For fairness, time Since Last hit must be over half a second for damage to take effect,
+   *or the player can hit it too much
+   *
+   */
   void touchedGround() {
     println("hit ground");
     if (millis()/1000-timeSinceLastWallHit>.5) {//hit wall take away life
@@ -122,21 +133,21 @@ class Player {
     }
   }
 
-
+  /*
+*destroy Bodies is called when resetingt he player and ALL bodies need to be destroyed so that they are not there and invisiable in the next play
+   *
+   */
   void destroyBodies() {
     for (Box b : boxes) b.destroyBody();
     for (Circle c : circles) c.destroyBody();
     box2d.destroyBody(basket);
   }
 
-  void reset() {
-    lives=3;
-    //platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
-    basket.setLinearVelocity(new Vec2(0, 0));
-    basket.setTransform(box2d.coordPixelsToWorld(startingPosition), float(0));
-    dead=false;
-  }
 
+  /*
+*Apply Lift adds an upward thrust to the balloons and lifts the basket
+   *The lift amount is blanced relative to the balloons/lives remaining to make the game play smoother
+   */
   void ApplyLift() {
 
     for (Circle c : circles) {
@@ -153,20 +164,28 @@ class Player {
       }
     }
   }
-  void ApplyInput() {
-    if (in.Down) Thrust(); 
-    Vec2 vel = basket.getLinearVelocity();
-    if (in.Left) basket.setLinearVelocity(new Vec2( vel.x-1, vel.y));
-    if (in.Right) basket.setLinearVelocity(new Vec2( vel.x+1, vel.y));
 
-    //println(body.getAngularVelocity());
+  /*
+   *Apply Input takes the Input class variables and applies them to the player 
+   *
+   */
+  void ApplyInput() {
+    if (in.Down) Thrust(); //Push down on the basket
+    Vec2 vel = basket.getLinearVelocity();
+    if (in.Left) basket.setLinearVelocity(new Vec2( vel.x-1, vel.y));//Push left
+    if (in.Right) basket.setLinearVelocity(new Vec2( vel.x+1, vel.y));//Push Right
+
     if (basket.getAngularVelocity()!=0) {
-      basket.setAngularVelocity(basket.getAngularVelocity()*.64);
+      basket.setAngularVelocity(basket.getAngularVelocity()*.64);//Re aligns players rotation
     }
-    if (in.Space)  Push();
+    if (in.Space)  Push();//Special function to be changed that helps the player
   }
 
-
+  /*
+*Push pushes away objects nearby the player
+   *This was an early attempt of a pickup or player aid and will most likely be changed later
+   *
+   */
   void Push() {
     //println("push");
     for (Building building : buildings) {
@@ -207,6 +226,11 @@ class Player {
     basket.applyForce(force, pos);
   }//end apply force
 
+
+  /*
+*When given input to push down, Thrust is called
+   *A downward force is applied to the basket to pull on everything mutualy
+   */
   void Thrust() {
 
     Vec2 pos = basket.getWorldCenter();
@@ -226,23 +250,34 @@ class Player {
 
 
 
-
+/*
+*LoseBalloon 1 is called when the first balloon hits the ceiling and pop
+*It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
+*/
   void loseBalloon1() {
     println("kill1");
     circlesToKill.add(ball1);
-    for (Box b : ball1chain) boxesToKill.add(b);
+   // for (Box b : ball1chain) boxesToKill.add(b);
     balloonCount--;
   }
+  /*
+*LoseBalloon 2 is called when the first balloon hits the ceiling and pop
+*It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
+*/
   void loseBalloon2() {
     println("kill2");
     circlesToKill.add(ball2);
-    for (Box b : ball2chain) boxesToKill.add(b);
+   // for (Box b : ball2chain) boxesToKill.add(b);
     balloonCount--;
   }
+  /*
+*LoseBalloon 3 is called when the first balloon hits the ceiling and pop
+*It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
+*/
   void loseBalloon3() {
     println("kill3");
     circlesToKill.add(ball3);
-    for (Box b : ball3chain) boxesToKill.add(b);
+    //for (Box b : ball3chain) boxesToKill.add(b);
     balloonCount--;
   }
 
@@ -250,9 +285,15 @@ class Player {
 
 
   ////////////////////////All body making stuff
+  /*
+  *Make Player Body is called when player is initiated and it runs all the functions needed to build the player
+  *First BAlloons are made and added to thecircles array, next are thier chains, then the center link, and last the baskets with
+  *its chains that link it to the center link
+  */
   void MakePlayersBody() {
     boxes= new ArrayList<Box>();
     circles = new ArrayList<Circle>();
+    
     ball1 = new Circle( new Vec2(spv.x, spv.y-100), 20, "b1");
     circles.add(ball1);
     ball2 = new Circle( new Vec2(spv.x+30, spv.y-100), 20, "b2");
@@ -261,13 +302,19 @@ class Player {
     circles.add(ball3);
 
 
-    FirstBall();
-    SecondBall();
-    ThirdBall();
+    FirstBallChain();
+    SecondBallChain();
+    ThirdBallChain();
     CenterLink();
     Basket();
   }
-  void FirstBall() {
+  
+  
+  /*
+  *First ball chain creates the chain links for first balloon that will later be linked to the center link once it is created
+  *
+  */
+  void FirstBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
       Link = new Box(new Vec2(spv.x, spv.y-100+i*15), new Vec2(2, 10), false, .1);
@@ -288,7 +335,12 @@ class Player {
       if (i==3)    ballStringEnd1 = Link.body;
     }
   }//Close FisrtBall
-  void SecondBall() {
+  
+  /*
+  *Second ball chain creates the chain links for second balloon that will later be linked to the center link once it is created
+  *
+  */
+  void SecondBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
       Link = new Box(new Vec2(spv.x+30, spv.y-100+i*15), new Vec2(2, 10), false, .1);
@@ -309,7 +361,11 @@ class Player {
       if (i==3)    ballStringEnd2 = Link.body;
     }
   }
-  void ThirdBall() {
+  /*
+  *Third ball chain creates the chain links for third balloon that will later be linked to the center link once it is created
+  *
+  */
+  void ThirdBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
       Link = new Box(new Vec2(spv.x-30, spv.y-100+i*15), new Vec2(2, 10), false, .1);
@@ -330,6 +386,11 @@ class Player {
       if (i==3)    ballStringEnd3 = Link.body;
     }
   }
+  /*
+  *Center Link creates a sphere for a center link that will be a connector and cneter force piece between the balloons and the basket
+  *It allows for mutual balance between the balloons regardless of how many are left and the players basket rectangle
+  *The center link connets itself to the ends of the balloon strings
+  */
   void CenterLink() {
     //Create Center Link box
     Circle centerl =new Circle(new Vec2(spv.x, spv.y-50), 7, "Link");
@@ -367,6 +428,7 @@ class Player {
   /*
 *This Function creates the Box2d Basket for the player
    *As well as the two chains that connect it to the center link piece
+   *then it connects those ends to the center peice
    */
   void Basket() {
     //Create Basket

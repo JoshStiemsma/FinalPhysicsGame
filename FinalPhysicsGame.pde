@@ -133,7 +133,10 @@ void draw() {
   drawHud();
   if (resetGame) ResetGame();
 }
-
+/*
+*This is the main reset game function that calls individual resets as well as reinitializes thing for the reset
+*Things to be reset are   Arrays   Landscape     Player   and alll previouse box2d bodies must be deleted
+*/
 void ResetGame() {
   resetArrays();
   ResetLandscape();
@@ -142,12 +145,15 @@ void ResetGame() {
 
   player = new Player();
   lives=3;
-  //platforms.add(new Platform(player.startingPosition.x-30, player.startingPosition.y));
   viewOffset=0;
   resetGame=false;
   timeSinceLastStart=millis()/1000;
 }
-
+/*
+*This function resets all of the arrays that hold objects within the game.
+*It also resets the  Kill and Birth lists so that nothing that was previously in those lists gets spawned
+*
+*/
 void resetArrays() {
 
   for (Building b : buildings) buildingsToKill.add(b);
@@ -163,7 +169,12 @@ void resetArrays() {
   ropesToCreate= new ArrayList<Rope>();
   pickupsToCreate = new ArrayList<Pickup>();
 }
-
+/*
+*Reset Landscape resets a few variables like the screen and landscape generators xoffset as well was the flatland boolean and flatlandcounter
+*the inlcine is reset and the the new landscape chain array is created plus updated because within update
+*all previouse landscape chain bodies are properly removed and then the new ones are added
+*
+*/
 void ResetLandscape() {
   flatLand=false;
   xoff=0.0;
@@ -175,7 +186,12 @@ void ResetLandscape() {
 
 
 
-
+/*
+*Update Displays is the main function for updateing the display of everything
+*Starting with landscape and its chain array, then players box's and circle arrays are displayed
+*then each building displays its boxes, same whitheach platform displays itself
+*Then each rope and then each pickup
+*/
 void UpdateDisplays() {
   landscape.display();
   player.display();
@@ -185,6 +201,13 @@ void UpdateDisplays() {
   for (Rope r : ropes)  r.display();
   for (Pickup p : pickups)p.display();
 }
+
+
+
+/*
+*Update boundaries checks all obsticals in the game to see if they have moved out of screen,
+*If so they are added to their designated toKill list so that at the start of the next frame they can be deleted at the right time
+*/
 void UpdateBoundaries() {
 
   //Destroy OBsticls if past window frame
@@ -200,6 +223,8 @@ void UpdateBoundaries() {
 void drawHud() {
   if (!player.dead) score = int(millis()/1000-timeSinceLastStart); 
   if (score>highScore) highScore=score;
+  
+  //Draw Basket Lives in bottom right
   for (int i = lives; i>0; i--) {
     pushStyle();
     fill(255, 0, 0);
@@ -212,17 +237,10 @@ void drawHud() {
   text("Score:       "+ score, 50, 50);
   text("Highscore:  "+ highScore, 50, 100);
   if (player.dead)  text("Press enter to restart", width/2-100, height/2);
-
-
   popStyle();
 }
 
 
-
-
-void playerDied() {
-  player.dead=true;
-}
 
 
 
@@ -230,8 +248,11 @@ void playerDied() {
 
 
 /*
-*These chain functions need to be in the main tab
- *
+*Keep in main tab, because landscape is deleted in here so it cant be kept there.
+ *Update Chain Array adds a new point to the lo and top land point arrays
+ *then it adds it to the landscape by deleteing the previouse landscape and its body,
+ *adding the new point to the START of the srray and then readding their points after that.
+ *Then create the new landscape with these points
  */
 void UpdateChainArray() {
   //If currenlty in flat land mode then make then y same as previouse y aka end of points array
@@ -261,7 +282,8 @@ void UpdateChainArray() {
 
 /*
 *This function is called when adding new terrain to see if a object sshould be added
- *
+ *IF under 25 then start flat land section by flipping the boolean
+ *if above 75 then add a new rope
  */
 void RollForObsticle() {
   int rand = int(random(0, 100));
