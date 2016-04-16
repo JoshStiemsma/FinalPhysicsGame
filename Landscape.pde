@@ -36,7 +36,7 @@ class Landscape {
     BodyDef lowbd = new BodyDef();
     lowbd.position.set(0.0f, 0.0f);
     lowBody = box2d.createBody(lowbd);
-    
+
     //Define a fixture 
     FixtureDef topfd = new FixtureDef();
     topfd.shape = topChain;
@@ -53,9 +53,9 @@ class Landscape {
 
     lowBody.createFixture(lowfd);
     topBody.createFixture(topfd);
-    
-    lowBody.setUserData(new Object[]{"ground","alive"});
-    topBody.setUserData(new Object[]{"ground","alive"});
+
+    lowBody.setUserData(new Object[]{"ground", "alive"});
+    topBody.setUserData(new Object[]{"ground", "alive"});
   }
 
 
@@ -66,35 +66,49 @@ class Landscape {
   }
 
 
-/*
+  /*
   *This is the desiplay function and draws a shape for each the lowLAndPoints and the highLand Points 
-  *
-  */
+   *
+   */
   void display() {
-
+    pushStyle();
     strokeWeight(2);
     stroke(0);
-    noFill();
+    fill(100, 100, 100);
     beginShape();
     for (Vec2 v : lowLandPoints) {
       vertex(v.x, v.y);
     }
+    
+    vertex(-width+viewOffset,height);
+    vertex(width+viewOffset,height+20-incline);
+//line(0,0,width,height);
+    //close shape so fill works
+    popStyle();
+    pushStyle();
+fill(100,100,100);
     endShape();
     beginShape();
     for (Vec2 v : topLandPoints) {
       vertex(v.x, v.y);
     }
+        vertex(-width,height-incline);
+    vertex(-width,-height-incline);
+    vertex(width*4,-height-incline);
+
+    
+    
     endShape();
+    popStyle();
   }
 
-
-/*
+  /*
   *Update Terrain Every n Frames
-  Param @ float n
-  *Responsible for selecting what kind of landscape might come next bye rolling for obsticle and if we are in flat land it
-  *handles that as well and places a building in the center
-  *and calls updatechain array whcih then takes care of this information via arrays and creating landscape
-  */
+   Param @ float n
+   *Responsible for selecting what kind of landscape might come next bye rolling for obsticle and if we are in flat land it
+   *handles that as well and places a building in the center
+   *and calls updatechain array whcih then takes care of this information via arrays and creating landscape
+   */
   void   UpdateTerrainEveryNFrame(float n) {
 
     if (framesSinceLastUpdate>=n) {//UpdateTerrain
@@ -104,7 +118,7 @@ class Landscape {
         RollForObsticle();//keep going but roll for chance of falt
       }  //end if flat land is ture
 
-      if (flatCounter>4&&flatCounter<6) buildingsToCreate.add(new Building(lowLandPoints.get(0),false ));//if in middle of flat land, place building
+      if (flatCounter>4&&flatCounter<6) buildingsToCreate.add(new Building(lowLandPoints.get(0), false ));//if in middle of flat land, place building
       if (flatCounter>10) {   //if added 10 points of flattness stop and reset the flat counter
         flatLand=false;
         flatCounter=0;

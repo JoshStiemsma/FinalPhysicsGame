@@ -32,14 +32,14 @@ class Building {
 
   void display() {
     for (Box b : boxes) {
-      if (b.parent!=null&&b.parent.getClass()==Building.class) { //Check for parent to see if this is a building piee or rouge block
+      if (b.parent!=null&&b.parent.getClass()==Building.class) { //Check for parent to see if this is a building piece or rouge block
         Object[] o1 = (Object[])b.body.getUserData();
         if (o1[1]=="dead") {
           boxesToKill.add(b);
-        }
-      }
+        }//end if block dead
+      }//end for each bloack within a parent
       b.display(175);
-    }
+    }//end for each blcok
   }
 
   void removeFromArray(Box b) {
@@ -67,11 +67,11 @@ class Building {
 
     int rand = int(random(1, 6));
     for (int i =0; i <rand; i++) {
-      Vec2 newPos = new Vec2(pos.x-35, pos.y-10);
+      Vec2 newPos = new Vec2(pos.x-35, pos.y-40);
       if (i==0) {
-        newPos = new Vec2(pos.x-35, pos.y-10);
+        newPos = new Vec2(pos.x-35, pos.y-40);
       } else {
-        newPos = new Vec2(pos.x-35, pos.y-(47*(i+1)));
+        newPos = new Vec2(pos.x-35, pos.y-(40*(i+1)));
       }
 
       Box b = new Box(newPos, new Vec2( 25, 40 ), false, .1 );

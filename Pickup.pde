@@ -14,7 +14,23 @@ class Pickup {
     if (create) {
       MakeShape();
       body.setUserData(new Object[]{type, "alive"});
+      switch(type){
+        case "token":
+        cl= color(255,255,0);
+        break;
+        case "health":
+        cl = color(255,0,0);
+        break;
+        case "invincible":
+        cl = color(0,0,255);
+        break;
+        
+      }
     }
+    
+    
+    
+    
   }
 
 
@@ -22,7 +38,6 @@ class Pickup {
 
     Object[] o1 = (Object[]) body.getUserData();
     if (o1[1]=="dead") {
-      println("kill pickup");
       pickupsToKill.add(this);
     }
 
@@ -35,7 +50,7 @@ class Pickup {
     rotate(-a);              // translate and rotate the rectangle
     fill(cl);
     stroke(0);
-    ellipse(0,0, 10, 10);
+    ellipse(0,0, r, r);
     popMatrix();
   }
 
@@ -62,7 +77,7 @@ class Pickup {
     // Define a box
     CircleShape cs = new CircleShape();
     //2d width is from center to edge // Box2D considers the width and height of a
-    cs.m_radius = box2d.scalarPixelsToWorld(float(10));                    // rectangle to be the distance from the
+    cs.m_radius = box2d.scalarPixelsToWorld(float(9));                    // rectangle to be the distance from the
     // center to the edge (so half of what we
     // normally think of as width or height.) 
     // Define a fixture

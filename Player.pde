@@ -7,6 +7,10 @@ class Player {
   int balloonCount = 3;
   Vec2 position;
 
+  boolean invincible =false;
+  float invincibleCounter = 20;
+
+
   //These are used for storing relative data when making the body and linking joints
   Circle ball1;
   Circle ball2;
@@ -54,7 +58,13 @@ class Player {
       ApplyLift();
     }
 
-
+    if (invincible) {
+      invincibleCounter-=.1;
+      if (invincibleCounter<=0) { 
+        invincible=false;
+        invincibleCounter=20;
+      }
+    }
 
 
     position = box2d.getBodyPixelCoord(basket);
@@ -67,9 +77,16 @@ class Player {
     pushStyle();
     for (Box b : boxes) b.display(125);
     for (int i=0; i<circles.size(); i++) {
-      if (i<3)  circles.get(i).display(color(255, 0, 0));//First three circles are always gona be the baloons so olor them red atm
+      if (i==0)  circles.get(i).display(color(255, 0, 0));//First three circles are always gona be the baloons so olor them red atm
+      else if (i==1)  circles.get(i).display(color(0, 255, 0));//First three circles are always gona be the baloons so olor them red atm
+      else if (i==2)  circles.get(i).display(color(0, 0, 255));//First three circles are always gona be the baloons so olor them red atm
       else circles.get(i).display(125);
     }
+    popStyle();
+    pushStyle();
+
+    if (invincible) fill(0, 0, 200);
+    else fill(0, 255, 0);
 
     rectMode(CENTER);
     pushMatrix();
@@ -250,30 +267,30 @@ class Player {
 
 
 
-/*
+  /*
 *LoseBalloon 1 is called when the first balloon hits the ceiling and pop
-*It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
-*/
+   *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
+   */
   void loseBalloon1() {
     println("kill1");
     circlesToKill.add(ball1);
-   // for (Box b : ball1chain) boxesToKill.add(b);
+    // for (Box b : ball1chain) boxesToKill.add(b);
     balloonCount--;
   }
   /*
 *LoseBalloon 2 is called when the first balloon hits the ceiling and pop
-*It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
-*/
+   *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
+   */
   void loseBalloon2() {
     println("kill2");
     circlesToKill.add(ball2);
-   // for (Box b : ball2chain) boxesToKill.add(b);
+    // for (Box b : ball2chain) boxesToKill.add(b);
     balloonCount--;
   }
   /*
 *LoseBalloon 3 is called when the first balloon hits the ceiling and pop
-*It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
-*/
+   *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
+   */
   void loseBalloon3() {
     println("kill3");
     circlesToKill.add(ball3);
@@ -287,13 +304,13 @@ class Player {
   ////////////////////////All body making stuff
   /*
   *Make Player Body is called when player is initiated and it runs all the functions needed to build the player
-  *First BAlloons are made and added to thecircles array, next are thier chains, then the center link, and last the baskets with
-  *its chains that link it to the center link
-  */
+   *First BAlloons are made and added to thecircles array, next are thier chains, then the center link, and last the baskets with
+   *its chains that link it to the center link
+   */
   void MakePlayersBody() {
     boxes= new ArrayList<Box>();
     circles = new ArrayList<Circle>();
-    
+
     ball1 = new Circle( new Vec2(spv.x, spv.y-100), 20, "b1");
     circles.add(ball1);
     ball2 = new Circle( new Vec2(spv.x+30, spv.y-100), 20, "b2");
@@ -308,12 +325,12 @@ class Player {
     CenterLink();
     Basket();
   }
-  
-  
+
+
   /*
   *First ball chain creates the chain links for first balloon that will later be linked to the center link once it is created
-  *
-  */
+   *
+   */
   void FirstBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
@@ -335,11 +352,11 @@ class Player {
       if (i==3)    ballStringEnd1 = Link.body;
     }
   }//Close FisrtBall
-  
+
   /*
   *Second ball chain creates the chain links for second balloon that will later be linked to the center link once it is created
-  *
-  */
+   *
+   */
   void SecondBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
@@ -363,8 +380,8 @@ class Player {
   }
   /*
   *Third ball chain creates the chain links for third balloon that will later be linked to the center link once it is created
-  *
-  */
+   *
+   */
   void ThirdBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
@@ -388,9 +405,9 @@ class Player {
   }
   /*
   *Center Link creates a sphere for a center link that will be a connector and cneter force piece between the balloons and the basket
-  *It allows for mutual balance between the balloons regardless of how many are left and the players basket rectangle
-  *The center link connets itself to the ends of the balloon strings
-  */
+   *It allows for mutual balance between the balloons regardless of how many are left and the players basket rectangle
+   *The center link connets itself to the ends of the balloon strings
+   */
   void CenterLink() {
     //Create Center Link box
     Circle centerl =new Circle(new Vec2(spv.x, spv.y-50), 7, "Link");

@@ -28,26 +28,26 @@ class Rope {
     for (int i=0; i < numPoints+1; i++) {
       // Make a new particle
       Box b = null;
-      
+
       // First and last particles are made with density of zero
-      if (i == 0){
+      if (i == 0) {
         b = new Box(new Vec2(position.x, position.y-10), new Vec2(5, 5), true, .10);
-    }else b = new Box(new Vec2(position.x, position.y+(20*i)), new Vec2(5, 20), false, .10);
+      } else b = new Box(new Vec2(position.x, position.y+(20*i)), new Vec2(5, 20), false, .10);
       boxes.add(b);
 
       // Connect the particles with a distance joint
       if (i > 0) {
-        
+
         RevoluteJointDef rjd = new RevoluteJointDef();
-    rjd.bodyA= previouse.body;
-    rjd.bodyB = b.body;
-    rjd.collideConnected=false;
-    if(i==1) rjd.localAnchorA.set(0,-2);
-    else rjd.localAnchorA.set(.5, 1.2);
-    rjd.localAnchorB.set(.5, -1.2);
-    RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
-        
-        
+        rjd.bodyA= previouse.body;
+        rjd.bodyB = b.body;
+        rjd.collideConnected=false;
+        if (i==1) rjd.localAnchorA.set(0, -2);
+        else rjd.localAnchorA.set(.5, 1.2);
+        rjd.localAnchorB.set(.5, -1.2);
+        RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
+
+
         /////////////////////////////////////////
         //DistanceJointDef djd = new DistanceJointDef();
         //Box previous = boxes.get(i-1);
@@ -64,8 +64,7 @@ class Rope {
         //// We might need to someday, but for now it's ok
         //DistanceJoint dj = (DistanceJoint) box2d.world.createJoint(djd);
       }
-              previouse = b;
-
+      previouse = b;
     }
   }
 

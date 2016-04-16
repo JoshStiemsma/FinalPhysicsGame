@@ -102,15 +102,26 @@ class Box {
 
     for (float i=0; i<=w/30; i++) {
       for (float j=0; j<=h/30; j++) {
-        Box box = new Box( newPos, size, false, .1);
-        box.body.setLinearVelocity(vel.add(new Vec2 (random(-20, 20), random(-20, 20))));
-        //box.body.setLinearVelocity(vel);
-        box.body.setAngularVelocity(random(-10, 10));
-        parent.boxes.add(box);
+        int rand = int(random(0, 10));
+        if (rand>6&&rand<9) {
+          Pickup p = new Pickup("token", newPos, false);
+          pickupsToCreate.add(p);
+        } else if (rand>=9) {
+          
+          Pickup p = new Pickup("invincible", newPos, false);
+          pickupsToCreate.add(p);
+          
+        } else { //end if rolled a token pickup
 
+
+          Box box = new Box( newPos, size, false, .1);
+          box.body.setLinearVelocity(vel.add(new Vec2 (random(-20, 20), random(-20, 20))));
+          //box.body.setLinearVelocity(vel);
+          box.body.setAngularVelocity(random(-10, 10));
+          parent.boxes.add(box);
+        }
         newPos.x-=w/9;
         if (j==h/10)newPos.y+=h/9;
-        
       }
     }
 

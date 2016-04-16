@@ -15,6 +15,7 @@ import org.jbox2d.collision.Manifold;
 
 PShader shader;
 PImage cover;
+PGraphics canvas;
 
 Box2DProcessing box2d;
 
@@ -67,7 +68,8 @@ float framesSinceLastUpdate;
 
 boolean resetGame= false;
 
-int score =0;
+public int score =0;
+int pointsPickedUp =0;
 int highScore=0;
 float timeSinceLastStart=2;
 
@@ -80,6 +82,7 @@ void setup() {
   size(900, 600, P2D); 
   cover = loadImage("Empty.png");
   shader = loadShader("frag.glsl");
+  canvas = createGraphics(width, height);
 
   //initialize box2d and create the world
   box2d = new Box2DProcessing(this);
@@ -102,11 +105,15 @@ void setup() {
 
 
 void draw() {
-  background(255);
-  if (player.setPrevVel) {
-    player.basket.setLinearVelocity(player.prevVel);
-    player.setPrevVel=false;
-  }
+  float r;
+  
+if(incline>=10000) r = map(incline,10000,20000,10,255);
+else  r = 10;
+
+float g = 10;
+float b = map(incline,0,10000,20,255);
+  background(r,g,b);
+
   pushMatrix();
   translate(-viewOffset, viewOffset);
   HandleDeaths();
@@ -115,6 +122,18 @@ void draw() {
   UpdateBoundaries();
   popMatrix();
 
+  drawHud();
+
+
+  Update();
+}
+
+
+void Update() {
+  if (player.setPrevVel) {
+    player.basket.setLinearVelocity(player.prevVel);
+    player.setPrevVel=false;
+  }
   box2d.step(); //always step the physics world
 
 
@@ -130,13 +149,12 @@ void draw() {
     if (in.Enter)resetGame=true;
   }
 
-  drawHud();
   if (resetGame) ResetGame();
 }
 /*
 *This is the main reset game function that calls individual resets as well as reinitializes thing for the reset
-*Things to be reset are   Arrays   Landscape     Player   and alll previouse box2d bodies must be deleted
-*/
+ *Things to be reset are   Arrays   Landscape     Player   and alll previouse box2d bodies must be deleted
+ */
 void ResetGame() {
   resetArrays();
   ResetLandscape();
@@ -145,15 +163,16 @@ void ResetGame() {
 
   player = new Player();
   lives=3;
+  pointsPickedUp=0;
   viewOffset=0;
   resetGame=false;
   timeSinceLastStart=millis()/1000;
 }
 /*
 *This function resets all of the arrays that hold objects within the game.
-*It also resets the  Kill and Birth lists so that nothing that was previously in those lists gets spawned
-*
-*/
+ *It also resets the  Kill and Birth lists so that nothing that was previously in those lists gets spawned
+ *
+ */
 void resetArrays() {
 
   for (Building b : buildings) buildingsToKill.add(b);
@@ -171,10 +190,10 @@ void resetArrays() {
 }
 /*
 *Reset Landscape resets a few variables like the screen and landscape generators xoffset as well was the flatland boolean and flatlandcounter
-*the inlcine is reset and the the new landscape chain array is created plus updated because within update
-*all previouse landscape chain bodies are properly removed and then the new ones are added
-*
-*/
+ *the inlcine is reset and the the new landscape chain array is created plus updated because within update
+ *all previouse landscape chain bodies are properly removed and then the new ones are added
+ *
+ */
 void ResetLandscape() {
   flatLand=false;
   xoff=0.0;
@@ -188,10 +207,10 @@ void ResetLandscape() {
 
 /*
 *Update Displays is the main function for updateing the display of everything
-*Starting with landscape and its chain array, then players box's and circle arrays are displayed
-*then each building displays its boxes, same whitheach platform displays itself
-*Then each rope and then each pickup
-*/
+ *Starting with landscape and its chain array, then players box's and circle arrays are displayed
+ *then each building displays its boxes, same whitheach platform displays itself
+ *Then each rope and then each pickup
+ */
 void UpdateDisplays() {
   landscape.display();
   player.display();
@@ -206,8 +225,8 @@ void UpdateDisplays() {
 
 /*
 *Update boundaries checks all obsticals in the game to see if they have moved out of screen,
-*If so they are added to their designated toKill list so that at the start of the next frame they can be deleted at the right time
-*/
+ *If so they are added to their designated toKill list so that at the start of the next frame they can be deleted at the right time
+ */
 void UpdateBoundaries() {
 
   //Destroy OBsticls if past window frame
@@ -221,9 +240,17 @@ void UpdateBoundaries() {
  *
  */
 void drawHud() {
-  if (!player.dead) score = int(millis()/1000-timeSinceLastStart); 
+  if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
   if (score>highScore) highScore=score;
-  
+
+
+
+  pushStyle();
+  fill(0, 0, 255);
+  if (player.invincible) rect(50, 110, 50, map(player.invincibleCounter, 10, 0, 100, 0));
+  popStyle();
+
+
   //Draw Basket Lives in bottom right
   for (int i = lives; i>0; i--) {
     pushStyle();
