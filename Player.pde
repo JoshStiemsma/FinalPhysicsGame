@@ -47,16 +47,13 @@ class Player {
   boolean setPrevVel = false;
   float timeSinceLastWallHit = 0;
 
+  void update() {
 
-  /*
-*Display presents all the players bodies to the screen in thier proper position
-   *IT uses the boxes and circles arrays of the players as well as the players basket box
-   */
-  void display() {
     if (!dead) {
       ApplyInput();
       ApplyLift();
     }
+
 
     if (invincible) {
       invincibleCounter-=.1;
@@ -74,6 +71,21 @@ class Player {
     PolygonShape ps = (PolygonShape) f.getShape();
 
     CheckBoundaries();
+  }
+  /*
+*Display presents all the players bodies to the screen in thier proper position
+   *IT uses the boxes and circles arrays of the players as well as the players basket box
+   */
+  void display() {
+
+    position = box2d.getBodyPixelCoord(basket);
+    float a = basket.getAngle();
+
+
+    Fixture f = basket.getFixtureList();
+    PolygonShape ps = (PolygonShape) f.getShape();
+
+
     pushStyle();
     for (Box b : boxes) b.display(125);
     for (int i=0; i<circles.size(); i++) {
@@ -83,6 +95,9 @@ class Player {
       else circles.get(i).display(125);
     }
     popStyle();
+
+
+
     pushStyle();
 
     if (invincible) fill(0, 0, 200);

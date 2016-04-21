@@ -79,25 +79,25 @@ class Landscape {
     for (Vec2 v : lowLandPoints) {
       vertex(v.x, v.y);
     }
-    
-    vertex(-width+viewOffset,height);
-    vertex(width+viewOffset,height+20-incline);
-//line(0,0,width,height);
+
+    vertex(-width+viewOffset, height);
+    vertex(width+viewOffset, height+20-incline);
+    //line(0,0,width,height);
     //close shape so fill works
     popStyle();
     pushStyle();
-fill(100,100,100);
+    fill(100, 100, 100);
     endShape();
     beginShape();
     for (Vec2 v : topLandPoints) {
       vertex(v.x, v.y);
     }
-        vertex(-width,height-incline);
-    vertex(-width,-height-incline);
-    vertex(width*4,-height-incline);
+    vertex(-width, height-incline);
+    vertex(-width, -height-incline);
+    vertex(width*4, -height-incline);
 
-    
-    
+
+
     endShape();
     popStyle();
   }

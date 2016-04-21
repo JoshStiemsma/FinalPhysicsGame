@@ -14,32 +14,29 @@ class Pickup {
     if (create) {
       MakeShape();
       body.setUserData(new Object[]{type, "alive"});
-      switch(type){
-        case "token":
-        cl= color(255,255,0);
+      switch(type) {
+      case "token":
+        cl= color(255, 255, 0);
         break;
-        case "health":
-        cl = color(255,0,0);
+      case "health":
+        cl = color(255, 0, 0);
         break;
-        case "invincible":
-        cl = color(0,0,255);
+      case "invincible":
+        cl = color(0, 0, 255);
         break;
-        
       }
     }
-    
-    
-    
-    
   }
-
-
-  void display() {
-
+  void update() {
     Object[] o1 = (Object[]) body.getUserData();
     if (o1[1]=="dead") {
       pickupsToKill.add(this);
     }
+  }
+
+  void display() {
+
+
 
 
     position = box2d.getBodyPixelCoord(body);
@@ -50,7 +47,7 @@ class Pickup {
     rotate(-a);              // translate and rotate the rectangle
     fill(cl);
     stroke(0);
-    ellipse(0,0, r, r);
+    ellipse(0, 0, r, r);
     popMatrix();
   }
 

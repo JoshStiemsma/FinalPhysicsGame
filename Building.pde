@@ -30,16 +30,22 @@ class Building {
     //boxes=null;
   }
 
-  void display() {
-    for (Box b : boxes) {
+void update(){
+  for (Box b : boxes) {
       if (b.parent!=null&&b.parent.getClass()==Building.class) { //Check for parent to see if this is a building piece or rouge block
         Object[] o1 = (Object[])b.body.getUserData();
         if (o1[1]=="dead") {
           boxesToKill.add(b);
         }//end if block dead
       }//end for each bloack within a parent
-      b.display(175);
+
     }//end for each blcok
+    
+    
+}
+  void display() {
+    for (Box b : boxes) b.display(175);
+   
   }
 
   void removeFromArray(Box b) {

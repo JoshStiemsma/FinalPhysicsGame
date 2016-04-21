@@ -74,12 +74,18 @@ class Rope {
   void removeFromArray(Box b) {
     boxes.remove(b);
   }
-  // Draw the rope by drawing all the boes on the ropes boxes arraylist
-  void display() {
-    for (int i = 0; i<boxes.size(); i++) {
+  
+  void update(){
+     for (int i = 0; i<boxes.size(); i++) {
       Object[] o1 =  (Object[])boxes.get(i).body.getUserData();
       if (o1[1]=="dead") boxesToKill.add(boxes.get(i));
 
+    }
+    
+  }
+  // Draw the rope by drawing all the boes on the ropes boxes arraylist
+  void display() {
+    for (int i = 0; i<boxes.size(); i++) {
       if (i==0) {
         boxes.get(i).display(color(255, 255, 255));
       } else {

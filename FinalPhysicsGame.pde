@@ -57,7 +57,7 @@ boolean flatLand = false;
 int flatCounter = 0;
 //increasing Value for incline
 float incline = 0;
-
+float adjuster = 2;
 
 //class onbject Input
 Input in = new Input();
@@ -75,7 +75,8 @@ float timeSinceLastStart=2;
 
 int lives = 3;
 
-
+boolean paused = false;
+boolean pauseReleased =true;
 
 
 void setup() {
@@ -99,41 +100,71 @@ void setup() {
 
 
 
-
-
-
-
-
 void draw() {
+  ///background color stuff
   float r;
-  
-if(incline>=10000) r = map(incline,10000,20000,10,255);
-else  r = 10;
+  if (incline>=10000) r = map(incline, 10000, 20000, 10, 255);
+  else  r = 10;
+  float g = 10;
+  float b = map(incline, 0, 10000, 20, 255);
+  background(r, g, b);
 
-float g = 10;
-float b = map(incline,0,10000,20,255);
-  background(r,g,b);
 
-  pushMatrix();
-  translate(-viewOffset, viewOffset);
-  HandleDeaths();
-  HandleBirths();
-  UpdateDisplays();
-  UpdateBoundaries();
-  popMatrix();
+
+  if (!paused) {
+
+    pushMatrix();
+    translate(-viewOffset, viewOffset);
+    HandleDeaths();
+    HandleBirths();
+
+
+    UpdateDisplays();
+
+
+    UpdateBoundaries();
+    popMatrix();
+    Update();
+  } else {
+    pushMatrix();
+    translate(-viewOffset, viewOffset);
+    UpdateDisplays();
+
+    popMatrix();
+  }
+
 
   drawHud();
 
-
-  Update();
+  if (in.Pause&&pauseReleased) {
+    paused=!paused;
+    pauseReleased=false;
+  }
+  if (!in.Pause&&pauseReleased==false) {
+    pauseReleased=true;
+  }
 }
 
 
+
+
 void Update() {
+
+  if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
+  if (score>highScore) highScore=score;
+
   if (player.setPrevVel) {
     player.basket.setLinearVelocity(player.prevVel);
     player.setPrevVel=false;
   }
+
+
+  player.update();
+  for (Building b : buildings)   b.update();
+  for (Rope r : ropes)  r.update();
+  for (Pickup p : pickups)p.update();
+
+
   box2d.step(); //always step the physics world
 
 
@@ -151,6 +182,9 @@ void Update() {
 
   if (resetGame) ResetGame();
 }
+
+
+
 /*
 *This is the main reset game function that calls individual resets as well as reinitializes thing for the reset
  *Things to be reset are   Arrays   Landscape     Player   and alll previouse box2d bodies must be deleted
@@ -240,11 +274,11 @@ void UpdateBoundaries() {
  *
  */
 void drawHud() {
-  if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
-  if (score>highScore) highScore=score;
-
-
-
+  if (paused) {
+    pushStyle();
+    //text("paused", 300, 300);
+    popStyle();
+  }
   pushStyle();
   fill(0, 0, 255);
   if (player.invincible) rect(50, 110, 50, map(player.invincibleCounter, 10, 0, 100, 0));
@@ -287,11 +321,15 @@ void UpdateChainArray() {
   if (flatLand)y= lowLandPoints.get(0).y;
   else  y = (lowLandPoints.get(0).y-incline+height*.3+map(random(10), 0, 10, -30, 30))/2;
 
-
+  println(adjuster);
+  if (adjuster>.9) adjuster  -= map(millis()/100, 0, 800000, 0, 1);
+  else adjuster+=random(0.5);
   ArrayList<Vec2> newLowLand=new ArrayList<Vec2>();
   ArrayList<Vec2> newTopLand=new ArrayList<Vec2>();
   newLowLand.add( new Vec2(lowLandPoints.get(0).x+10, y)); 
-  newTopLand.add( new Vec2(topLandPoints.get(0).x+10, y-height+random(-10-(flatCounter*10), 10-(flatCounter*10)))); 
+  newTopLand.add( new Vec2(topLandPoints.get(0).x+10, y-height*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); 
+
+
 
   for (int i = 0; i <110; i++) {
     newLowLand.add(lowLandPoints.get(i));
@@ -333,7 +371,7 @@ void CreateChainArray() {
   for (float x=width+100; x>-100; x -= 10) {
     float y = incline+height*.3;
     lowLandPoints.add( new Vec2(x, y));    
-    y-=height;
+    y-=height*2;
     topLandPoints.add(new Vec2(x, y));
 
     xoff+=0.1;

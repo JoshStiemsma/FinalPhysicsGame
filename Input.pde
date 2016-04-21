@@ -6,6 +6,7 @@ public class Input {
   boolean Down = false;
   boolean Enter = false;
   boolean Space = false;
+  boolean Pause = false;
 
   void handleKey(int keyCode, boolean state) {
     switch(keyCode) {
@@ -21,11 +22,14 @@ public class Input {
     case 39:
       Right=state;
       break;
-      case 40:
+    case 40:
       Down=state;
       break;
     case 10:
       Enter=state;
+      break;
+    case 80:
+      Pause=state;
       break;
     }
   }
