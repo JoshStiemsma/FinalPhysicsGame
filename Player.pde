@@ -101,7 +101,7 @@ class Player {
     pushStyle();
 
     if (invincible) fill(0, 0, 200);
-    else fill(0, 255, 0);
+    else fill(255);
 
     rectMode(CENTER);
     pushMatrix();
@@ -151,6 +151,27 @@ class Player {
     popStyle();
   }//end display
 
+/*
+   *Apply Input takes the Input class variables and applies them to the player 
+   *
+   */
+  void ApplyInput() {
+    
+    if (in.Down) Thrust(); //Push down on the basket
+    
+    
+    
+    Vec2 vel = basket.getLinearVelocity();
+    if (in.Left) basket.setLinearVelocity(new Vec2( vel.x-1, vel.y));//Push left
+    if (in.Right) basket.setLinearVelocity(new Vec2( vel.x+1, vel.y));//Push Right
+
+    if (basket.getAngularVelocity()!=0) {
+      basket.setAngularVelocity(basket.getAngularVelocity()*.64);//Re aligns players rotation
+    }
+    if (in.Space)  Push();//Special function to be changed that helps the player
+  }
+
+
   /*
 *touched Ground is called every time the player hits the ground
    *For fairness, time Since Last hit must be over half a second for damage to take effect,
@@ -197,21 +218,7 @@ class Player {
     }
   }
 
-  /*
-   *Apply Input takes the Input class variables and applies them to the player 
-   *
-   */
-  void ApplyInput() {
-    if (in.Down) Thrust(); //Push down on the basket
-    Vec2 vel = basket.getLinearVelocity();
-    if (in.Left) basket.setLinearVelocity(new Vec2( vel.x-1, vel.y));//Push left
-    if (in.Right) basket.setLinearVelocity(new Vec2( vel.x+1, vel.y));//Push Right
-
-    if (basket.getAngularVelocity()!=0) {
-      basket.setAngularVelocity(basket.getAngularVelocity()*.64);//Re aligns players rotation
-    }
-    if (in.Space)  Push();//Special function to be changed that helps the player
-  }
+  
 
   /*
 *Push pushes away objects nearby the player

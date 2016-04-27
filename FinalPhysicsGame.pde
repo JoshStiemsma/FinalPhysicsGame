@@ -150,18 +150,21 @@ void draw() {
 
 void Update() {
 
-  if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
+  //if score is greater than highscore then thats the new highscore
   if (score>highScore) highScore=score;
-
+  //if players bollean setPreviouseVelocity is set to true, then set it and make the boolean false
   if (player.setPrevVel) {
     player.basket.setLinearVelocity(player.prevVel);
     player.setPrevVel=false;
   }
 
-
+  //update the player
   player.update();
+  //update the buildings
   for (Building b : buildings)   b.update();
+  //update the ropes
   for (Rope r : ropes)  r.update();
+  //update the pickups
   for (Pickup p : pickups)p.update();
 
 
@@ -169,18 +172,21 @@ void Update() {
 
 
 
-
+  //if players basket has hit ground enough to make livs hit 0
   if (lives<=0) player.dead=true;
 
 
-  if (!player.dead) {
-    landscape.UpdateTerrainEveryNFrame(9);
+  if (!player.dead) {//if player is alive
+    //score is time since last start + points picked up
+    if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
+    landscape.UpdateTerrainEveryNFrame(9);///every n frames update the terrain: Currenlty 9 frames is equal to movement
+    //add to view offset
     viewOffset+=1;
-  } else {
-    if (in.Enter)resetGame=true;
+  } else {//if player is dead  
+    if (in.Enter)resetGame=true;//wait for player to press enter then reset game
   }
 
-  if (resetGame) ResetGame();
+  if (resetGame) ResetGame();//if resetGame is true then reset the game by calling the function ResetGame
 }
 
 
@@ -190,16 +196,21 @@ void Update() {
  *Things to be reset are   Arrays   Landscape     Player   and alll previouse box2d bodies must be deleted
  */
 void ResetGame() {
-  resetArrays();
-  ResetLandscape();
-
+  resetArrays();//Reset all the arrays adds all objects to their kill lists, then sets all lists and creation lists to null,but not kill list cause they need to run and self destroy after 
+  ResetLandscape();//reset the landscape which destroys the chin arrays bodies as well as its arrays then creates new beginning arrays
+  //destroy the player body
   player.destroyBodies(); 
-
+  //then create new player by setting player to new player
   player = new Player();
+  //reset lives to 3; basket damage
   lives=3;
+  //reset amount of pickups grabbed
   pointsPickedUp=0;
+  //reset view offset
   viewOffset=0;
+  //reset the boolean that triggerd this function
   resetGame=false;
+  //set the time since last restart to now so that the next sessions timers and counters will work from this point intead of start of program
   timeSinceLastStart=millis()/1000;
 }
 /*
@@ -209,18 +220,18 @@ void ResetGame() {
  */
 void resetArrays() {
 
-  for (Building b : buildings) buildingsToKill.add(b);
-  for (Platform p : platforms) platformsToKill.add(p);
-  for (Rope r : ropes) ropesToKill.add(r);
-  for (Pickup p : pickups) pickupsToKill.add(p);
-  buildings=new ArrayList<Building>();
-  platforms = new ArrayList<Platform>();
-  ropes = new ArrayList<Rope>();
-  pickups = new ArrayList<Pickup>();
-  buildingsToCreate= new ArrayList<Building>();
-  platformsToCreate = new ArrayList<Platform>();
-  ropesToCreate= new ArrayList<Rope>();
-  pickupsToCreate = new ArrayList<Pickup>();
+  for (Building b : buildings) buildingsToKill.add(b);//add each building to its kill list
+  for (Platform p : platforms) platformsToKill.add(p);//add each platform to its kill list
+  for (Rope r : ropes) ropesToKill.add(r);//add each rope to its kill list
+  for (Pickup p : pickups) pickupsToKill.add(p);//add each pickup to its kill list
+  buildings=new ArrayList<Building>();//reset building array
+  platforms = new ArrayList<Platform>();//reset platfrom array
+  ropes = new ArrayList<Rope>();//reset rope array
+  pickups = new ArrayList<Pickup>();//reset pickup array
+  buildingsToCreate= new ArrayList<Building>();//reset buildings creation array
+  platformsToCreate = new ArrayList<Platform>();//reset platforms creation array
+  ropesToCreate= new ArrayList<Rope>();//reset ropes creation array
+  pickupsToCreate = new ArrayList<Pickup>();//reset pickups creation array
 }
 /*
 *Reset Landscape resets a few variables like the screen and landscape generators xoffset as well was the flatland boolean and flatlandcounter
@@ -229,12 +240,12 @@ void resetArrays() {
  *
  */
 void ResetLandscape() {
-  flatLand=false;
-  xoff=0.0;
-  flatCounter=0;
-  incline=0;
-  CreateChainArray(); 
-  UpdateChainArray();//in update it kills the body and then makes a landscape intoa  ewn landscpe
+  flatLand=false;//reset the boolean that indicates flatland
+  xoff=0.0;//set the s offset back to 0
+  flatCounter=0;//reset the flatcounter incase player died in the middle of flat creation
+  incline=0;//reset the inlcined amount
+  CreateChainArray(); //create new chain array
+  UpdateChainArray();//in update it kills the body and then makes a landscape into a new landscpe
 }
 
 
@@ -246,8 +257,8 @@ void ResetLandscape() {
  *Then each rope and then each pickup
  */
 void UpdateDisplays() {
-  landscape.display();
-  player.display();
+  landscape.display();//display the landscapes chain
+  player.display();//display the player and all its parts
   // Display all the obsticls
   for (Building b : buildings)   b.display();
   for (Platform p : platforms)  p.display();
@@ -263,7 +274,7 @@ void UpdateDisplays() {
  */
 void UpdateBoundaries() {
 
-  //Destroy OBsticls if past window frame
+  //Destroy Obsticls if past window frameon the left side using view offset
   for (Building b : buildings)  if (b.position.x-viewOffset<0)buildingsToKill.add(b);
   for (Platform p : platforms)  if (p.position.x-viewOffset<0)platformsToKill.add(p);  
   for (Rope r : ropes) if (r.position.x-viewOffset<0)ropesToKill.add(r);
@@ -274,14 +285,16 @@ void UpdateBoundaries() {
  *
  */
 void drawHud() {
-  if (paused) {
+  if (paused) {//If the game is paused then show pused
     pushStyle();
-    //text("paused", 300, 300);
+    text("paused", 300, 300);
     popStyle();
   }
+  
+  //This is the bar for the invincible counter
   pushStyle();
   fill(0, 0, 255);
-  if (player.invincible) rect(50, 110, 50, map(player.invincibleCounter, 10, 0, 100, 0));
+  if (player.invincible) rect(50, 110, 50, map(player.invincibleCounter, 10, 0, 100, 0));//make a rectange langth of invisable counter size
   popStyle();
 
 
@@ -292,12 +305,13 @@ void drawHud() {
     ellipse(width-50-(i*30), height-20, 20, 20);
     popStyle();
   }
+  //Draw Text in upper left of Score information
   pushStyle();
   fill(200);
   textSize(40);
-  text("Score:       "+ score, 50, 50);
-  text("Highscore:  "+ highScore, 50, 100);
-  if (player.dead)  text("Press enter to restart", width/2-100, height/2);
+  text("Score:       "+ score, 50, 50);//Score text
+  text("Highscore:  "+ highScore, 50, 100);//High score text
+  if (player.dead)  text("Press enter to restart", width/2-100, height/2);//If player is dead, tell them to press enter
   popStyle();
 }
 
@@ -309,40 +323,40 @@ void drawHud() {
 
 
 /*
-*Keep in main tab, because landscape is deleted in here so it cant be kept there.
+*Keep in main tab, because landscape is deleted in here so it cant be kept inside landscape.
  *Update Chain Array adds a new point to the lo and top land point arrays
  *then it adds it to the landscape by deleteing the previouse landscape and its body,
  *adding the new point to the START of the srray and then readding their points after that.
  *Then create the new landscape with these points
  */
 void UpdateChainArray() {
-  //If currenlty in flat land mode then make then y same as previouse y aka end of points array
+  
   float y=0;
-  if (flatLand)y= lowLandPoints.get(0).y;
-  else  y = (lowLandPoints.get(0).y-incline+height*.3+map(random(10), 0, 10, -30, 30))/2;
+  if (flatLand)y= lowLandPoints.get(0).y;//If currenlty in flat land mode then make then y same as previouse y which is end of points array
+  else  y = (lowLandPoints.get(0).y-incline+height*.3+map(random(10), 0, 10, -30, 30))/2;//get last point and subtract the current inclined position, then add the amought of screen height then add a random amount
 
-  println(adjuster);
-  if (adjuster>.9) adjuster  -= map(millis()/100, 0, 800000, 0, 1);
-  else adjuster+=random(0.5);
-  ArrayList<Vec2> newLowLand=new ArrayList<Vec2>();
-  ArrayList<Vec2> newTopLand=new ArrayList<Vec2>();
-  newLowLand.add( new Vec2(lowLandPoints.get(0).x+10, y)); 
-  newTopLand.add( new Vec2(topLandPoints.get(0).x+10, y-height*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); 
+    //adjuster is a variable randomly increasing and reset after a certain hight, that is added to the cielings points array to make it different from the ground array
+  if (adjuster>.9) adjuster  -= map(millis()/100, 0, 800000, 0, 1);//if adjuster is over 1, subtract time in millis mapped from 0-8000,000 mapped as 0-1
+  else adjuster+=random(0.5);//subtract random amount under .5
+  ArrayList<Vec2> newLowLand=new ArrayList<Vec2>();//create new lowland Vec2 array that will get this new point but then the rest of the old array points, and then set it to current landscape
+  ArrayList<Vec2> newTopLand=new ArrayList<Vec2>();//same for newTopLand
+  newLowLand.add( new Vec2(lowLandPoints.get(0).x+10, y)); //add the new point to the array at 0 but make it 10 over on the x axis
+  newTopLand.add( new Vec2(topLandPoints.get(0).x+10, y-height*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
+  
 
-
-
+  ///add 110 of the previose vec2 points to the new arrays for top and bottom, the 110 keeps it from being infanite
   for (int i = 0; i <110; i++) {
     newLowLand.add(lowLandPoints.get(i));
     newTopLand.add(topLandPoints.get(i));
   }
 
-  lowLandPoints = newLowLand;
-  topLandPoints = newTopLand;
-  landscape.killBody();
-  landscape = new Landscape(topLandPoints, lowLandPoints);
+  lowLandPoints = newLowLand;//set low land points to the new low land points
+  topLandPoints = newTopLand;// set top land points to the new top land points
+  landscape.killBody();//kill the landscapes body
+  landscape = new Landscape(topLandPoints, lowLandPoints);//create new landscape with the new top and low points
 
-  xoff+=.01+random(-1, 1);
-  incline+=10;
+  xoff+=.01+random(-1, 1);//add a random small amount to the xoff
+  incline+=10;//add ten to the incline
 }
 
 /*
@@ -351,33 +365,36 @@ void UpdateChainArray() {
  *if above 75 then add a new rope
  */
 void RollForObsticle() {
-  int rand = int(random(0, 100));
-  if (rand<25) {
-    flatLand=true;
-  } else if (rand>75) {
-    int n = int(random(2, 12));
-    int l = n*15;
-    ropesToCreate.add(new Rope(l, n, topLandPoints.get(0), false));
-  }
+  int rand = int(random(0, 100));//create a random int between 0 and 100
+  if (rand<25) {//if rand is under 25 than new building spot
+    flatLand=true;//set fltland to true
+  } else if (rand>75) {//if greater than 75 than create new rope
+    int n = int(random(2, 12));//create a int for how many boxes on rope
+    int l = n*15;//creat int for random length of new rope
+    
+   //add this new rope the the ropes creation list with its leangth, amount of boxes, position, 
+   //and boolean of false so that it is not realy created yet beacuse the creation list will make it with true
+ ropesToCreate.add(new Rope(l, n, topLandPoints.get(0), false));  
+}
 }
 /*
 *This function is called durring setup to creat the initial inclined low and high points 
  *used for the terrain
  */
 void CreateChainArray() {
-  lowLandPoints = new ArrayList<Vec2>();
-  topLandPoints = new ArrayList<Vec2>();
+  lowLandPoints = new ArrayList<Vec2>();//initiate low land points array list
+  topLandPoints = new ArrayList<Vec2>();//initiate top land points array list
 
-  for (float x=width+100; x>-100; x -= 10) {
-    float y = incline+height*.3;
-    lowLandPoints.add( new Vec2(x, y));    
-    y-=height*2;
-    topLandPoints.add(new Vec2(x, y));
+  for (float x=width+100; x>-100; x -= 10) {//for every 10 points on the x axis add a point to the array at increasing height
+    float y = incline+height*.3;//each y is set to the increasing incline amount plus the screens height time .3
+    lowLandPoints.add( new Vec2(x, y));    //add the point to the vector
+    y-=height*2;//subtract the height of the view for the new ceilings point
+    topLandPoints.add(new Vec2(x, y));//add the point to the end of the vector
 
-    xoff+=0.1;
-    incline+=10;
+    xoff+=0.1;//add to the xoff
+    incline+=10;//add to the incline
   }
-  incline=0;
+  incline=0;//set inlcine back to 0 after creating new array
 }
 
 
@@ -392,19 +409,20 @@ void CreateChainArray() {
  *function else they will break with the adding and deleteing of spots within a frame.
  */
 void HandleBirths() {
+  //for each platform in the platforms creations array, create the platform at position x and y
   for (Platform p : platformsToCreate) platforms.add(new Platform(p.x, p.y));
-  platformsToCreate= new ArrayList<Platform>();
-
+  platformsToCreate= new ArrayList<Platform>();//once all are created set the creation list to null
+//for each bulding in the buildings creation list, create that building at the position, with the boolean to actualy create the body and add to main array
   for (Building b : buildingsToCreate) buildings.add( new Building(b.position, true));
-  buildingsToCreate = new ArrayList<Building>();
-
+  buildingsToCreate = new ArrayList<Building>();//once all are created set the creations list to null
+//for each rope in the ropes creation list, create that rope with its leangth, amount of points, position, and boolean that states the body be made and siaplyed
   for (Rope r : ropesToCreate) ropes.add(new Rope(r.totalLength, r.numPoints, r.position, true));
-  ropesToCreate = new ArrayList<Rope>();
+  ropesToCreate = new ArrayList<Rope>();//once all are created set the array to null
 
 
-
+//for each pickup in te pickup creations array, create it as its set type, at a position with the boolean stating to actualy create the body and add to main lists
   for (Pickup p : pickupsToCreate) pickups.add(new Pickup(p.type, p.position, true));
-  pickupsToCreate= new ArrayList<Pickup>();
+  pickupsToCreate= new ArrayList<Pickup>();//once all are created then reset the list for next frame
 }
 
 
@@ -417,54 +435,54 @@ void HandleBirths() {
  */
 void HandleDeaths() {
   for (Circle c : player.circlesToKill) {
-    c.destroyBody();
-    player.circles.remove(c);
+    c.destroyBody();//call function within object that destroys its body from box world
+    player.circles.remove(c);//remove object from main list
   }
-  player.circlesToKill = new ArrayList<Circle>();
+  player.circlesToKill = new ArrayList<Circle>();//reset the death list
   for (Box b : player.boxesToKill) {
-    b.destroyBody();
-    player.boxes.remove(b);
+    b.destroyBody();//call function within object that destroys its body from box world
+    player.boxes.remove(b);//remove object from main list
   }
-  player.boxesToKill = new ArrayList<Box>();
+  player.boxesToKill = new ArrayList<Box>();//reset the death list
 
   for (Platform p : platformsToKill) {
-    p.destroy();
-    platforms.remove(p);
+    p.destroy();//call function within object that destroys its body from box world
+    platforms.remove(p);//remove object from main list
   }
-  platformsToKill = new ArrayList<Platform>();
+  platformsToKill = new ArrayList<Platform>();//reset the death list
   for (Building b : buildings) b.HandleDeaths();
   for (Building b : buildingsToKill) {
-    b.destroy();
-    buildings.remove(b);
+    b.destroy();//call function within object that destroys its body from box world
+    buildings.remove(b);//remove object from main list
   }
-  buildingsToKill = new ArrayList<Building>();
+  buildingsToKill = new ArrayList<Building>();//reset the death list
 
 
   for (Rope r : ropes) r.HandleDeaths();
   for (Rope r : ropesToKill) {
-    r.destroy();
-    ropes.remove(r);
+    r.destroy();//call function within object that destroys its body from box world
+    ropes.remove(r);//remove object from main list
   }
-  ropesToKill = new ArrayList<Rope>();
+  ropesToKill = new ArrayList<Rope>();//reset the death list
 
   for (Pickup p : pickupsToKill) {
-    p.destroy();
-    pickups.remove(p);
+    p.destroy();//call function within object that destroys its body from box world
+    pickups.remove(p);//remove object from main list
   }
-  pickupsToKill = new ArrayList<Pickup>();
+  pickupsToKill = new ArrayList<Pickup>();//reset the death list
 }
 /*
 *This function handles the presseing of all keys
  *and passes the keycode and state to the input class's handlekey function 
  */
 void keyPressed() {
-  println(keyCode);
-  in.handleKey(keyCode, true);
+  //println(keyCode);
+  in.handleKey(keyCode, true);//call the handle key function within the input class and pass it the pressed key plus the boolean set to true that it is being pressed
 }
 /*
 *This function handles the releasing of all keys
  *and passes the keycode and state to the input class's handlekey function 
  */
 void keyReleased() {
-  in.handleKey(keyCode, false);
+  in.handleKey(keyCode, false);//call the handle key function within the input class and pass it the released key plus the boolean set to false that it is being pressed
 }
