@@ -1,10 +1,11 @@
 class Building {
 
+  PImage brick;
   Building(Vec2 pos, boolean toCreate) {
     this.position=pos;
     if (toCreate) {
-      int rand = int(random(0, 2)); 
       SetPlat();
+      int rand = int(random(0, 2)); 
       switch(rand) {
       case 0:
         MakeStack(pos);
@@ -13,6 +14,11 @@ class Building {
         MakeBuilding(pos);
         break;
       }
+      
+      int rand2 = int(random(3));
+      if(rand2==0) brick = brick01;
+      else if(rand2==1)brick = brick02;
+      else if(rand2==2) brick = brick03;
     }
   }
 
@@ -30,22 +36,35 @@ class Building {
     //boxes=null;
   }
 
-void update(){
-  for (Box b : boxes) {
+  void update() {
+    for (Box b : boxes) {
       if (b.parent!=null&&b.parent.getClass()==Building.class) { //Check for parent to see if this is a building piece or rouge block
         Object[] o1 = (Object[])b.body.getUserData();
         if (o1[1]=="dead") {
           boxesToKill.add(b);
         }//end if block dead
       }//end for each bloack within a parent
-
     }//end for each blcok
-    
-    
-}
+  }
   void display() {
-    for (Box b : boxes) b.display(175);
-   
+
+    for ( int i = 0; i <boxes.size(); i++) {
+      Vec2 pos = box2d.getBodyPixelCoord(boxes.get(i).body);
+      float a1 = boxes.get(i).body.getAngle();
+      pushMatrix();
+      imageMode(CENTER);       
+      translate(pos.x, pos.y);
+      rotate(-a1);
+      scale(1);
+      image(brick, 0, 0, boxes.get(i).w, boxes.get(i).h);
+
+      popMatrix();
+
+      // b.display(255);
+    }
+    for (Box b : boxes) {
+      //b.display(175);
+    }
   }
 
   void removeFromArray(Box b) {

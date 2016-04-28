@@ -27,8 +27,8 @@ class Platform{
   
  
   void display() {
-    fill(0);
-    stroke(0);
+    fill(100);
+    noStroke();
     rectMode(CENTER);
     rect(position.x,position.y,size.x,size.y);
   }

@@ -17,6 +17,22 @@ PShader shader;
 PImage cover;
 PGraphics canvas;
 
+PImage ballImg01;
+PImage ballImg02;
+PImage ballImg03;
+
+PImage ropeKnot;
+PImage rope;
+PImage basketImg;
+PImage health;
+PImage invincible;
+PImage token;
+
+PImage brick01;
+PImage brick02;
+PImage brick03;
+
+
 Box2DProcessing box2d;
 
 Player player;
@@ -77,11 +93,25 @@ int lives = 3;
 
 boolean paused = false;
 boolean pauseReleased =true;
-
+void loadImages() {
+  cover = loadImage("Empty.png");
+  ballImg01 = loadImage("balloonBlue-01.png");
+  ballImg02 = loadImage("balloonGreen-01.png");
+  ballImg03 = loadImage("balloonRed-01.png");
+  ropeKnot = loadImage("ropeKnot.png");
+  rope = loadImage("rope-01.png");
+  basketImg = loadImage("Player-01.png");
+  token = loadImage("Token-01.png");
+  health =loadImage("Health-01.png");
+  invincible = loadImage("Invincibility-01.png");
+  brick01 =loadImage("brickVariant1-01.png");
+  brick02 =loadImage("brickVariant2.png");
+  brick03 =loadImage("brickVariant3-01.png");
+}
 
 void setup() {
   size(900, 600, P2D); 
-  cover = loadImage("Empty.png");
+  loadImages();
   shader = loadShader("frag.glsl");
   canvas = createGraphics(width, height);
 
@@ -290,7 +320,7 @@ void drawHud() {
     text("paused", 300, 300);
     popStyle();
   }
-  
+
   //This is the bar for the invincible counter
   pushStyle();
   fill(0, 0, 255);
@@ -309,8 +339,8 @@ void drawHud() {
   pushStyle();
   fill(200);
   textSize(40);
-  text("Score:       "+ score, 50, 50);//Score text
-  text("Highscore:  "+ highScore, 50, 100);//High score text
+  //text("Score:       "+ score, 50, 50);//Score text
+  //text("Highscore:  "+ highScore, 50, 100);//High score text
   if (player.dead)  text("Press enter to restart", width/2-100, height/2);//If player is dead, tell them to press enter
   popStyle();
 }
@@ -330,19 +360,19 @@ void drawHud() {
  *Then create the new landscape with these points
  */
 void UpdateChainArray() {
-  
+
   float y=0;
   if (flatLand)y= lowLandPoints.get(0).y;//If currenlty in flat land mode then make then y same as previouse y which is end of points array
   else  y = (lowLandPoints.get(0).y-incline+height*.3+map(random(10), 0, 10, -30, 30))/2;//get last point and subtract the current inclined position, then add the amought of screen height then add a random amount
 
-    //adjuster is a variable randomly increasing and reset after a certain hight, that is added to the cielings points array to make it different from the ground array
+  //adjuster is a variable randomly increasing and reset after a certain hight, that is added to the cielings points array to make it different from the ground array
   if (adjuster>.9) adjuster  -= map(millis()/100, 0, 800000, 0, 1);//if adjuster is over 1, subtract time in millis mapped from 0-8000,000 mapped as 0-1
   else adjuster+=random(0.5);//subtract random amount under .5
   ArrayList<Vec2> newLowLand=new ArrayList<Vec2>();//create new lowland Vec2 array that will get this new point but then the rest of the old array points, and then set it to current landscape
   ArrayList<Vec2> newTopLand=new ArrayList<Vec2>();//same for newTopLand
   newLowLand.add( new Vec2(lowLandPoints.get(0).x+10, y)); //add the new point to the array at 0 but make it 10 over on the x axis
   newTopLand.add( new Vec2(topLandPoints.get(0).x+10, y-height*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
-  
+
 
   ///add 110 of the previose vec2 points to the new arrays for top and bottom, the 110 keeps it from being infanite
   for (int i = 0; i <110; i++) {
@@ -371,11 +401,11 @@ void RollForObsticle() {
   } else if (rand>75) {//if greater than 75 than create new rope
     int n = int(random(2, 12));//create a int for how many boxes on rope
     int l = n*15;//creat int for random length of new rope
-    
-   //add this new rope the the ropes creation list with its leangth, amount of boxes, position, 
-   //and boolean of false so that it is not realy created yet beacuse the creation list will make it with true
- ropesToCreate.add(new Rope(l, n, topLandPoints.get(0), false));  
-}
+
+    //add this new rope the the ropes creation list with its leangth, amount of boxes, position, 
+    //and boolean of false so that it is not realy created yet beacuse the creation list will make it with true
+    ropesToCreate.add(new Rope(l, n, topLandPoints.get(0), false));
+  }
 }
 /*
 *This function is called durring setup to creat the initial inclined low and high points 
@@ -412,15 +442,15 @@ void HandleBirths() {
   //for each platform in the platforms creations array, create the platform at position x and y
   for (Platform p : platformsToCreate) platforms.add(new Platform(p.x, p.y));
   platformsToCreate= new ArrayList<Platform>();//once all are created set the creation list to null
-//for each bulding in the buildings creation list, create that building at the position, with the boolean to actualy create the body and add to main array
+  //for each bulding in the buildings creation list, create that building at the position, with the boolean to actualy create the body and add to main array
   for (Building b : buildingsToCreate) buildings.add( new Building(b.position, true));
   buildingsToCreate = new ArrayList<Building>();//once all are created set the creations list to null
-//for each rope in the ropes creation list, create that rope with its leangth, amount of points, position, and boolean that states the body be made and siaplyed
+  //for each rope in the ropes creation list, create that rope with its leangth, amount of points, position, and boolean that states the body be made and siaplyed
   for (Rope r : ropesToCreate) ropes.add(new Rope(r.totalLength, r.numPoints, r.position, true));
   ropesToCreate = new ArrayList<Rope>();//once all are created set the array to null
 
 
-//for each pickup in te pickup creations array, create it as its set type, at a position with the boolean stating to actualy create the body and add to main lists
+  //for each pickup in te pickup creations array, create it as its set type, at a position with the boolean stating to actualy create the body and add to main lists
   for (Pickup p : pickupsToCreate) pickups.add(new Pickup(p.type, p.position, true));
   pickupsToCreate= new ArrayList<Pickup>();//once all are created then reset the list for next frame
 }

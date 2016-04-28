@@ -45,9 +45,19 @@ class Pickup {
     pushMatrix();
     translate(position.x, position.y);    // Using the Vec2 position and float angle to
     rotate(-a);              // translate and rotate the rectangle
-    fill(cl);
-    stroke(0);
-    ellipse(0, 0, r, r);
+    scale(.1);
+    imageMode(CENTER);
+    switch(type) {
+    case "token":
+      image(token, 0, 0);
+      break;
+    case "health":
+      image(health, 0, 0);
+      break;
+    case "invincible":
+      image(invincible, 0, 0);
+      break;
+    }
     popMatrix();
   }
 

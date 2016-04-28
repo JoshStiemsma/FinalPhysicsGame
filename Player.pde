@@ -11,6 +11,9 @@ class Player {
   float invincibleCounter = 20;
 
 
+
+
+
   //These are used for storing relative data when making the body and linking joints
   Circle ball1;
   Circle ball2;
@@ -87,12 +90,38 @@ class Player {
 
 
     pushStyle();
-    for (Box b : boxes) b.display(125);
+    //draw rope length for each box
+    for ( int i = 0; i <boxes.size(); i++) {
+      Vec2 pos = box2d.getBodyPixelCoord(boxes.get(i).body);
+      float a1 = boxes.get(i).body.getAngle();
+      pushMatrix();
+      imageMode(CENTER);       
+      translate(pos.x, pos.y);
+      rotate(-a1);
+      scale(.09);
+      image(rope, 0, 0);
+
+      popMatrix();
+
+      // b.display(255);
+    }
     for (int i=0; i<circles.size(); i++) {
-      if (i==0)  circles.get(i).display(color(255, 0, 0));//First three circles are always gona be the baloons so olor them red atm
-      else if (i==1)  circles.get(i).display(color(0, 255, 0));//First three circles are always gona be the baloons so olor them red atm
-      else if (i==2)  circles.get(i).display(color(0, 0, 255));//First three circles are always gona be the baloons so olor them red atm
-      else circles.get(i).display(125);
+      //draw each balloon img at circls123 position
+
+      Vec2 pos = box2d.getBodyPixelCoord(circles.get(i).body);
+      float a1 = circles.get(i).body.getAngle();
+      pushMatrix();
+      imageMode(CENTER);
+      translate(pos.x, pos.y);
+      rotate(-a1);
+      scale(.04);
+      if(i==circles.size()-1){
+        scale(2.5);
+        image(ropeKnot, 0, 0  );       
+      }else if (i==0) image(ballImg01, 0, 0);
+      else if (i==1) image(ballImg02, 0, 0);
+      else if (i==2) image(ballImg03, 0, 0);
+      popMatrix();
     }
     popStyle();
 
@@ -100,19 +129,23 @@ class Player {
 
     pushStyle();
 
-    if (invincible) fill(0, 0, 200);
-    else fill(255);
 
-    rectMode(CENTER);
+    //rectMode(CENTER);
+    imageMode(CENTER);
     pushMatrix();
     translate(position.x, position.y);
     rotate(-a);
-    beginShape();
-    for (int i = 0; i < ps.getVertexCount(); i++) {
-      Vec2 v = box2d.vectorWorldToPixels(ps.getVertex(i));
-      vertex(v.x, v.y);
-    }
-    endShape(CLOSE);
+    scale(.3);
+    image(basketImg,0,0);
+    fill(255);
+    textSize(75);
+    text("Score:"+ score, -150, 175);//Score text
+    //beginShape();
+    //for (int i = 0; i < ps.getVertexCount(); i++) {
+    //  Vec2 v = box2d.vectorWorldToPixels(ps.getVertex(i));
+    //  vertex(v.x, v.y);
+    //}
+    //endShape(CLOSE);
     switch (lives) {//Switch case for lives that adds cracks to the players basket
     case 3:
       break;
@@ -151,16 +184,16 @@ class Player {
     popStyle();
   }//end display
 
-/*
+  /*
    *Apply Input takes the Input class variables and applies them to the player 
    *
    */
   void ApplyInput() {
-    
+
     if (in.Down) Thrust(); //Push down on the basket
-    
-    
-    
+
+
+
     Vec2 vel = basket.getLinearVelocity();
     if (in.Left) basket.setLinearVelocity(new Vec2( vel.x-1, vel.y));//Push left
     if (in.Right) basket.setLinearVelocity(new Vec2( vel.x+1, vel.y));//Push Right
@@ -218,7 +251,7 @@ class Player {
     }
   }
 
-  
+
 
   /*
 *Push pushes away objects nearby the player

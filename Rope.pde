@@ -46,23 +46,6 @@ class Rope {
         else rjd.localAnchorA.set(.5, 1.2);
         rjd.localAnchorB.set(.5, -1.2);
         RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
-
-
-        /////////////////////////////////////////
-        //DistanceJointDef djd = new DistanceJointDef();
-        //Box previous = boxes.get(i-1);
-        //// Connection between previous particle and this one
-        //djd.bodyA = previous.body;
-        //djd.bodyB = b.body;
-        //// Equilibrium length
-        //djd.length = box2d.scalarPixelsToWorld(len);
-        //// These properties affect how springy the joint is 
-        //djd.frequencyHz = 0;
-        //djd.dampingRatio = 0;
-
-        //// Make the joint.  Note we aren't storing a reference to the joint ourselves anywhere!
-        //// We might need to someday, but for now it's ok
-        //DistanceJoint dj = (DistanceJoint) box2d.world.createJoint(djd);
       }
       previouse = b;
     }
@@ -74,22 +57,31 @@ class Rope {
   void removeFromArray(Box b) {
     boxes.remove(b);
   }
-  
-  void update(){
-     for (int i = 0; i<boxes.size(); i++) {
+
+  void update() {
+    for (int i = 0; i<boxes.size(); i++) {
       Object[] o1 =  (Object[])boxes.get(i).body.getUserData();
       if (o1[1]=="dead") boxesToKill.add(boxes.get(i));
-
     }
-    
   }
   // Draw the rope by drawing all the boes on the ropes boxes arraylist
   void display() {
     for (int i = 0; i<boxes.size(); i++) {
       if (i==0) {
-        boxes.get(i).display(color(255, 255, 255));
+        // boxes.get(i).display(color(255, 255, 255));
       } else {
-        boxes.get(i).display(175);
+
+
+        Vec2 pos = box2d.getBodyPixelCoord(boxes.get(i).body);
+        float a1 = boxes.get(i).body.getAngle();
+        pushMatrix();
+        imageMode(CENTER);       
+        translate(pos.x, pos.y);
+        rotate(-a1);
+        scale(.15);
+        image(rope, 0, 0);
+
+        popMatrix();
       }
     }
   }
