@@ -67,6 +67,7 @@ class Player {
       
       if (dist>0&&camera.yOffset<=0) {
         camera.xOffset+=dist;
+              score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
       } else if (dist>0&&camera.yOffset>0) {
         camera.yOffset-=dist;
       } else if (dist<0) {
