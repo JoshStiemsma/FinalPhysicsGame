@@ -393,7 +393,16 @@ void UpdateChainArray() {
 
 
   ///add 110 of the previose vec2 points to the new arrays for top and bottom, the 110 keeps it from being infanite
-  for (int i = 0; i <110; i++) {
+  //for (int i = 0; i <110; i++) {
+    //newLowLand.add(lowLandPoints.get(i));
+    //newTopLand.add(topLandPoints.get(i));
+  //}
+  
+    if(lowLandPoints.size()<500){
+  for(Vec2 v: lowLandPoints) newLowLand.add(v);
+  for(Vec2 v: topLandPoints) newTopLand.add(v);
+  }else{
+    for (int i = 0; i <499; i++) {
     newLowLand.add(lowLandPoints.get(i));
     newTopLand.add(topLandPoints.get(i));
   }
