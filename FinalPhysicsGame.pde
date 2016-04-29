@@ -210,7 +210,7 @@ void Update() {
 
   if (!player.dead) {//if player is alive
     //score is time since last start + points picked up
-    if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
+   // if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
     
     //if player.pos.x-playerlastupdatepos.x > n  update player.lastupdatepos=player.pos.x
     float dist = player.position.x-player.LastTerrainUpdate;
