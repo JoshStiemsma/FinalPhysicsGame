@@ -406,6 +406,7 @@ void UpdateChainArray() {
     newLowLand.add(lowLandPoints.get(i));
     newTopLand.add(topLandPoints.get(i));
   }
+  }
 
   lowLandPoints = newLowLand;//set low land points to the new low land points
   topLandPoints = newTopLand;// set top land points to the new top land points
