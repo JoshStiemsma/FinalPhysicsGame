@@ -32,7 +32,7 @@ PImage brick01;
 PImage brick02;
 PImage brick03;
 
-
+Camera camera;
 Box2DProcessing box2d;
 
 Player player;
@@ -123,6 +123,7 @@ void setup() {
   box2d.world.setContactListener(new CustomListener());
 
   player=new Player();
+  camera = new Camera();
   CreateChainArray(); 
   landscape= new Landscape(topLandPoints, lowLandPoints);
   UpdateChainArray();
@@ -144,7 +145,7 @@ void draw() {
   if (!paused) {
 
     pushMatrix();
-    translate(-viewOffset, viewOffset);
+    translate(-camera.position.x, -camera.position.y);
     HandleDeaths();
     HandleBirths();
 
@@ -157,7 +158,8 @@ void draw() {
     Update();
   } else {
     pushMatrix();
-    translate(-viewOffset, viewOffset);
+    //translate(-viewOffset, viewOffset);
+    translate(-camera.position.x, camera.position.y);
     UpdateDisplays();
 
     popMatrix();
@@ -179,7 +181,7 @@ void draw() {
 
 
 void Update() {
-
+  camera.update();
   //if score is greater than highscore then thats the new highscore
   if (score>highScore) highScore=score;
   //if players bollean setPreviouseVelocity is set to true, then set it and make the boolean false
@@ -209,9 +211,18 @@ void Update() {
   if (!player.dead) {//if player is alive
     //score is time since last start + points picked up
     if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
-    landscape.UpdateTerrainEveryNFrame(9);///every n frames update the terrain: Currenlty 9 frames is equal to movement
+    
+    //if player.pos.x-playerlastupdatepos.x > n  update player.lastupdatepos=player.pos.x
+    float dist = player.position.x-player.LastTerrainUpdate;
+    if(dist>=10)landscape.UpdateTerrain();
+    //landscape.UpdateTerrainEveryNFrame(9);///every n frames update the terrain: Currenlty 9 frames is equal to movement
+    
+    
+    
     //add to view offset
     viewOffset+=1;
+    camera.position.x+=1;
+    //camera.position.y+=1;
   } else {//if player is dead  
     if (in.Enter)resetGame=true;//wait for player to press enter then reset game
   }
@@ -230,6 +241,11 @@ void ResetGame() {
   ResetLandscape();//reset the landscape which destroys the chin arrays bodies as well as its arrays then creates new beginning arrays
   //destroy the player body
   player.destroyBodies(); 
+  
+  
+  camera.reset();
+  
+  
   //then create new player by setting player to new player
   player = new Player();
   //reset lives to 3; basket damage
@@ -238,6 +254,8 @@ void ResetGame() {
   pointsPickedUp=0;
   //reset view offset
   viewOffset=0;
+  camera.position.x=0;
+  camera.position.y=0;
   //reset the boolean that triggerd this function
   resetGame=false;
   //set the time since last restart to now so that the next sessions timers and counters will work from this point intead of start of program
@@ -317,7 +335,7 @@ void UpdateBoundaries() {
 void drawHud() {
   if (paused) {//If the game is paused then show pused
     pushStyle();
-    text("paused", 300, 300);
+    //text("paused", 300, 300);
     popStyle();
   }
 
@@ -370,8 +388,8 @@ void UpdateChainArray() {
   else adjuster+=random(0.5);//subtract random amount under .5
   ArrayList<Vec2> newLowLand=new ArrayList<Vec2>();//create new lowland Vec2 array that will get this new point but then the rest of the old array points, and then set it to current landscape
   ArrayList<Vec2> newTopLand=new ArrayList<Vec2>();//same for newTopLand
-  newLowLand.add( new Vec2(lowLandPoints.get(0).x+10, y)); //add the new point to the array at 0 but make it 10 over on the x axis
-  newTopLand.add( new Vec2(topLandPoints.get(0).x+10, y-height*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
+  newLowLand.add( new Vec2(lowLandPoints.get(0).x+15, y)); //add the new point to the array at 0 but make it 10 over on the x axis
+  newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-height/1.5*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
 
 
   ///add 110 of the previose vec2 points to the new arrays for top and bottom, the 110 keeps it from being infanite
@@ -418,7 +436,7 @@ void CreateChainArray() {
   for (float x=width+100; x>-100; x -= 10) {//for every 10 points on the x axis add a point to the array at increasing height
     float y = incline+height*.3;//each y is set to the increasing incline amount plus the screens height time .3
     lowLandPoints.add( new Vec2(x, y));    //add the point to the vector
-    y-=height*2;//subtract the height of the view for the new ceilings point
+    y-=height*1.5+random(-10,10);//subtract the height of the view for the new ceilings point
     topLandPoints.add(new Vec2(x, y));//add the point to the end of the vector
 
     xoff+=0.1;//add to the xoff

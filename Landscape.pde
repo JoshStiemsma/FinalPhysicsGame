@@ -80,8 +80,12 @@ class Landscape {
       vertex(v.x, v.y);
     }
 
-    vertex(-width+viewOffset, height);
-    vertex(width+viewOffset, height+20-incline);
+    //vertex(-width+viewOffset, height);
+    //vertex(width+viewOffset, height+20-incline);
+    vertex(-100, 1000);
+    vertex(10000, 10000);
+
+
     //line(0,0,width,height);
     //close shape so fill works
     popStyle();
@@ -92,10 +96,12 @@ class Landscape {
     for (Vec2 v : topLandPoints) {
       vertex(v.x, v.y);
     }
-    vertex(-width, height-incline);
-    vertex(-width, -height-incline);
-    vertex(width*4, -height-incline);
-
+    //vertex(-width, height-incline);
+    //vertex(-width, -height-incline);
+    //vertex(width*4, -height-incline);
+    vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(topLandPoints.size()-1).y);
+    vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, -10000);
+    vertex(topLandPoints.get(0).x+1000, topLandPoints.get(0).y+1000);
 
 
     endShape();
@@ -128,5 +134,23 @@ class Landscape {
     } else {//still hasn't been n frames
       framesSinceLastUpdate++;
     }//Close if it has been n frame since last terrain update
+  }
+
+  void   UpdateTerrain() {
+
+    if (flatLand) {//if peviously rolled a flatLAnd terrain
+      flatCounter++;//keep going and tally the flat ground
+    } else {
+      RollForObsticle();//keep going but roll for chance of falt
+    }  //end if flat land is ture
+
+    if (flatCounter>4&&flatCounter<6) buildingsToCreate.add(new Building(lowLandPoints.get(0), false ));//if in middle of flat land, place building
+    if (flatCounter>10) {   //if added 10 points of flattness stop and reset the flat counter
+      flatLand=false;
+      flatCounter=0;
+    }
+    player.LastTerrainUpdate=player.position.x;
+    UpdateChainArray();//update chain array 
+    //framesSinceLastUpdate=0;//Reset framecounting of update
   }
 }

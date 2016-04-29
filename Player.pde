@@ -5,7 +5,10 @@ class Player {
   Box basketBox;
   boolean dead= false;
   int balloonCount = 3;
-  Vec2 position;
+  PVector startingPosition = new PVector(500, 450);
+  Vec2 startingPostionVec = new Vec2(500, 450);
+  Vec2 position = new Vec2(0, 0);
+  float LastTerrainUpdate = startingPostionVec.x;
 
   boolean invincible =false;
   float invincibleCounter = 20;
@@ -44,17 +47,29 @@ class Player {
     basket.setUserData(new Object[]{"player", "alive"});
   }
 
-  PVector startingPosition = new PVector(500, 450);
-  Vec2 spv = new Vec2(500, 450);
+  Vec2 playerPrevPos = startingPostionVec;
   Vec2 prevVel;
   boolean setPrevVel = false;
   float timeSinceLastWallHit = 0;
 
   void update() {
-
+    if (circles.size()==1)dead=true;
     if (!dead) {
       ApplyInput();
       ApplyLift();
+
+      float dist = position.x-playerPrevPos.x;
+      
+      if (dist>0&&camera.yOffset<=0) {
+        camera.xOffset+=dist;
+      } else if (dist>0&&camera.yOffset>0) {
+        camera.yOffset-=dist;
+      } else if (dist<0) {
+        camera.yOffset-=dist;
+      }
+      camera.position = new Vec2(startingPosition.x+camera.xOffset, position.y-startingPosition.y);
+      
+      playerPrevPos = position;
     }
 
 
@@ -115,10 +130,10 @@ class Player {
       translate(pos.x, pos.y);
       rotate(-a1);
       scale(.04);
-      if(i==circles.size()-1){
+      if (i==circles.size()-1) {
         scale(2.5);
-        image(ropeKnot, 0, 0  );       
-      }else if (i==0) image(ballImg01, 0, 0);
+        image(ropeKnot, 0, 0  );
+      } else if (i==0) image(ballImg01, 0, 0);
       else if (i==1) image(ballImg02, 0, 0);
       else if (i==2) image(ballImg03, 0, 0);
       popMatrix();
@@ -136,7 +151,7 @@ class Player {
     translate(position.x, position.y);
     rotate(-a);
     scale(.3);
-    image(basketImg,0,0);
+    image(basketImg, 0, 0);
     fill(255);
     textSize(75);
     text("Score:"+ score, -150, 175);//Score text
@@ -201,7 +216,6 @@ class Player {
     if (basket.getAngularVelocity()!=0) {
       basket.setAngularVelocity(basket.getAngularVelocity()*.64);//Re aligns players rotation
     }
-    if (in.Space)  Push();//Special function to be changed that helps the player
   }
 
 
@@ -254,42 +268,6 @@ class Player {
 
 
   /*
-*Push pushes away objects nearby the player
-   *This was an early attempt of a pickup or player aid and will most likely be changed later
-   *
-   */
-  void Push() {
-    //println("push");
-    for (Building building : buildings) {
-      for (Box box : building.boxes) {
-        Vec2 bPos = box2d.getBodyPixelCoord(box.body);
-        Vec2 distV = position.sub(bPos);
-        if (mag(distV.x, distV.y)<200) {
-          float a = atan2(distV.y, distV.x);
-          a-=HALF_PI;
-          float fx = 10*sin(a);
-          float fy = 10*cos(a);  
-          box.body.setLinearVelocity(new Vec2(fx, fy));
-        }
-      }
-    }
-    for (Rope r : ropes) {
-      for (Box box : r.boxes) {
-        Vec2 bPos = box2d.getBodyPixelCoord(box.body);
-        Vec2 distV = position.sub(bPos);
-        if (mag(distV.x, distV.y)<200) {
-          float a = atan2(distV.y, distV.x);
-          a-=HALF_PI;
-          float fx = 10*sin(a);
-          float fy = 10*cos(a);  
-          box.body.setLinearVelocity(new Vec2(fx, fy));
-        }
-      }
-    }
-  }
-
-
-  /*
 *
    *This functions applies force to the player when given a Vec2 of force 
    */
@@ -316,7 +294,7 @@ class Player {
    */
   void CheckBoundaries() {
     Vec2 pos =  box2d.getBodyPixelCoord(basket);
-    if (pos.x>width+viewOffset||pos.y>height-viewOffset+30) player.dead=true;     //Kill Player if the go out of bounds
+    //if (pos.x>width+viewOffset||pos.y>height-viewOffset+30) player.dead=true;     //Kill Player if the go out of bounds
   }
 
 
@@ -327,7 +305,6 @@ class Player {
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon1() {
-    println("kill1");
     circlesToKill.add(ball1);
     // for (Box b : ball1chain) boxesToKill.add(b);
     balloonCount--;
@@ -337,7 +314,6 @@ class Player {
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon2() {
-    println("kill2");
     circlesToKill.add(ball2);
     // for (Box b : ball2chain) boxesToKill.add(b);
     balloonCount--;
@@ -347,7 +323,6 @@ class Player {
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon3() {
-    println("kill3");
     circlesToKill.add(ball3);
     //for (Box b : ball3chain) boxesToKill.add(b);
     balloonCount--;
@@ -366,11 +341,11 @@ class Player {
     boxes= new ArrayList<Box>();
     circles = new ArrayList<Circle>();
 
-    ball1 = new Circle( new Vec2(spv.x, spv.y-100), 20, "b1");
+    ball1 = new Circle( new Vec2(startingPostionVec.x, startingPostionVec.y-100), 20, "b1");
     circles.add(ball1);
-    ball2 = new Circle( new Vec2(spv.x+30, spv.y-100), 20, "b2");
+    ball2 = new Circle( new Vec2(startingPostionVec.x+30, startingPostionVec.y-100), 20, "b2");
     circles.add(ball2);
-    ball3 = new Circle( new Vec2(spv.x-30, spv.y-100), 20, "b3");
+    ball3 = new Circle( new Vec2(startingPostionVec.x-30, startingPostionVec.y-100), 20, "b3");
     circles.add(ball3);
 
 
@@ -389,7 +364,7 @@ class Player {
   void FirstBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(spv.x, spv.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
       boxes.add(Link);
       ball1chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -415,7 +390,7 @@ class Player {
   void SecondBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(spv.x+30, spv.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
       boxes.add(Link);
       ball2chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -440,7 +415,7 @@ class Player {
   void ThirdBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(spv.x-30, spv.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x-30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
       boxes.add(Link);
       ball3chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -465,7 +440,7 @@ class Player {
    */
   void CenterLink() {
     //Create Center Link box
-    Circle centerl =new Circle(new Vec2(spv.x, spv.y-50), 7, "Link");
+    Circle centerl =new Circle(new Vec2(startingPostionVec.x, startingPostionVec.y-50), 7, "Link");
     circles.add(centerl);
     centerLink = centerl.body;
     //Link Center Link to last chain linkA
@@ -504,12 +479,12 @@ class Player {
    */
   void Basket() {
     //Create Basket
-    Box Basket = new Box(spv, new Vec2(50, 30), false, .1);
+    Box Basket = new Box(startingPostionVec, new Vec2(50, 30), false, .1);
     basket = Basket.body;
     //Create LEft Chain
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(spv.x+30, spv.y+5+i*10), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .1);
       boxes.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
       if (i==0) rjd.bodyA= centerLink;
@@ -533,7 +508,7 @@ class Player {
 
     //Create Right Chain
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(spv.x+30, spv.y+5+i*10), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .1);
       boxes.add(Link);
       RevoluteJointDef rjd2 = new RevoluteJointDef();
       if (i==0) rjd2.bodyA= centerLink;
