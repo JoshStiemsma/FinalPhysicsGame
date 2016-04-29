@@ -181,7 +181,7 @@ void draw() {
 
 
 void Update() {
-  camera.update();
+ // camera.update();
   //if score is greater than highscore then thats the new highscore
   if (score>highScore) highScore=score;
   //if players bollean setPreviouseVelocity is set to true, then set it and make the boolean false
