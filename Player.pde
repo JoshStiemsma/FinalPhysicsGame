@@ -5,6 +5,11 @@ class Player {
   Box basketBox;
   boolean dead= false;
   int balloonCount = 3;
+  
+  boolean ball1Alive = true;
+  boolean ball2Alive = true;
+  boolean ball3Alive = true;
+  
   PVector startingPosition = new PVector(500, 450);
   Vec2 startingPostionVec = new Vec2(500, 450);
   Vec2 position = new Vec2(0, 0);
@@ -298,35 +303,39 @@ class Player {
 
 
 
-
-  /*
+ /*
 *LoseBalloon 1 is called when the first balloon hits the ceiling and pop
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon1() {
-    circlesToKill.add(ball1);
-    // for (Box b : ball1chain) boxesToKill.add(b);
-    balloonCount--;
+    if (ball1Alive) {
+      println("deleteball1");
+      ball1Alive=false;
+      circlesToKill.add(ball1);
+    }
   }
   /*
 *LoseBalloon 2 is called when the first balloon hits the ceiling and pop
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon2() {
-    circlesToKill.add(ball2);
-    // for (Box b : ball2chain) boxesToKill.add(b);
-    balloonCount--;
+    if (ball2Alive) {
+      circlesToKill.add(ball2);
+      println("deleteball2");
+      ball2Alive=false;
+    }
   }
   /*
 *LoseBalloon 3 is called when the first balloon hits the ceiling and pop
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon3() {
-    circlesToKill.add(ball3);
-    //for (Box b : ball3chain) boxesToKill.add(b);
-    balloonCount--;
+    if (ball3Alive) {
+      circlesToKill.add(ball3);
+      println("deleteball3");
+      ball3Alive=false;
+    }
   }
-
 
 
 
