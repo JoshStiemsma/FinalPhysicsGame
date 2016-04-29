@@ -363,7 +363,7 @@ class Player {
   void FirstBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       ball1chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -389,7 +389,7 @@ class Player {
   void SecondBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       ball2chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -414,7 +414,7 @@ class Player {
   void ThirdBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x-30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x-30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       ball3chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -483,7 +483,7 @@ class Player {
     //Create LEft Chain
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
       if (i==0) rjd.bodyA= centerLink;
@@ -507,7 +507,7 @@ class Player {
 
     //Create Right Chain
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       RevoluteJointDef rjd2 = new RevoluteJointDef();
       if (i==0) rjd2.bodyA= centerLink;
