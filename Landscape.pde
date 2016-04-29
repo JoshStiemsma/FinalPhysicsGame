@@ -100,8 +100,8 @@ class Landscape {
     //vertex(-width, -height-incline);
     //vertex(width*4, -height-incline);
     vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(topLandPoints.size()-1).y);
-    vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, -10000);
-    vertex(topLandPoints.get(0).x+1000, topLandPoints.get(0).y+1000);
+    vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(0).y);
+    vertex(topLandPoints.get(0).x+1000, topLandPoints.get(0).y-1000-incline);
 
 
     endShape();
