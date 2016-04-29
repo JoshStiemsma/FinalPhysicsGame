@@ -159,7 +159,7 @@ void draw() {
   } else {
     pushMatrix();
     //translate(-viewOffset, viewOffset);
-    translate(-camera.position.x, camera.position.y);
+    translate(-camera.position.x, -camera.position.y);
     UpdateDisplays();
 
     popMatrix();
