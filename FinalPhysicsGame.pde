@@ -495,6 +495,7 @@ void HandleDeaths() {
   for (Circle c : player.circlesToKill) {
     c.destroyBody();//call function within object that destroys its body from box world
     player.circles.remove(c);//remove object from main list
+    player.balloonCount--;
   }
   player.circlesToKill = new ArrayList<Circle>();//reset the death list
   for (Box b : player.boxesToKill) {
