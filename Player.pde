@@ -253,14 +253,13 @@ class Player {
     for (Circle c : circles) {
       if (balloonCount==3) {
         Vec2 pos = c.body.getWorldCenter();
-        c.body.applyForce(new Vec2(0, 40  ), pos);
+        c.body.applyForce(new Vec2(0, 50  ), pos);
       } else if (balloonCount==2) {
         Vec2 pos = c.body.getWorldCenter();
-        c.body.applyForce(new Vec2(0, 50  ), pos);
-      }
-      if (balloonCount==1) {
-        Vec2 pos = c.body.getWorldCenter();
         c.body.applyForce(new Vec2(0, 60  ), pos);
+      }else if (balloonCount==1) {
+        Vec2 pos = c.body.getWorldCenter();
+        c.body.applyForce(new Vec2(0, 80  ), pos);
       }
     }
   }
