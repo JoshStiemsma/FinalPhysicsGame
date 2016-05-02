@@ -253,6 +253,7 @@ class Player {
       } else if (balloonCount==2) {
         Vec2 pos = c.body.getWorldCenter();
         c.body.applyForce(new Vec2(0, 60  ), pos);
+        
       } else if (balloonCount==1) {
         Vec2 pos = c.body.getWorldCenter();
         c.body.applyForce(new Vec2(0, 80  ), pos);
@@ -295,6 +296,7 @@ class Player {
 
 
   /*
+
 *LoseBalloon 1 is called when the first balloon hits the ceiling and pop
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */

@@ -124,8 +124,6 @@ for(int i =0; i<topLandPoints.size();i+=20){
 
    
     
-    
-    
     popStyle();
   }
 
