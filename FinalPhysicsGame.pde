@@ -70,6 +70,8 @@ Landscape landscape;
 String direction = "Flat";
 Float TSLDirectionChange = 0.0;
 float directionChangeTime = 100.0;
+float currentGap = 500.0;
+float targetGap = 500;
 
 
 ArrayList<Vec2> lowLandPoints   = new ArrayList<Vec2>();
@@ -383,12 +385,22 @@ void UpdateChainArray() {
   else  y = (lowLandPoints.get(0).y-incline+height*.3+map(random(10), 0, 10, -30, 30))/2;//get last point and subtract the current inclined position, then add the amought of screen height then add a random amount
 
   //adjuster is a variable randomly increasing and reset after a certain hight, that is added to the cielings points array to make it different from the ground array
-  if (adjuster>.9) adjuster  -= map(millis()/100, 0, 800000, 0, 1);//if adjuster is over 1, subtract time in millis mapped from 0-8000,000 mapped as 0-1
-  else adjuster+=random(0.5);//subtract random amount under .5
+  if (adjuster>2||adjuster<.8) adjuster  =.8;//if adjuster is over 1, subtract time in millis mapped from 0-8000,000 mapped as 0-1
+  else adjuster+=random(.01);//subtract random amount under .5
+  
+  if(currentGap>targetGap)currentGap--;
+  if(currentGap<targetGap)currentGap++;
+  
+  println(currentGap);
+  println(targetGap);
+  float gap = currentGap;
+  
+  
   ArrayList<Vec2> newLowLand=new ArrayList<Vec2>();//create new lowland Vec2 array that will get this new point but then the rest of the old array points, and then set it to current landscape
   ArrayList<Vec2> newTopLand=new ArrayList<Vec2>();//same for newTopLand
   newLowLand.add( new Vec2(lowLandPoints.get(0).x+15, y)); //add the new point to the array at 0 but make it 10 over on the x axis
-  newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-height/1.5*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
+  //newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
+  newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap)); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
 
 
 
@@ -407,7 +419,7 @@ void UpdateChainArray() {
   landscape.killBody();//kill the landscapes body
   landscape = new Landscape(topLandPoints, lowLandPoints);//create new landscape with the new top and low points
 
-  xoff+=.01+random(-1, 1);//add a random small amount to the xoff
+  //xoff+=.01+random(-1, 1);//add a random small amount to the xoff
   
   if(TSLDirectionChange>=directionChangeTime) GetNextDirection();
   TSLDirectionChange++;
@@ -434,6 +446,7 @@ void UpdateChainArray() {
 
 void GetNextDirection(){
   TSLDirectionChange=0.0;
+  targetGap=random(300,700);
   int rand = int(random(5));
   println("roll for   "+ rand);
   switch(rand){

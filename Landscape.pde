@@ -1,6 +1,6 @@
 class Landscape {
-  
-  
+
+
   ChainShape lowChain;
   ChainShape topChain;
   Body lowBody;
@@ -93,8 +93,8 @@ class Landscape {
     pushStyle();
     fill(100, 100, 100);
     endShape();
-    
-    
+
+
 
     //for (Vec2 v : topLandPoints) {
     //  vertex(v.x, v.y);
@@ -102,32 +102,33 @@ class Landscape {
     //vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(topLandPoints.size()-1).y);
     //vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(0).y);
     //vertex(topLandPoints.get(0).x+1000, topLandPoints.get(0).y-1000-incline);
+noStroke();
+    for (int i =0; i<topLandPoints.size(); i+=20) {
+      //int k = 0;   
+      beginShape();
+      vertex(topLandPoints.get(i).x, topLandPoints.get(i).y-1000);
+    
+      for (int j = i; j <=i+20; j++) {
+        if (j<topLandPoints.size()) vertex(topLandPoints.get(j).x, topLandPoints.get(j).y);
+      }
+      if (i+20<topLandPoints.size()) vertex(topLandPoints.get(i+20).x, topLandPoints.get(i+20).y-1000);
+      else  vertex(topLandPoints.get(topLandPoints.size()-1-10).x, topLandPoints.get(topLandPoints.size()-1).y-1000);
+        
+      
+      //k+=100;
 
-for(int i =0; i<topLandPoints.size();i+=20){
-  //int k = 0;   
-  beginShape();
-   vertex(topLandPoints.get(i).x, topLandPoints.get(i).y-1000);
-  for(int j = i; j <=i+20;j++){
-    if(j<topLandPoints.size()) vertex(topLandPoints.get(j).x, topLandPoints.get(j).y);
-    
-  }
-   if(i+20<topLandPoints.size()) vertex(topLandPoints.get(i+20).x, topLandPoints.get(i+20).y-1000);
-  else vertex(topLandPoints.get(topLandPoints.size()-1).x, topLandPoints.get(topLandPoints.size()-1).y-1000);;
-  
-  //k+=100;
-  
-  //vertex(v.x, v.y);
-  
-   endShape();
-}
-    
+      //vertex(v.x, v.y);
 
-   
-    
+      endShape();
+    }
+
+
+
+
     popStyle();
   }
 
- 
+
 
   void   UpdateTerrain() {
 
@@ -143,6 +144,6 @@ for(int i =0; i<topLandPoints.size();i+=20){
       flatCounter=0;
     }
     player.LastTerrainUpdate=player.position.x;
-    UpdateChainArray();//update chain array 
+    UpdateChainArray();//update chain array
   }
 }
