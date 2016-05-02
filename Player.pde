@@ -5,6 +5,11 @@ class Player {
   Box basketBox;
   boolean dead= false;
   int balloonCount = 3;
+
+  boolean ball1Alive = true;
+  boolean ball2Alive = true;
+  boolean ball3Alive = true;
+
   PVector startingPosition = new PVector(500, 450);
   Vec2 startingPostionVec = new Vec2(500, 450);
   Vec2 position = new Vec2(0, 0);
@@ -59,16 +64,17 @@ class Player {
       ApplyLift();
 
       float dist = position.x-playerPrevPos.x;
-      
+
       if (dist>0&&camera.yOffset<=0) {
         camera.xOffset+=dist;
+        score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp;
       } else if (dist>0&&camera.yOffset>0) {
         camera.yOffset-=dist;
       } else if (dist<0) {
         camera.yOffset-=dist;
       }
       camera.position = new Vec2(startingPosition.x+camera.xOffset, position.y-startingPosition.y);
-      
+
       playerPrevPos = position;
     }
 
@@ -83,10 +89,9 @@ class Player {
 
 
     position = box2d.getBodyPixelCoord(basket);
-    float a = basket.getAngle();
 
-    Fixture f = basket.getFixtureList();
-    PolygonShape ps = (PolygonShape) f.getShape();
+    //Fixture f = basket.getFixtureList();
+    //PolygonShape ps = (PolygonShape) f.getShape();
 
     CheckBoundaries();
   }
@@ -99,9 +104,6 @@ class Player {
     position = box2d.getBodyPixelCoord(basket);
     float a = basket.getAngle();
 
-
-    Fixture f = basket.getFixtureList();
-    PolygonShape ps = (PolygonShape) f.getShape();
 
 
     pushStyle();
@@ -151,49 +153,43 @@ class Player {
     translate(position.x, position.y);
     rotate(-a);
     scale(.3);
-    image(basketImg, 0, 0);
-    fill(255);
-    textSize(75);
-    text("Score:"+ score, -150, 175);//Score text
-    //beginShape();
-    //for (int i = 0; i < ps.getVertexCount(); i++) {
-    //  Vec2 v = box2d.vectorWorldToPixels(ps.getVertex(i));
-    //  vertex(v.x, v.y);
-    //}
-    //endShape(CLOSE);
-    switch (lives) {//Switch case for lives that adds cracks to the players basket
-    case 3:
-      break;
-    case 2:
+    if (player.invincible==true) {
+      switch (lives) {//Switch case for lives that adds cracks to the players basket
+      case 3:
+        image(basketImg01, 0, 0);
+        tint(0, 0, 255, map(invincibleCounter, 20, 0, 255, 0));
+        image(basketImg01, 0, 0);
 
-      line(25, 15, 15, 8);
-      line(15, 8, 10, 10);
-      line(10, 10, 7, 8);
-      line(15, 8, 3, 5);
-      line(3, 5, -2, -3);
-      line(3, 5, -2, 5);
-      line(15, 8, 20, 5);
-      line(20, 5, 18, -2);
+        break;
+      case 2:
+        image(basketImg02, 0, 0);
+        tint(0, 0, 255, map(invincibleCounter, 20, 0, 255, 0));
+        image(basketImg02, 0, 0);       
+        break;
+      case 1:
+        image(basketImg03, 0, 0);
+        tint(0, 0, 255, map(invincibleCounter, 20, 0, 255, 0));
+        image(basketImg03, 0, 0);
+        break;
+      }
 
-      break;
-    case 1:
-
-      line(25, 15, 15, 8);
-      line(15, 8, 10, 10);
-      line(10, 10, 7, 8);
-      line(7, 8, 10, 3);
-      line(15, 8, 3, 5);
-      line(3, 5, -2, -3);
-      line(-2, -3, -10, -12);
-      line(3, 5, -2, 5);
-      line(-2, 5, -5, 7);
-      line(15, 8, 20, 5);
-      line(20, 5, 18, -2);
-      line(20, 5, 15, -5);
-      line(18, -2, 23, 2);
-      break;
+    } else {
+      switch (lives) {//Switch case for lives that adds cracks to the players basket
+      case 3:
+        image(basketImg01, 0, 0);
+        break;
+      case 2:
+        image(basketImg02, 0, 0);
+        break;
+      case 1:
+        image(basketImg03, 0, 0);
+        break;
+      }
     }
 
+    fill(255);
+    textSize(55);
+    text("Score:"+ score, -100, 0);//Score text
 
     popMatrix();
     popStyle();
@@ -253,14 +249,13 @@ class Player {
     for (Circle c : circles) {
       if (balloonCount==3) {
         Vec2 pos = c.body.getWorldCenter();
-        c.body.applyForce(new Vec2(0, 40  ), pos);
+        c.body.applyForce(new Vec2(0, 50  ), pos);
       } else if (balloonCount==2) {
         Vec2 pos = c.body.getWorldCenter();
-        c.body.applyForce(new Vec2(0, 50  ), pos);
-      }
-      if (balloonCount==1) {
-        Vec2 pos = c.body.getWorldCenter();
         c.body.applyForce(new Vec2(0, 60  ), pos);
+      } else if (balloonCount==1) {
+        Vec2 pos = c.body.getWorldCenter();
+        c.body.applyForce(new Vec2(0, 80  ), pos);
       }
     }
   }
@@ -299,35 +294,39 @@ class Player {
 
 
 
-
   /*
 *LoseBalloon 1 is called when the first balloon hits the ceiling and pop
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon1() {
-    circlesToKill.add(ball1);
-    // for (Box b : ball1chain) boxesToKill.add(b);
-    balloonCount--;
+    if (ball1Alive) {
+      println("deleteball1");
+      ball1Alive=false;
+      circlesToKill.add(ball1);
+    }
   }
   /*
 *LoseBalloon 2 is called when the first balloon hits the ceiling and pop
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon2() {
-    circlesToKill.add(ball2);
-    // for (Box b : ball2chain) boxesToKill.add(b);
-    balloonCount--;
+    if (ball2Alive) {
+      circlesToKill.add(ball2);
+      println("deleteball2");
+      ball2Alive=false;
+    }
   }
   /*
 *LoseBalloon 3 is called when the first balloon hits the ceiling and pop
    *It also removes the proper balloon from the circles array as well as the baloons chain from the boxes array
    */
   void loseBalloon3() {
-    circlesToKill.add(ball3);
-    //for (Box b : ball3chain) boxesToKill.add(b);
-    balloonCount--;
+    if (ball3Alive) {
+      circlesToKill.add(ball3);
+      println("deleteball3");
+      ball3Alive=false;
+    }
   }
-
 
 
 
@@ -364,7 +363,7 @@ class Player {
   void FirstBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       ball1chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -390,7 +389,7 @@ class Player {
   void SecondBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       ball2chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -415,7 +414,7 @@ class Player {
   void ThirdBallChain() {
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x-30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x-30, startingPostionVec.y-100+i*15), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       ball3chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -484,7 +483,7 @@ class Player {
     //Create LEft Chain
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
       if (i==0) rjd.bodyA= centerLink;
@@ -508,7 +507,7 @@ class Player {
 
     //Create Right Chain
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .1);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .3);
       boxes.add(Link);
       RevoluteJointDef rjd2 = new RevoluteJointDef();
       if (i==0) rjd2.bodyA= centerLink;

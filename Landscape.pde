@@ -1,5 +1,6 @@
 class Landscape {
-  //ArrayList<Vec2> landscape;
+  
+  
   ChainShape lowChain;
   ChainShape topChain;
   Body lowBody;
@@ -92,49 +93,43 @@ class Landscape {
     pushStyle();
     fill(100, 100, 100);
     endShape();
-    beginShape();
-    for (Vec2 v : topLandPoints) {
-      vertex(v.x, v.y);
-    }
-    //vertex(-width, height-incline);
-    //vertex(-width, -height-incline);
-    //vertex(width*4, -height-incline);
-    vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(topLandPoints.size()-1).y);
-    vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, -10000);
-    vertex(topLandPoints.get(0).x+1000, topLandPoints.get(0).y+1000);
+    
+    
 
+    //for (Vec2 v : topLandPoints) {
+    //  vertex(v.x, v.y);
+    //}
+    //vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(topLandPoints.size()-1).y);
+    //vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(0).y);
+    //vertex(topLandPoints.get(0).x+1000, topLandPoints.get(0).y-1000-incline);
 
-    endShape();
+for(int i =0; i<topLandPoints.size();i+=20){
+  //int k = 0;   
+  beginShape();
+   vertex(topLandPoints.get(i).x, topLandPoints.get(i).y-1000);
+  for(int j = i; j <=i+20;j++){
+    if(j<topLandPoints.size()) vertex(topLandPoints.get(j).x, topLandPoints.get(j).y);
+    
+  }
+   if(i+20<topLandPoints.size()) vertex(topLandPoints.get(i+20).x, topLandPoints.get(i+20).y-1000);
+  else vertex(topLandPoints.get(topLandPoints.size()-1).x, topLandPoints.get(topLandPoints.size()-1).y-1000);;
+  
+  //k+=100;
+  
+  //vertex(v.x, v.y);
+  
+   endShape();
+}
+    
+
+   
+    
+    
+    
     popStyle();
   }
 
-  /*
-  *Update Terrain Every n Frames
-   Param @ float n
-   *Responsible for selecting what kind of landscape might come next bye rolling for obsticle and if we are in flat land it
-   *handles that as well and places a building in the center
-   *and calls updatechain array whcih then takes care of this information via arrays and creating landscape
-   */
-  void   UpdateTerrainEveryNFrame(float n) {
-
-    if (framesSinceLastUpdate>=n) {//UpdateTerrain
-      if (flatLand) {//if peviously rolled a flatLAnd terrain
-        flatCounter++;//keep going and tally the flat ground
-      } else {
-        RollForObsticle();//keep going but roll for chance of falt
-      }  //end if flat land is ture
-
-      if (flatCounter>4&&flatCounter<6) buildingsToCreate.add(new Building(lowLandPoints.get(0), false ));//if in middle of flat land, place building
-      if (flatCounter>10) {   //if added 10 points of flattness stop and reset the flat counter
-        flatLand=false;
-        flatCounter=0;
-      }
-      UpdateChainArray();//update chain array 
-      framesSinceLastUpdate=0;//Reset framecounting of update
-    } else {//still hasn't been n frames
-      framesSinceLastUpdate++;
-    }//Close if it has been n frame since last terrain update
-  }
+ 
 
   void   UpdateTerrain() {
 
@@ -151,6 +146,5 @@ class Landscape {
     }
     player.LastTerrainUpdate=player.position.x;
     UpdateChainArray();//update chain array 
-    //framesSinceLastUpdate=0;//Reset framecounting of update
   }
 }

@@ -17,13 +17,18 @@ PShader shader;
 PImage cover;
 PGraphics canvas;
 
+PImage Title;
+
 PImage ballImg01;
 PImage ballImg02;
 PImage ballImg03;
 
 PImage ropeKnot;
 PImage rope;
-PImage basketImg;
+PImage basketImg01;
+PImage basketImg02;
+PImage basketImg03;
+PImage basketInv;
 PImage health;
 PImage invincible;
 PImage token;
@@ -36,6 +41,8 @@ Camera camera;
 Box2DProcessing box2d;
 
 Player player;
+
+String gameState = "Play";
 
 ////////////Object Arrays w/ Sorting Arrays
 ArrayList<Building> buildings = new ArrayList<Building>();
@@ -60,6 +67,11 @@ ArrayList<Pickup> pickupsToCreate = new ArrayList<Pickup>();
 
 /////////////////Landscape class  
 Landscape landscape;
+String direction = "Flat";
+Float TSLDirectionChange = 0.0;
+float directionChangeTime = 100.0;
+
+
 ArrayList<Vec2> lowLandPoints   = new ArrayList<Vec2>();
 ArrayList<Vec2> topLandPoints   = new ArrayList<Vec2>();
 ///Low and High list in float values for shader
@@ -93,14 +105,22 @@ int lives = 3;
 
 boolean paused = false;
 boolean pauseReleased =true;
+
+
+
+
 void loadImages() {
+  Title = loadImage("Title-01-01.png");
   cover = loadImage("Empty.png");
   ballImg01 = loadImage("balloonBlue-01.png");
   ballImg02 = loadImage("balloonGreen-01.png");
   ballImg03 = loadImage("balloonRed-01.png");
   ropeKnot = loadImage("ropeKnot.png");
   rope = loadImage("rope-01.png");
-  basketImg = loadImage("Player-01.png");
+  basketImg01 = loadImage("Player-01.png");
+  basketImg02 = loadImage("PlayerCrack1-01.png");
+  basketImg03 = loadImage("PlayerCrack2-01.png");
+  basketInv = loadImage("PlayerBlue-01.png");
   token = loadImage("Token-01.png");
   health =loadImage("Health-01.png");
   invincible = loadImage("Invincibility-01.png");
@@ -140,48 +160,45 @@ void draw() {
   float b = map(incline, 0, 10000, 20, 255);
   background(r, g, b);
 
+  if (gameState=="Title") {
 
-
-  if (!paused) {
+    pushMatrix();
+    scale(.235);
+    image(Title, 0, 0);
+    popMatrix();
+    if (in.EnterReleased)resetGame=true;//wait for player to press enter then reset game
+    if (resetGame) ResetGame();//if resetGame is true then reset the game by calling the function ResetGame
+  } else if (gameState=="Play"||gameState=="Dead") {
 
     pushMatrix();
     translate(-camera.position.x, -camera.position.y);
-    HandleDeaths();
-    HandleBirths();
-
-
-    UpdateDisplays();
-
-
-    UpdateBoundaries();
+    if (!paused) {
+      HandleDeaths();
+      HandleBirths();
+      UpdateDisplays();
+      UpdateBoundaries();
+      Update();
+    } else UpdateDisplays();
     popMatrix();
-    Update();
-  } else {
-    pushMatrix();
-    //translate(-viewOffset, viewOffset);
-    translate(-camera.position.x, camera.position.y);
-    UpdateDisplays();
+    drawHud();
 
-    popMatrix();
-  }
-
-
-  drawHud();
-
-  if (in.Pause&&pauseReleased) {
-    paused=!paused;
-    pauseReleased=false;
-  }
-  if (!in.Pause&&pauseReleased==false) {
-    pauseReleased=true;
-  }
-}
+    if (in.Pause&&pauseReleased) {
+      paused=!paused;
+      pauseReleased=false;
+    }
+    if (!in.Pause&&pauseReleased==false) pauseReleased=true;
+    
+    
+    if(gameState=="Dead"&&in.EnterReleased==true) endGame();
+  }//end if Dead or Play 
+  
+    in.update();
+}//close Draw
 
 
 
 
 void Update() {
-  camera.update();
   //if score is greater than highscore then thats the new highscore
   if (score>highScore) highScore=score;
   //if players bollean setPreviouseVelocity is set to true, then set it and make the boolean false
@@ -207,59 +224,64 @@ void Update() {
   //if players basket has hit ground enough to make livs hit 0
   if (lives<=0) player.dead=true;
 
-
   if (!player.dead) {//if player is alive
-    //score is time since last start + points picked up
-    if (!player.dead) score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp; 
-    
-    //if player.pos.x-playerlastupdatepos.x > n  update player.lastupdatepos=player.pos.x
-    float dist = player.position.x-player.LastTerrainUpdate;
-    if(dist>=10)landscape.UpdateTerrain();
-    //landscape.UpdateTerrainEveryNFrame(9);///every n frames update the terrain: Currenlty 9 frames is equal to movement
-    
-    
-    
-    //add to view offset
-    viewOffset+=1;
-    camera.position.x+=1;
-    //camera.position.y+=1;
-  } else {//if player is dead  
-    if (in.Enter)resetGame=true;//wait for player to press enter then reset game
-  }
 
-  if (resetGame) ResetGame();//if resetGame is true then reset the game by calling the function ResetGame
+    float dist = player.position.x-player.LastTerrainUpdate;
+    if (dist>=10)landscape.UpdateTerrain();
+  } else {//if player is dead  
+
+    gameState = "Dead";
+    //gameOver();
+  }
+  
+  
+
+  
+}//End update
+
+void gameOver() {
+
+  gameState = "Dead";
+  if(player.invincible)player.invincible=!player.invincible;
 }
 
-
-
+void endGame() {
+  gameState="Title";
+  resetArrays();//Reset all the arrays adds all objects to their kill lists, then sets all lists and creation lists to null,but not kill list cause they need to run and self destroy after 
+  ResetLandscape();//reset the landscape which destroys the chin arrays bodies as well as its arrays then creates new beginning arrays
+  player.destroyBodies(); 
+  camera.reset();
+}
 /*
 *This is the main reset game function that calls individual resets as well as reinitializes thing for the reset
  *Things to be reset are   Arrays   Landscape     Player   and alll previouse box2d bodies must be deleted
  */
 void ResetGame() {
-  resetArrays();//Reset all the arrays adds all objects to their kill lists, then sets all lists and creation lists to null,but not kill list cause they need to run and self destroy after 
-  ResetLandscape();//reset the landscape which destroys the chin arrays bodies as well as its arrays then creates new beginning arrays
+  //resetArrays();//Reset all the arrays adds all objects to their kill lists, then sets all lists and creation lists to null,but not kill list cause they need to run and self destroy after 
+  // ResetLandscape();//reset the landscape which destroys the chin arrays bodies as well as its arrays then creates new beginning arrays
   //destroy the player body
-  player.destroyBodies(); 
-  
-  
-  camera.reset();
-  
-  
+  // player.destroyBodies(); 
+
+
+  //camera.reset();
+  CreateChainArray(); //create new chain array
+  UpdateChainArray();//in update it kills the body and then makes a landscape into a new landscpe
+
   //then create new player by setting player to new player
   player = new Player();
   //reset lives to 3; basket damage
   lives=3;
   //reset amount of pickups grabbed
   pointsPickedUp=0;
-  //reset view offset
-  viewOffset=0;
+
   camera.position.x=0;
   camera.position.y=0;
   //reset the boolean that triggerd this function
   resetGame=false;
   //set the time since last restart to now so that the next sessions timers and counters will work from this point intead of start of program
   timeSinceLastStart=millis()/1000;
+
+  gameState="Play";
 }
 /*
 *This function resets all of the arrays that hold objects within the game.
@@ -292,8 +314,6 @@ void ResetLandscape() {
   xoff=0.0;//set the s offset back to 0
   flatCounter=0;//reset the flatcounter incase player died in the middle of flat creation
   incline=0;//reset the inlcined amount
-  CreateChainArray(); //create new chain array
-  UpdateChainArray();//in update it kills the body and then makes a landscape into a new landscpe
 }
 
 
@@ -333,34 +353,12 @@ void UpdateBoundaries() {
  *
  */
 void drawHud() {
-  if (paused) {//If the game is paused then show pused
-    pushStyle();
-    //text("paused", 300, 300);
-    popStyle();
-  }
-
-  //This is the bar for the invincible counter
-  pushStyle();
-  fill(0, 0, 255);
-  if (player.invincible) rect(50, 110, 50, map(player.invincibleCounter, 10, 0, 100, 0));//make a rectange langth of invisable counter size
-  popStyle();
 
 
-  //Draw Basket Lives in bottom right
-  for (int i = lives; i>0; i--) {
-    pushStyle();
-    fill(255, 0, 0);
-    ellipse(width-50-(i*30), height-20, 20, 20);
-    popStyle();
-  }
-  //Draw Text in upper left of Score information
-  pushStyle();
-  fill(200);
-  textSize(40);
-  //text("Score:       "+ score, 50, 50);//Score text
-  //text("Highscore:  "+ highScore, 50, 100);//High score text
-  if (player.dead)  text("Press enter to restart", width/2-100, height/2);//If player is dead, tell them to press enter
-  popStyle();
+  
+  
+  
+  
 }
 
 
@@ -392,10 +390,15 @@ void UpdateChainArray() {
   newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-height/1.5*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
 
 
-  ///add 110 of the previose vec2 points to the new arrays for top and bottom, the 110 keeps it from being infanite
-  for (int i = 0; i <110; i++) {
-    newLowLand.add(lowLandPoints.get(i));
-    newTopLand.add(topLandPoints.get(i));
+
+  if (lowLandPoints.size()<500) {
+    for (Vec2 v : lowLandPoints) newLowLand.add(v);
+    for (Vec2 v : topLandPoints) newTopLand.add(v);
+  } else {
+    for (int i = 0; i <499; i++) {
+      newLowLand.add(lowLandPoints.get(i));
+      newTopLand.add(topLandPoints.get(i));
+    }
   }
 
   lowLandPoints = newLowLand;//set low land points to the new low land points
@@ -404,7 +407,45 @@ void UpdateChainArray() {
   landscape = new Landscape(topLandPoints, lowLandPoints);//create new landscape with the new top and low points
 
   xoff+=.01+random(-1, 1);//add a random small amount to the xoff
-  incline+=10;//add ten to the incline
+  
+  if(TSLDirectionChange>=directionChangeTime) GetNextDirection();
+  TSLDirectionChange++;
+  switch (direction) {
+    case "UpRight":
+    incline+=10;//add ten to the incline
+    break;
+    case "DownRight":
+    incline-=10;//add ten to the incline
+    break;
+    case "Flat":
+    break;
+    case "Up":   
+    break;
+    case "Down":
+    break;
+    
+    
+  }
+  
+  
+  
+}
+
+void GetNextDirection(){
+  TSLDirectionChange=0.0;
+  int rand = int(random(5));
+  println("roll for   "+ rand);
+  switch(rand){
+   case 0:direction ="UpRight";break;
+   case 1:direction ="DownRight";break;
+   case 2:direction ="UpRight";break;
+   case 3:direction ="DownRight";break;
+   case 4:direction ="UpRight";break;
+    
+    
+  }
+  
+  
 }
 
 /*
@@ -436,7 +477,7 @@ void CreateChainArray() {
   for (float x=width+100; x>-100; x -= 10) {//for every 10 points on the x axis add a point to the array at increasing height
     float y = incline+height*.3;//each y is set to the increasing incline amount plus the screens height time .3
     lowLandPoints.add( new Vec2(x, y));    //add the point to the vector
-    y-=height*1.5+random(-10,10);//subtract the height of the view for the new ceilings point
+    y-=height*1.5+random(-10, 10);//subtract the height of the view for the new ceilings point
     topLandPoints.add(new Vec2(x, y));//add the point to the end of the vector
 
     xoff+=0.1;//add to the xoff
@@ -485,6 +526,7 @@ void HandleDeaths() {
   for (Circle c : player.circlesToKill) {
     c.destroyBody();//call function within object that destroys its body from box world
     player.circles.remove(c);//remove object from main list
+    player.balloonCount--;
   }
   player.circlesToKill = new ArrayList<Circle>();//reset the death list
   for (Box b : player.boxesToKill) {

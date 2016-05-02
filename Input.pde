@@ -5,8 +5,13 @@ public class Input {
   boolean Up = false;
   boolean Down = false;
   boolean Enter = false;
+  boolean EnterReleased = false;
   boolean Space = false;
   boolean Pause = false;
+  
+  void update(){
+   if(EnterReleased) EnterReleased=!EnterReleased; 
+  }
 
   void handleKey(int keyCode, boolean state) {
     switch(keyCode) {
@@ -26,6 +31,7 @@ public class Input {
       Down=state;
       break;
     case 10:
+    if(state==false) EnterReleased=true;
       Enter=state;
       break;
     case 80:
