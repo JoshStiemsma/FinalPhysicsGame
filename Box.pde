@@ -1,9 +1,11 @@
 class Box {
   //the players body
   Body body;
-//the width and height of the box
+  //the width and height of the box
   float w, h;
-//the float color of the box initialy grey
+
+  Vec2 size;
+  //the float color of the box initialy grey
   float c = 175;
   //the color of the box, initialy blue
   color clr = color(0, 0, 200);
@@ -13,21 +15,44 @@ class Box {
   Vec2 pos = new Vec2();
   //density of box as float
   float density;
-// the parent building of the box if there is one, initialy null
+  // the parent building of the box if there is one, initialy null
   Building parent;
 
-  //Constructor
-  Box(Vec2 _pos, Vec2 size, boolean fixed_, float density) {
+  Vec2 initVel=new Vec2();
+boolean hitByPlayer=false;
+
+  //Constructor withou parent
+  Box(Vec2 _pos, Vec2 size, boolean fixed_, float density, boolean _toCreate) {
     this.density = density;//set density to passed density
     this.pos=_pos;//set position to passed in position
-    w = size.x;//set width to size.x
-    h = size.y;//set height to size.h
+
+    this.size=size;
     this.fixed = fixed_;//Fixed makes it Static usualy for rope ends
 
-    MakeBox(_pos);//create the box shape at given position _pos
-    body.setUserData(new Object[]{"box", "alive"});//set the boxes user data to box that is alive
+    w = size.x;//set width to size.x
+    h = size.y;//set height to size.h
+    if (_toCreate==true) {
+      MakeBox(_pos);//create the box shape at given position _pos
+      body.setUserData(new Object[]{"box", "alive"});//set the boxes user data to box that is alive
+      println("ASDFASD");
+    }
   }
+  //Constructor with parent
+  Box(Vec2 _pos, Vec2 size, boolean fixed_, float density, Building parent, boolean _toCreate) {
+    this.density = density;//set density to passed density
+    this.pos=_pos;//set position to passed in position
+    this.parent=parent;
+    this.size=size;
+    this.fixed = fixed_;//Fixed makes it Static usualy for rope ends
 
+    if (_toCreate==true) {
+      w = size.x;//set width to size.x
+      h = size.y;//set height to size.h
+      MakeBox(_pos);//create the box shape at given position _pos
+      body.setUserData(new Object[]{"box", "alive"});//set the boxes user data to box that is alive
+      println("ASDFASD");
+    }
+  }
 
 
   /*
@@ -47,7 +72,7 @@ class Box {
    *
    */
   void display(color cl) {
-    pos = box2d.getBodyPixelCoord(body);//grab the position of the box in pixel coordinates
+    pos = box2d.getBodyPixelCoord(this.body);//grab the position of the box in pixel coordinates
     float a = body.getAngle();//set a to the rotation
 
     pushMatrix();
@@ -98,41 +123,46 @@ class Box {
     body.createFixture(fd);
   }
 
-/*
+  /*
 /This function explodes the box into smaller boxes when called, usualy called when player hits box or box hits ground
-/
-*/
+   /
+   */
   void Explode() {
+    //Vec2 newPos = box2d.getBodyPixelCoord(this.body);//grab position
     Vec2 newPos = pos;//grab position
     Vec2 vel = player.basket.getLinearVelocity();//grab linear velocity
-    newPos.x+=w/2;//move over half of box width
+    //newPos.x+=w/2;//move over half of box width
+    //newPos.x+=50;
     Vec2 size = new Vec2(w/3, h/3);//size is a third of previose box size
 
     for (float i=0; i<=w/30; i++) {//for each 30% of each object create a new one a third of the objects size, or a pickup
       for (float j=0; j<=h/30; j++) {
+        newPos.x+=w/9;//move positions over a 9th of the width
         int rand = int(random(0, 10));//create random varaible between 0 and 10
         if (rand>6&&rand<9) {//if between 6 and 9
           Pickup p = new Pickup("token", newPos, false);//create new pickup as atoken at this new position
           pickupsToCreate.add(p);//add this token to the pickups creation list
         } else if (rand>=9) {//if random is greater than 9
-          
           Pickup p = new Pickup("invincible", newPos, false);//create new pickup of invincible at the position
           pickupsToCreate.add(p);//add it the the pickups creation list
-          
         } else { //end if, didnt roll any pickup make a box
 
 
-          Box box = new Box( newPos, size, false, .1);//make new box
-          box.body.setLinearVelocity(vel.add(new Vec2 (random(-20, 20), random(-20, 20))));//set random velocity for explosion effect
-          //box.body.setLinearVelocity(vel);//set velocity to palyers elocity
-          box.body.setAngularVelocity(random(-10, 10));//set random rotation
-          parent.boxes.add(box);//add box to the parents boxes list, boom this parts crazy
+          Box newbox = new Box(new Vec2(newPos.x+(i*10),newPos.y), size, false, .1, false);//make new box
+          parent.boxesToCreate.add(newbox);//add box to the parents boxes list, boom this parts crazy
+          if(hitByPlayer)newbox.initVel=vel;
+          println("create at " + newbox.pos.x);
         }
-        newPos.x-=w/9;//move positions over a 9th of the width
-        if (j==h/10)newPos.y+=h/9;//if made ten already then go up a bit on the y for a new row
+           if (j==h/10){
+          newPos.y+=(i+1)*5;//if made ten already then go up a bit on the y for a new row
+        }
+        
+       
+      
+       //newPos.x+=33;
+       //println(newPos.x);
+       
       }
     }//end creating new objects
-
-
   }//end explosion
 }//end box

@@ -165,9 +165,12 @@ void draw() {
   if (gameState=="Title") {
 
     pushMatrix();
-    scale(.235);
+    scale(.24);
+    imageMode(CORNER);
     image(Title, 0, 0);
     popMatrix();
+    
+    
     if (in.EnterReleased)resetGame=true;//wait for player to press enter then reset game
     if (resetGame) ResetGame();//if resetGame is true then reset the game by calling the function ResetGame
   } else if (gameState=="Play"||gameState=="Dead") {
@@ -349,6 +352,7 @@ void UpdateBoundaries() {
   for (Building b : buildings)  if (b.position.x-viewOffset<0)buildingsToKill.add(b);
   for (Platform p : platforms)  if (p.position.x-viewOffset<0)platformsToKill.add(p);  
   for (Rope r : ropes) if (r.position.x-viewOffset<0)ropesToKill.add(r);
+  for (Pickup p : pickups) if (p.position.x-viewOffset<0)pickupsToKill.add(p);
 }
 
 /*
@@ -388,8 +392,8 @@ void UpdateChainArray() {
   if (adjuster>2||adjuster<.8) adjuster  =.8;//if adjuster is over 1, subtract time in millis mapped from 0-8000,000 mapped as 0-1
   else adjuster+=random(.01);//subtract random amount under .5
   
-  if(currentGap>targetGap)currentGap--;
-  if(currentGap<targetGap)currentGap++;
+  if(currentGap>targetGap)currentGap-=.5;
+  if(currentGap<targetGap)currentGap+=.5;
   
   println(currentGap);
   println(targetGap);
@@ -400,7 +404,9 @@ void UpdateChainArray() {
   ArrayList<Vec2> newTopLand=new ArrayList<Vec2>();//same for newTopLand
   newLowLand.add( new Vec2(lowLandPoints.get(0).x+15, y)); //add the new point to the array at 0 but make it 10 over on the x axis
   //newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
-  newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap)); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
+  if(flatLand&&direction=="UpRight") newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap-flatCounter*6));
+  else if( flatLand&&direction=="DownRight") newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap+flatCounter*6));
+  else newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap)); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
 
 
 
@@ -422,6 +428,7 @@ void UpdateChainArray() {
   //xoff+=.01+random(-1, 1);//add a random small amount to the xoff
   
   if(TSLDirectionChange>=directionChangeTime) GetNextDirection();
+  
   TSLDirectionChange++;
   switch (direction) {
     case "UpRight":
@@ -487,13 +494,13 @@ void RollForObsticle() {
 void CreateChainArray() {
   lowLandPoints = new ArrayList<Vec2>();//initiate low land points array list
   topLandPoints = new ArrayList<Vec2>();//initiate top land points array list
-
+float j = 2;
   for (float x=width+100; x>-100; x -= 10) {//for every 10 points on the x axis add a point to the array at increasing height
     float y = incline+height*.3;//each y is set to the increasing incline amount plus the screens height time .3
     lowLandPoints.add( new Vec2(x, y));    //add the point to the vector
-    y-=height*1.5+random(-10, 10);//subtract the height of the view for the new ceilings point
+    y-=height*j+random(-10, 10);//subtract the height of the view for the new ceilings point
     topLandPoints.add(new Vec2(x, y));//add the point to the end of the vector
-
+    j-=.005;
     xoff+=0.1;//add to the xoff
     incline+=10;//add to the incline
   }
@@ -518,6 +525,7 @@ void HandleBirths() {
   //for each bulding in the buildings creation list, create that building at the position, with the boolean to actualy create the body and add to main array
   for (Building b : buildingsToCreate) buildings.add( new Building(b.position, true));
   buildingsToCreate = new ArrayList<Building>();//once all are created set the creations list to null
+    for (Building b : buildings) b.HandleBirths();
   //for each rope in the ropes creation list, create that rope with its leangth, amount of points, position, and boolean that states the body be made and siaplyed
   for (Rope r : ropesToCreate) ropes.add(new Rope(r.totalLength, r.numPoints, r.position, true));
   ropesToCreate = new ArrayList<Rope>();//once all are created set the array to null

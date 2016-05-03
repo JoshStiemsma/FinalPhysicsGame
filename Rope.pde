@@ -31,8 +31,8 @@ class Rope {
 
       // First and last particles are made with density of zero
       if (i == 0) {
-        b = new Box(new Vec2(position.x, position.y-10), new Vec2(5, 5), true, .10);
-      } else b = new Box(new Vec2(position.x, position.y+(20*i)), new Vec2(5, 20), false, .10);
+        b = new Box(new Vec2(position.x, position.y-10), new Vec2(5, 5), true, .10,true);
+      } else b = new Box(new Vec2(position.x, position.y+(20*i)), new Vec2(5, 20), false, .10,true);
       boxes.add(b);
 
       // Connect the particles with a distance joint

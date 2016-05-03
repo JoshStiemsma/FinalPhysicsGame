@@ -29,7 +29,8 @@ class CustomListener implements ContactListener {
         if (o2[0]=="box") {
           Vec2 vel =b1.getLinearVelocity();
           if (mag(vel.x, vel.y)>25||player.invincible) {
-            b2.setUserData(new Object[]{"box", "dead"});
+            b2.setUserData(new Object[]{"box", "deadByPlayer"});
+            
             player.prevVel = player.basket.getLinearVelocity();
             player.setPrevVel=true;
           }//Explode Box if players velocity is over a limit

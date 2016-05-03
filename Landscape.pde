@@ -73,60 +73,74 @@ class Landscape {
    */
   void display() {
     pushStyle();
-    strokeWeight(2);
-    stroke(0);
+    noStroke();
     fill(100, 100, 100);
+
+    ////////////////Top Layer
     beginShape();
     for (Vec2 v : lowLandPoints) {
       vertex(v.x, v.y);
     }
-
-    //vertex(-width+viewOffset, height);
-    //vertex(width+viewOffset, height+20-incline);
     vertex(-100, 1000);
     vertex(10000, 10000);
 
-
-    //line(0,0,width,height);
-    //close shape so fill works
-    popStyle();
-    pushStyle();
-    fill(100, 100, 100);
     endShape();
 
 
 
-    //for (Vec2 v : topLandPoints) {
-    //  vertex(v.x, v.y);
-    //}
-    //vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(topLandPoints.size()-1).y);
-    //vertex(topLandPoints.get(topLandPoints.size()-1).x-1000, topLandPoints.get(0).y);
-    //vertex(topLandPoints.get(0).x+1000, topLandPoints.get(0).y-1000-incline);
-noStroke();
+    /////////Bottom layer
     for (int i =0; i<topLandPoints.size(); i+=20) {
-      //int k = 0;   
+      //int k = 0;  
       beginShape();
       vertex(topLandPoints.get(i).x, topLandPoints.get(i).y-1000);
-    
+
       for (int j = i; j <=i+20; j++) {
         if (j<topLandPoints.size()) vertex(topLandPoints.get(j).x, topLandPoints.get(j).y);
       }
       if (i+20<topLandPoints.size()) vertex(topLandPoints.get(i+20).x, topLandPoints.get(i+20).y-1000);
       else  vertex(topLandPoints.get(topLandPoints.size()-1-10).x, topLandPoints.get(topLandPoints.size()-1).y-1000);
-        
-      
-      //k+=100;
 
-      //vertex(v.x, v.y);
+
 
       endShape();
     }
-
-
-
-
     popStyle();
-  }
+
+
+
+    for (int i =0; i<topLandPoints.size()-1; i++) {
+
+      if (abs(topLandPoints.get(i).x-box2d.getBodyPixelCoord(player.basket).x)<=width) {
+        strokeWeight(10);
+        float j = topLandPoints.get(i).y-topLandPoints.get(i+1).y;
+        //println(j);
+        if (j>=7) {
+          //stroke(50);
+          // stroke(255,0,0);//red
+          //strokeWeight(7);
+          stroke(10);
+        } else if (j<=-7) {
+          stroke(50);
+          //stroke(0,255,0);//green
+        } else {
+          stroke(50);
+          // stroke(0,0,255);//blue
+        }
+        line( topLandPoints.get(i).x, topLandPoints.get(i).y, topLandPoints.get(i+1).x, topLandPoints.get(i+1).y  );
+
+
+        j = lowLandPoints.get(i).y-lowLandPoints.get(i+1).y;
+        if (j>=7) {
+          stroke(100);
+        } else if (j<=-7) {
+          stroke(10);
+        } else {
+          stroke(75);
+        }
+        line( lowLandPoints.get(i).x, lowLandPoints.get(i).y, lowLandPoints.get(i+1).x, lowLandPoints.get(i+1).y  );
+      }
+    }//close for each top point
+  }//Close Display
 
 
 
