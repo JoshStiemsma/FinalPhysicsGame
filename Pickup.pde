@@ -1,4 +1,4 @@
-class Pickup {
+  class Pickup {
 
   String type;
   Vec2 position;

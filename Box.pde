@@ -34,7 +34,7 @@ boolean hitByPlayer=false;
     if (_toCreate==true) {
       MakeBox(_pos);//create the box shape at given position _pos
       body.setUserData(new Object[]{"box", "alive"});//set the boxes user data to box that is alive
-      println("ASDFASD");
+     
     }
   }
   //Constructor with parent

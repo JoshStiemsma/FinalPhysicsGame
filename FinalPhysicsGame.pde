@@ -12,10 +12,18 @@ import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
 
+PFont bubble;
+
 
 PShader shader;
 PImage cover;
+PGraphics black;
+float titleFade = 255;
+
 PGraphics canvas;
+
+
+boolean starting=true;
 
 PImage Title;
 
@@ -33,6 +41,8 @@ PImage health;
 PImage invincible;
 PImage token;
 
+PImage weightImg;
+
 PImage brick01;
 PImage brick02;
 PImage brick03;
@@ -42,7 +52,9 @@ Box2DProcessing box2d;
 
 Player player;
 
-String gameState = "Play";
+float finalDistance;
+
+String gameState = "Title";
 
 ////////////Object Arrays w/ Sorting Arrays
 ArrayList<Building> buildings = new ArrayList<Building>();
@@ -101,7 +113,7 @@ boolean resetGame= false;
 public int score =0;
 int pointsPickedUp =0;
 int highScore=0;
-float timeSinceLastStart=2;
+float timeSinceLastStart=0;
 
 int lives = 3;
 
@@ -112,6 +124,12 @@ boolean pauseReleased =true;
 
 
 void loadImages() {
+
+  bubble = createFont("Bubblegum.ttf", 64);
+  black = createGraphics (width+50, height+50 );
+  black.beginDraw();
+  black.background(0);
+  black.endDraw();
   Title = loadImage("Title-01-01.png");
   cover = loadImage("Empty.png");
   ballImg01 = loadImage("balloonBlue-01.png");
@@ -126,6 +144,8 @@ void loadImages() {
   token = loadImage("Token-01.png");
   health =loadImage("Health-01.png");
   invincible = loadImage("Invincibility-01.png");
+  weightImg = loadImage("Weight.png");
+
   brick01 =loadImage("brickVariant1-01.png");
   brick02 =loadImage("brickVariant2.png");
   brick03 =loadImage("brickVariant3-01.png");
@@ -146,9 +166,9 @@ void setup() {
 
   player=new Player();
   camera = new Camera();
-  CreateChainArray(); 
-  landscape= new Landscape(topLandPoints, lowLandPoints);
-  UpdateChainArray();
+  //CreateChainArray(); 
+  //landscape= new Landscape(topLandPoints, lowLandPoints);
+  //UpdateChainArray();
 }
 
 
@@ -169,8 +189,8 @@ void draw() {
     imageMode(CORNER);
     image(Title, 0, 0);
     popMatrix();
-    
-    
+
+
     if (in.EnterReleased)resetGame=true;//wait for player to press enter then reset game
     if (resetGame) ResetGame();//if resetGame is true then reset the game by calling the function ResetGame
   } else if (gameState=="Play"||gameState=="Dead") {
@@ -192,12 +212,27 @@ void draw() {
       pauseReleased=false;
     }
     if (!in.Pause&&pauseReleased==false) pauseReleased=true;
-    
-    
-    if(gameState=="Dead"&&in.EnterReleased==true) endGame();
+
+
+    if (gameState=="Dead"&&in.EnterReleased==true) endGame();
+    if (titleFade>0) {
+      pushMatrix();
+      scale(.24);
+      imageMode(CORNER);
+      tint(255, titleFade);
+      image(Title, 0, 0);
+      popMatrix();
+      tint(255);
+      titleFade-=3;
+    }
   }//end if Dead or Play 
-  
-    in.update();
+
+
+
+
+
+
+  in.update();
 }//close Draw
 
 
@@ -225,30 +260,52 @@ void Update() {
 
   box2d.step(); //always step the physics world
 
+  if (gameState=="Dead") {
+
+    if (player.alphaFade<255) {
+      player.alphaFade++;
+      camera.position = new Vec2(camera.position.x, camera.position.y+3);
+    }
+    pushStyle();
+    imageMode(CORNER);
+    tint(255, player.alphaFade);
+    image(black, camera.position.x, camera.position.y);   
+    popStyle();
+
+pushMatrix();
+    pushStyle();
+    fill(255);
+    translate( camera.position.x, camera.position.y  );
+    scale(.7);
+    text("You Scored  " + int(player.finalDistance), width/2, 200); 
+    scale(.5);
+    text("Press enter to play again", width/2+500, 500);
+    popStyle();
+    popMatrix();
+  }
+
 
 
   //if players basket has hit ground enough to make livs hit 0
-  if (lives<=0) player.dead=true;
-
+  if (lives<=0) {
+    gameOver();
+    //player.dead=true;
+  }
   if (!player.dead) {//if player is alive
 
     float dist = player.position.x-player.LastTerrainUpdate;
     if (dist>=10)landscape.UpdateTerrain();
   } else {//if player is dead  
-
-    gameState = "Dead";
-    //gameOver();
+    gameOver();
   }
-  
-  
-
-  
 }//End update
 
 void gameOver() {
-
+  player.setFinal();
+  finalDistance = player.position.x;
+  player.dead=true;
   gameState = "Dead";
-  if(player.invincible)player.invincible=!player.invincible;
+  if (player.invincible)player.invincible=!player.invincible;
 }
 
 void endGame() {
@@ -263,13 +320,10 @@ void endGame() {
  *Things to be reset are   Arrays   Landscape     Player   and alll previouse box2d bodies must be deleted
  */
 void ResetGame() {
-  //resetArrays();//Reset all the arrays adds all objects to their kill lists, then sets all lists and creation lists to null,but not kill list cause they need to run and self destroy after 
-  // ResetLandscape();//reset the landscape which destroys the chin arrays bodies as well as its arrays then creates new beginning arrays
-  //destroy the player body
-  // player.destroyBodies(); 
+  if (starting)player.destroyBodies(); 
+  starting=false;
 
 
-  //camera.reset();
   CreateChainArray(); //create new chain array
   UpdateChainArray();//in update it kills the body and then makes a landscape into a new landscpe
 
@@ -360,12 +414,6 @@ void UpdateBoundaries() {
  *
  */
 void drawHud() {
-
-
-  
-  
-  
-  
 }
 
 
@@ -391,21 +439,21 @@ void UpdateChainArray() {
   //adjuster is a variable randomly increasing and reset after a certain hight, that is added to the cielings points array to make it different from the ground array
   if (adjuster>2||adjuster<.8) adjuster  =.8;//if adjuster is over 1, subtract time in millis mapped from 0-8000,000 mapped as 0-1
   else adjuster+=random(.01);//subtract random amount under .5
-  
-  if(currentGap>targetGap)currentGap-=.5;
-  if(currentGap<targetGap)currentGap+=.5;
-  
-  println(currentGap);
-  println(targetGap);
+
+  if (currentGap>targetGap)currentGap-=.5;
+  if (currentGap<targetGap)currentGap+=.5;
+
+  //println(currentGap);
+  //println(targetGap);
   float gap = currentGap;
-  
-  
+
+
   ArrayList<Vec2> newLowLand=new ArrayList<Vec2>();//create new lowland Vec2 array that will get this new point but then the rest of the old array points, and then set it to current landscape
   ArrayList<Vec2> newTopLand=new ArrayList<Vec2>();//same for newTopLand
   newLowLand.add( new Vec2(lowLandPoints.get(0).x+15, y)); //add the new point to the array at 0 but make it 10 over on the x axis
   //newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap*adjuster+random(-10-(flatCounter*10), 10-(flatCounter*10)))); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
-  if(flatLand&&direction=="UpRight") newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap-flatCounter*6));
-  else if( flatLand&&direction=="DownRight") newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap+flatCounter*6));
+  if (flatLand&&direction=="UpRight") newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap-flatCounter*6));
+  else if ( flatLand&&direction=="DownRight") newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap+flatCounter*6));
   else newTopLand.add( new Vec2(topLandPoints.get(0).x+15, y-gap)); //add new point to the topland array at 0, add ten to the x, at the adjuster to the y plus a random
 
 
@@ -422,51 +470,52 @@ void UpdateChainArray() {
 
   lowLandPoints = newLowLand;//set low land points to the new low land points
   topLandPoints = newTopLand;// set top land points to the new top land points
-  landscape.killBody();//kill the landscapes body
+  if (landscape!=null)landscape.killBody();//kill the landscapes body
   landscape = new Landscape(topLandPoints, lowLandPoints);//create new landscape with the new top and low points
 
   //xoff+=.01+random(-1, 1);//add a random small amount to the xoff
-  
-  if(TSLDirectionChange>=directionChangeTime) GetNextDirection();
-  
+
+  if (TSLDirectionChange>=directionChangeTime) GetNextDirection();
+
   TSLDirectionChange++;
   switch (direction) {
-    case "UpRight":
+  case "UpRight":
     incline+=10;//add ten to the incline
     break;
-    case "DownRight":
+  case "DownRight":
     incline-=10;//add ten to the incline
     break;
-    case "Flat":
+  case "Flat":
     break;
-    case "Up":   
+  case "Up":   
     break;
-    case "Down":
+  case "Down":
     break;
-    
-    
   }
-  
-  
-  
 }
 
-void GetNextDirection(){
+void GetNextDirection() {
   TSLDirectionChange=0.0;
-  targetGap=random(300,700);
+  targetGap=random(300, 700);
   int rand = int(random(5));
-  println("roll for   "+ rand);
-  switch(rand){
-   case 0:direction ="UpRight";break;
-   case 1:direction ="DownRight";break;
-   case 2:direction ="UpRight";break;
-   case 3:direction ="DownRight";break;
-   case 4:direction ="UpRight";break;
-    
-    
+  //println("roll for   "+ rand);
+  switch(rand) {
+  case 0:
+    direction ="UpRight";
+    break;
+  case 1:
+    direction ="DownRight";
+    break;
+  case 2:
+    direction ="UpRight";
+    break;
+  case 3:
+    direction ="DownRight";
+    break;
+  case 4:
+    direction ="UpRight";
+    break;
   }
-  
-  
 }
 
 /*
@@ -494,13 +543,14 @@ void RollForObsticle() {
 void CreateChainArray() {
   lowLandPoints = new ArrayList<Vec2>();//initiate low land points array list
   topLandPoints = new ArrayList<Vec2>();//initiate top land points array list
-float j = 2;
+  float j = 400;
   for (float x=width+100; x>-100; x -= 10) {//for every 10 points on the x axis add a point to the array at increasing height
     float y = incline+height*.3;//each y is set to the increasing incline amount plus the screens height time .3
     lowLandPoints.add( new Vec2(x, y));    //add the point to the vector
-    y-=height*j+random(-10, 10);//subtract the height of the view for the new ceilings point
+    y-=height-j+300+random(-10, 10);//subtract the height of the view for the new ceilings point
     topLandPoints.add(new Vec2(x, y));//add the point to the end of the vector
-    j-=.005;
+    j-=4;
+    println("j  " + j);
     xoff+=0.1;//add to the xoff
     incline+=10;//add to the incline
   }
@@ -525,7 +575,7 @@ void HandleBirths() {
   //for each bulding in the buildings creation list, create that building at the position, with the boolean to actualy create the body and add to main array
   for (Building b : buildingsToCreate) buildings.add( new Building(b.position, true));
   buildingsToCreate = new ArrayList<Building>();//once all are created set the creations list to null
-    for (Building b : buildings) b.HandleBirths();
+  for (Building b : buildings) b.HandleBirths();
   //for each rope in the ropes creation list, create that rope with its leangth, amount of points, position, and boolean that states the body be made and siaplyed
   for (Rope r : ropesToCreate) ropes.add(new Rope(r.totalLength, r.numPoints, r.position, true));
   ropesToCreate = new ArrayList<Rope>();//once all are created set the array to null

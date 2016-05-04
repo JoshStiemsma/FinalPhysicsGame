@@ -1,5 +1,6 @@
 class Camera {
-  float xOffset = player.position.x-player.startingPosition.x;
+  //float xOffset = player.position.x-player.startingPosition.x;
+  float xOffset = -500;
   float yOffset = 0;
   Vec2 position = new Vec2(0, player.position.y);
 
