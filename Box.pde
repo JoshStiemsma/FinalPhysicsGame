@@ -139,7 +139,8 @@ int onChainCount = 0;
   void Explode() {
     //Vec2 newPos = box2d.getBodyPixelCoord(this.body);//grab position
     Vec2 newPos = pos;//grab position
-    Vec2 vel = player.basket.getLinearVelocity();//grab linear velocity
+    Vec2 vel = player.weight.getLinearVelocity();//grab linear velocity
+    vel= new Vec2(vel.x/2,vel.y/2  );
     //newPos.x+=w/2;//move over half of box width
     //newPos.x+=50;
     Vec2 size = new Vec2(w/3, h/3);//size is a third of previose box size

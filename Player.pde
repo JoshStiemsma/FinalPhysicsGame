@@ -135,6 +135,9 @@ class Player {
 
       // b.display(255);
     }
+    popStyle();
+    
+    
     pushStyle();
     if (ball1Alive&&ball1.body!=null) {
       Vec2 ball ;
@@ -151,7 +154,7 @@ class Player {
     }
     if (ball2Alive &&ball2.body!=null) {
       Vec2 ball = box2d.getBodyPixelCoord(ball2.body);
-      
+
       float ball1a = ball2.body.getAngle();
       pushMatrix();
       imageMode(CENTER);
@@ -187,7 +190,7 @@ class Player {
     scale(2.5);
     image(ropeKnot, 0, 0  );
     popMatrix();
-
+  popStyle();
     //for (int i=0; i<circles.size(); i++) {
     //  //draw each balloon img at circls123 position
 
@@ -222,7 +225,7 @@ class Player {
     //  }
     //popMatrix();
     //}
-    popStyle();
+  
 
 
 
@@ -267,18 +270,14 @@ class Player {
       }
     }
 
-    fill(255);
-
-    textSize(200);
-    textFont(bubble);
-    // text("Score:"+ score, -100, 0);//Score text
 
     popMatrix();
 
 
-
+    imageMode(CENTER);
     position = box2d.getBodyPixelCoord(weight);
     a = weight.getAngle();
+    
     pushMatrix();
     translate(position.x, position.y );
     rotate(-a);
@@ -290,20 +289,26 @@ class Player {
     image(weightImg, 0, 0);
     popMatrix();
     popStyle();
-    pushMatrix();
+
+
+    
 
     pushStyle();
+    pushMatrix();
     fill(255);
     imageMode(CENTER);
     translate(position.x, position.y );
-    scale(.2);
+    
     rotate(-a);
+    scale(.2);
     textFont(bubble);
-    text(weightAmount + "lb", -50, 20);
+    if(dead)text(weightAmount + "lb", 5, 20);
+    else  text(weightAmount + "lb", -30, 20);
     popMatrix();
-
-
     popStyle();
+    
+    
+    
   }//end display
 
   /*
@@ -360,6 +365,7 @@ class Player {
     //ball3.destroyBody();
     //centerLink.destroyBody();
     if (basket!=null)box2d.destroyBody(basket);
+     if (weight!=null)box2d.destroyBody(weight);
   }
 
 
@@ -656,13 +662,13 @@ class Player {
     rjd.bodyA= basket;
     rjd.bodyB = previouse;
     rjd.collideConnected=false;
-    rjd.localAnchorA.set(2.5, 1.3);
+    rjd.localAnchorA.set(2.5, 2);
     rjd.localAnchorB.set(0, .3);
     RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
 
     //Create Right Chain
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*15), new Vec2(2, 10), false, .9, true);
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*20), new Vec2(2, 10), false, .9, true);
       Link.body.setUserData(new Object[]{"chain", "alive", "offChain"});//set the Links user data to box that is alive
       boxes.add(Link);
       RevoluteJointDef rjd2 = new RevoluteJointDef();
@@ -681,7 +687,7 @@ class Player {
     rjd2.bodyA= basket;
     rjd2.bodyB = previouse;
     rjd2.collideConnected=false;
-    rjd2.localAnchorA.set(-2.5, 1.3);
+    rjd2.localAnchorA.set(-2.5, 2);
     rjd2.localAnchorB.set(0, .3);
     RevoluteJoint dj2 = (RevoluteJoint) box2d.world.createJoint(rjd2);
 
@@ -702,7 +708,7 @@ class Player {
       else rjd.bodyA=previouse;
       rjd.bodyB = Link.body;
       rjd.collideConnected=false;
-      if (i==0)  rjd.localAnchorA.set(0, -2);
+      if (i==0)  rjd.localAnchorA.set(0, -1.7);
       else rjd.localAnchorA.set(0, -.3);
       rjd.localAnchorB.set(0, 1);
       //rjd.dampingRatio = 0.5;
