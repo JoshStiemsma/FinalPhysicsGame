@@ -324,18 +324,27 @@ void Update() {
     translate( camera.position.x, camera.position.y  );
     scale(.25);
     text("Thanks for Playing", width+800, 1000); 
-    fill(255, 0, 0);
-    stroke(255);
-    text("The", width+500, 1500); 
-    fill(0, 255, 0);
-    text("Crate", width+800, 1500); 
-    fill(0, 0, 255);
-    text("Escape", width+1100, 1500); 
+
+
     fill(255);
     text("by", width+800, 1800); 
 
     text("Josh Stiemsma      and      Devon Ducharme", width+800, 2200); 
     popStyle();
+    popMatrix();
+
+
+    pushMatrix();
+    textAlign(CENTER);
+    translate( camera.position.x, camera.position.y  );
+    scale(.75);
+    fill(255, 0, 0);
+    stroke(255);
+    text("The", width*.5+(sin(millis()/100)/4)*100-100, 500); 
+    fill(0, 255, 0);
+    text("Crate", width*.5+(sin(millis()/100)/4)*50+100, 500); 
+    fill(0, 0, 255);
+    text("Escape", width*.5+(sin(millis()/100)/4)*100+350, 500); 
     popMatrix();
   }
 

@@ -40,7 +40,7 @@ class Building {
   void update() {
     for (Box b : boxes) {
       Object[] o1 = (Object[])b.body.getUserData();
-     // println(o1[2]);
+     //println(o1[2]);
       //if (o1[2]!=null) {
       //  if (o1[2]=="onChain") {
       //    b.onChainCount++;

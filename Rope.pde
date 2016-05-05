@@ -34,7 +34,7 @@ class Rope {
         b = new Box(new Vec2(position.x, position.y-10), new Vec2(5, 5), true, .10,true);
       } else b = new Box(new Vec2(position.x, position.y+(20*i)), new Vec2(5, 20), false, .10,true);
       boxes.add(b);
-
+//b.body.setUserData(new Object[]{"rope", "alive","offChain"});//set the boxes user data to box that is alive
       // Connect the particles with a distance joint
       if (i > 0) {
 

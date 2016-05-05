@@ -6,10 +6,7 @@ class Player {
   Body weight;
   Box weightBox;
 
-  Circle balloon1;
-  Circle balloon2;
-  Circle balloon3;
-  //Circle centerLinkCircle;
+  Circle CenterLinkCircle;
 
   int weightAmount = 1;
   boolean dead= false;
@@ -42,7 +39,7 @@ class Player {
   Body ballStringEnd3;
   Body ropeEnd1;
   Body ropeEnd2;
-  Body centerLink;
+  Circle centerLink;
   ArrayList<Box>ball1chain = new ArrayList<Box>();
   ArrayList<Box>ball2chain = new ArrayList<Box>();
   ArrayList<Box>ball3chain = new ArrayList<Box>();
@@ -74,6 +71,7 @@ class Player {
     updateWeight();
 
     if (circles.size()==1)dead=true;
+    //if (!ball1Alive&&!ball2Alive&&!ball3Alive)dead=true;
     if (!dead) {
       ApplyInput();
       ApplyLift();
@@ -137,70 +135,93 @@ class Player {
 
       // b.display(255);
     }
+    pushStyle();
+    if (ball1Alive&&ball1.body!=null) {
+      Vec2 ball ;
+      ball = box2d.getBodyPixelCoord(ball1.body);     
 
-
-
-    //Vec2 ball1 = box2d.getBodyPixelCoord(balloon1.body);
-    //float ballA1 = balloon1.body.getAngle();
-    //pushStyle();
-    //pushMatrix();
-    //imageMode(CENTER);
-    //translate(ball1.x, ball1.y);
-    //rotate(-ballA1);
-    //scale(.04);
-    ////image(ballImg01, 0, 0);
-
-    //popMatrix();
-    //popStyle();
-
-    ///Draw CenterLink
-    //Vec2 center = box2d.getBodyPixelCoord(centerLink);
-    //float centerA = centerLink.getAngle();
-    //pushStyle();
-    //pushMatrix();
-    //imageMode(CENTER);
-    //translate(center.x, center.y);
-    //rotate(-centerA);
-    //scale(.04);
-    //scale(2.5);
-    //image(ropeKnot, 0, 0  );
-    //popMatrix();
-    //popStyle();
-
-    for (int i=0; i<circles.size(); i++) {
-      //draw each balloon img at circls123 position
-
-      Vec2 pos = box2d.getBodyPixelCoord(circles.get(i).body);
-      float a1 = circles.get(i).body.getAngle();
+      float ball1a = ball1.body.getAngle();
       pushMatrix();
       imageMode(CENTER);
-      translate(pos.x, pos.y);
-      rotate(-a1);
+      translate(ball.x, ball.y);
+      rotate(-ball1a);
       scale(.04);
-      if (circles.size()==0) {//if knot left
-        scale(2.5);
-        image(ropeKnot, 0, 0  );
-      } else if (circles.size()==1) {//if one ballon left
-        if (i==circles.size()-1) {//draw knot
-          scale(2.5);
-          image(ropeKnot, 0, 0  );
-        } else if (i==0) image(ballImg03, 0, 0);//draw balloon
-      } else if (circles.size()==2) {//if 2 ballon left
-        if (i==circles.size()-1) {
-          scale(2.5);
-          image(ropeKnot, 0, 0  );//draw know
-        } else if (i==0) image(ballImg02, 0, 0);//draw first ballon
-        else if (i==1) image(ballImg03, 0, 0);//draw 2 ballon
-      } else {
-        if (i==circles.size()-1) {
-          scale(2.5);
-          image(ropeKnot, 0, 0  );//draw know
-        } else if (i==0) image(ballImg01, 0, 0);//draw first ballon
-        else if (i==1) image(ballImg02, 0, 0);//draw 2 ballon
-        else if (i==2) image(ballImg03, 0, 0);//draw 3 ballon
-      }
+      image(ballImg02, 0, 0);
       popMatrix();
     }
+    if (ball2Alive &&ball2.body!=null) {
+      Vec2 ball = box2d.getBodyPixelCoord(ball2.body);
+      
+      float ball1a = ball2.body.getAngle();
+      pushMatrix();
+      imageMode(CENTER);
+      translate(ball.x, ball.y);
+      rotate(-ball1a);
+      scale(.04);
+      image(ballImg01, 0, 0);
+      popMatrix();
+    }
+    if (ball3Alive &&ball3.body!=null) {
+      Vec2 ball1 = box2d.getBodyPixelCoord(ball3.body);
+      float ball1a = ball3.body.getAngle();
+      pushMatrix();
+      imageMode(CENTER);
+      translate(ball1.x, ball1.y);
+      rotate(-ball1a);
+      scale(.04);
+      image(ballImg03, 0, 0);
+      popMatrix();
+    }
+    Vec2 pos;
+    float a1;
+
+    pos = box2d.getBodyPixelCoord(centerLink.body);
+    a1 = centerLink.body.getAngle();
+
+    pushMatrix();
+    imageMode(CENTER);
+    translate(pos.x, pos.y);
+    rotate(-a1);
+    scale(.04);
+
+    scale(2.5);
+    image(ropeKnot, 0, 0  );
+    popMatrix();
+
+    //for (int i=0; i<circles.size(); i++) {
+    //  //draw each balloon img at circls123 position
+
+    //  Vec2 pos = box2d.getBodyPixelCoord(circles.get(i).body);
+    //  float a1 = circles.get(i).body.getAngle();
+    //  pushMatrix();
+    //  imageMode(CENTER);
+    //  translate(pos.x, pos.y);
+    //  rotate(-a1);
+    //  scale(.04);
+    //  if (circles.size()==0) {//if knot left
+    //    scale(2.5);
+    //    image(ropeKnot, 0, 0  );
+    //  } else if (circles.size()==1) {//if one ballon left
+    //    if (i==circles.size()-1) {//draw knot
+    //      scale(2.5);
+    //      image(ropeKnot, 0, 0  );
+    //    } else if (i==0); //image(ballImg03, 0, 0);//draw balloon
+    //  } else if (circles.size()==2) {//if 2 ballon left
+    //    if (i==circles.size()-1) {
+    //      scale(2.5);
+    //      image(ropeKnot, 0, 0  );//draw know
+    //    } else if (i==0) image(ballImg01, 0, 0);//draw first ballon
+    //    else if (i==1) ;//image(ballImg03, 0, 0);//draw 2 ballon
+    //  } else {
+    //    if (i==circles.size()-1) {
+    //      scale(2.5);
+    //      image(ropeKnot, 0, 0  );//draw know
+    //    } else if (i==0) image(ballImg02, 0, 0);//draw first ballon
+    //    else if (i==1) image(ballImg01, 0, 0);//draw 2 ballon
+    //    else if (i==2);// image(ballImg03, 0, 0);//draw 3 ballon
+    //  }
+    //popMatrix();
+    //}
     popStyle();
 
 
@@ -334,6 +355,10 @@ class Player {
   void destroyBodies() {
     for (Box b : boxes) b.destroyBody();
     for (Circle c : circles) c.destroyBody();
+    //ball1.destroyBody();
+    //ball2.destroyBody();
+    //ball3.destroyBody();
+    //centerLink.destroyBody();
     if (basket!=null)box2d.destroyBody(basket);
   }
 
@@ -344,6 +369,19 @@ class Player {
    */
   void ApplyLift() {
 
+
+    //if(ball1Alive){
+    //  Vec2 pos = ball1.body.getWorldCenter();
+    //    ball1.body.applyForce(new Vec2(0, 200  ), pos);
+    //  } 
+    //if(ball2Alive){
+    //  Vec2 pos = ball2.body.getWorldCenter();
+    //    ball2.body.applyForce(new Vec2(0, 200  ), pos);
+    //  } 
+    //  if(ball3Alive){
+    //  Vec2 pos = ball3.body.getWorldCenter();
+    //    ball3.body.applyForce(new Vec2(0, 200  ), pos);
+    //  } 
     for (Circle c : circles) {
       if (balloonCount==3) {
         Vec2 pos = c.body.getWorldCenter();
@@ -453,13 +491,10 @@ class Player {
     circles = new ArrayList<Circle>();
 
     ball1 = new Circle( new Vec2(startingPostionVec.x, startingPostionVec.y-100), 20, "b1");
-    balloon1=ball1;
     circles.add(ball1);
     ball2 = new Circle( new Vec2(startingPostionVec.x+30, startingPostionVec.y-100), 20, "b2");
-    balloon2=ball2;
     circles.add(ball2);
     ball3 = new Circle( new Vec2(startingPostionVec.x-30, startingPostionVec.y-100), 20, "b3");
-    balloon3=ball3;
     circles.add(ball3);
 
 
@@ -479,7 +514,7 @@ class Player {
     Box Link;
     for (int i=0; i<=3; i++) {
       Link = new Box(new Vec2(startingPostionVec.x, startingPostionVec.y-75+i*15), new Vec2(2, 10), false, .9, true);
-      Link.body.setUserData(new Object[]{"chain", "alive"});//set the Links user data to box that is alive
+      Link.body.setUserData(new Object[]{"chain", "alive", "offChain"});//set the Links user data to box that is alive
       boxes.add(Link);
       ball1chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -506,7 +541,7 @@ class Player {
     Box Link;
     for (int i=0; i<=3; i++) {
       Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y-75+i*15), new Vec2(2, 10), false, .9, true);
-      Link.body.setUserData(new Object[]{"chain", "alive"});//set the Links user data to box that is alive
+      Link.body.setUserData(new Object[]{"chain", "alive", "offChain"});//set the Links user data to box that is alive
       boxes.add(Link);
       ball2chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -532,7 +567,7 @@ class Player {
     Box Link;
     for (int i=0; i<=3; i++) {
       Link = new Box(new Vec2(startingPostionVec.x-30, startingPostionVec.y-75+i*15), new Vec2(2, 10), false, .9, true);
-      Link.body.setUserData(new Object[]{"chain", "alive"});//set the Links user data to box that is alive
+      Link.body.setUserData(new Object[]{"chain", "alive", "offChain"});//set the Links user data to box that is alive
       boxes.add(Link);
       ball3chain.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
@@ -560,7 +595,7 @@ class Player {
     Circle centerl =new Circle(new Vec2(startingPostionVec.x, startingPostionVec.y-40), 10, "Link");
     //centerl.body.setUserData(new Object[]{"chain", "alive"});//set the Links user data to box that is alive
     circles.add(centerl);
-    centerLink = centerl.body;
+    centerLink = centerl;
     //Link Center Link to last chain linkA
     RevoluteJointDef rjd2 = new RevoluteJointDef();
     rjd2.bodyA= centerl.body;
@@ -602,11 +637,11 @@ class Player {
     //Create LEft Chain
     Box Link;
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+(i+1)*10), new Vec2(2, 10), false, .9, true);
-      Link.body.setUserData(new Object[]{"chain", "alive"});//set the Links user data to box that is alive
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+(i+1)*15), new Vec2(2, 10), false, .9, true);
+      Link.body.setUserData(new Object[]{"chain", "alive", "offChain"});//set the Links user data to box that is alive
       boxes.add(Link);
       RevoluteJointDef rjd = new RevoluteJointDef();
-      if (i==0) rjd.bodyA= centerLink;
+      if (i==0) rjd.bodyA= centerLink.body;
       else rjd.bodyA=previouse;
       rjd.bodyB = Link.body;
       rjd.collideConnected=false;
@@ -621,17 +656,17 @@ class Player {
     rjd.bodyA= basket;
     rjd.bodyB = previouse;
     rjd.collideConnected=false;
-    rjd.localAnchorA.set(2.5, 1);
+    rjd.localAnchorA.set(2.5, 1.3);
     rjd.localAnchorB.set(0, .3);
     RevoluteJoint dj = (RevoluteJoint) box2d.world.createJoint(rjd);
 
     //Create Right Chain
     for (int i=0; i<=3; i++) {
-      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*10), new Vec2(2, 10), false, .9, true);
-      Link.body.setUserData(new Object[]{"chain", "alive"});//set the Links user data to box that is alive
+      Link = new Box(new Vec2(startingPostionVec.x+30, startingPostionVec.y+5+i*15), new Vec2(2, 10), false, .9, true);
+      Link.body.setUserData(new Object[]{"chain", "alive", "offChain"});//set the Links user data to box that is alive
       boxes.add(Link);
       RevoluteJointDef rjd2 = new RevoluteJointDef();
-      if (i==0) rjd2.bodyA= centerLink;
+      if (i==0) rjd2.bodyA= centerLink.body;
       else rjd2.bodyA=previouse;
       rjd2.bodyB = Link.body;
       rjd2.collideConnected=false;
@@ -646,7 +681,7 @@ class Player {
     rjd2.bodyA= basket;
     rjd2.bodyB = previouse;
     rjd2.collideConnected=false;
-    rjd2.localAnchorA.set(-2.5, 1);
+    rjd2.localAnchorA.set(-2.5, 1.3);
     rjd2.localAnchorB.set(0, .3);
     RevoluteJoint dj2 = (RevoluteJoint) box2d.world.createJoint(rjd2);
 
@@ -660,7 +695,7 @@ class Player {
 
     for (int i=0; i<=1; i++) {
       Link = new Box(new Vec2(startingPostionVec.x, startingPostionVec.y-10*(i+1)), new Vec2(2, 10), false, .9, true);
-      Link.body.setUserData(new Object[]{"chain", "alive"});//set the Links user data to box that is alive
+      Link.body.setUserData(new Object[]{"chain", "alive", "offChain"});//set the Links user data to box that is alive
       boxes.add(Link);
       rjd = new RevoluteJointDef();
       if (i==0) rjd.bodyA= basket;
