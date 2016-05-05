@@ -20,14 +20,21 @@ class CustomListener implements ContactListener {
 
       if (o1[0]=="player"&&o2[0]=="ground")player.touchedGround();
       if (o1[0]=="ground"&&o2[0]=="player")player.touchedGround();
-      if (o1[0]=="box"&&o2[0]=="ground")        b2.setUserData(new Object[]{"box", "dead"});
-      if (o1[0]=="ground"&&o2[0]=="box")        b2.setUserData(new Object[]{"box", "dead"});
+      if (o1[0]=="box"&&o2[0]=="ground")        b2.setUserData(new Object[]{"box", "dead","offChain"});
+      if (o1[0]=="ground"&&o2[0]=="box")        b2.setUserData(new Object[]{"box", "dead","offChain"});
+
+
+ if (o1[0]=="chain"&&o2[0]=="box") {
+  b2.setUserData(new Object[]{"box", o2[1], "onChain"});
+ }else if(o1[0]=="box"&&o2[0]=="chain"){
+  b1.setUserData(new Object[]{"box", o1[1], "onChain"});
+ }
 
 
       if (o1[0]=="weight") {
         if (o2[0]=="box") {
           Vec2 vel = b1.getLinearVelocity();
-          if (mag(vel.x, vel.y)>25||player.invincible) b2.setUserData(new Object[]{"box", "deadByPlayer"});
+          if (mag(vel.x, vel.y)>25||player.invincible) b2.setUserData(new Object[]{"box", "deadByPlayer","offChain" });
         } else if (o2[0]=="life") {
           if (lives<3)lives+=1;
           b2.setUserData(new Object[]{"life", "dead"});//Collect pickup
@@ -73,7 +80,7 @@ class CustomListener implements ContactListener {
         if (o2[0]=="box") {//Explode Box if players velocity is over a limit
           Vec2 vel =b1.getLinearVelocity();
           if (mag(vel.x, vel.y)>50&&!player.invincible) {
-            b2.setUserData(new Object[]{"box", "deadByPlayer"});
+            b2.setUserData(new Object[]{"box", "deadByPlayer","offChain"});
             player.prevVel = player.basket.getLinearVelocity();
             player.setPrevVel=true;
             player.touchedGround();

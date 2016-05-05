@@ -21,6 +21,8 @@ class Box {
   Vec2 initVel=new Vec2();
 boolean hitByPlayer=false;
 
+int onChainCount = 0;
+
   //Constructor withou parent
   Box(Vec2 _pos, Vec2 size, boolean fixed_, float density, boolean _toCreate) {
     this.density = density;//set density to passed density
@@ -33,9 +35,10 @@ boolean hitByPlayer=false;
     h = size.y;//set height to size.h
     if (_toCreate==true) {
       MakeBox(_pos);//create the box shape at given position _pos
-      body.setUserData(new Object[]{"box", "alive"});//set the boxes user data to box that is alive
+      //body.setUserData(new Object[]{"box", "alive","offChain"});//set the boxes user data to box that is alive
      
     }
+    if(body!=null) body.setUserData(new Object[]{"box", "alive","offChain"});//set the boxes user data to box that is alive
   }
   //Constructor with parent
   Box(Vec2 _pos, Vec2 size, boolean fixed_, float density, Building parent, boolean _toCreate) {
@@ -50,7 +53,7 @@ boolean hitByPlayer=false;
       h = size.y;//set height to size.h
       MakeBox(_pos);//create the box shape at given position _pos
       body.setUserData(new Object[]{"box", "alive"});//set the boxes user data to box that is alive
-      println("ASDFASD");
+    
     }
   }
 
@@ -83,6 +86,12 @@ boolean hitByPlayer=false;
     rectMode(CENTER);
     rect(0, 0, w, h);
     popMatrix();
+    
+    
+    
+    
+    
+    
   }//end display
 
   void MakeBox( Vec2 pos) {
@@ -151,7 +160,7 @@ boolean hitByPlayer=false;
           Box newbox = new Box(new Vec2(newPos.x+(i*10),newPos.y), size, false, .1, false);//make new box
           parent.boxesToCreate.add(newbox);//add box to the parents boxes list, boom this parts crazy
           if(hitByPlayer)newbox.initVel=vel;
-          println("create at " + newbox.pos.x);
+          //println("create at " + newbox.pos.x);
         }
            if (j==h/10){
           newPos.y+=(i+1)*5;//if made ten already then go up a bit on the y for a new row

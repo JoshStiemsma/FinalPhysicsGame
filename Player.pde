@@ -6,6 +6,11 @@ class Player {
   Body weight;
   Box weightBox;
 
+  Circle balloon1;
+  Circle balloon2;
+  Circle balloon3;
+  //Circle centerLinkCircle;
+
   int weightAmount = 1;
   boolean dead= false;
   int balloonCount = 3;
@@ -65,9 +70,9 @@ class Player {
 
   void update() {
     weightAmount =int((millis()/1000-timeSinceLastStart)/10)+1;
-    
+
     updateWeight();
-    
+
     if (circles.size()==1)dead=true;
     if (!dead) {
       ApplyInput();
@@ -135,6 +140,33 @@ class Player {
 
 
 
+    //Vec2 ball1 = box2d.getBodyPixelCoord(balloon1.body);
+    //float ballA1 = balloon1.body.getAngle();
+    //pushStyle();
+    //pushMatrix();
+    //imageMode(CENTER);
+    //translate(ball1.x, ball1.y);
+    //rotate(-ballA1);
+    //scale(.04);
+    ////image(ballImg01, 0, 0);
+
+    //popMatrix();
+    //popStyle();
+
+    ///Draw CenterLink
+    //Vec2 center = box2d.getBodyPixelCoord(centerLink);
+    //float centerA = centerLink.getAngle();
+    //pushStyle();
+    //pushMatrix();
+    //imageMode(CENTER);
+    //translate(center.x, center.y);
+    //rotate(-centerA);
+    //scale(.04);
+    //scale(2.5);
+    //image(ropeKnot, 0, 0  );
+    //popMatrix();
+    //popStyle();
+
     for (int i=0; i<circles.size(); i++) {
       //draw each balloon img at circls123 position
 
@@ -145,12 +177,28 @@ class Player {
       translate(pos.x, pos.y);
       rotate(-a1);
       scale(.04);
-      if (i==circles.size()-1) {
+      if (circles.size()==0) {//if knot left
         scale(2.5);
         image(ropeKnot, 0, 0  );
-      } else if (i==0) image(ballImg01, 0, 0);
-      else if (i==1) image(ballImg02, 0, 0);
-      else if (i==2) image(ballImg03, 0, 0);
+      } else if (circles.size()==1) {//if one ballon left
+        if (i==circles.size()-1) {//draw knot
+          scale(2.5);
+          image(ropeKnot, 0, 0  );
+        } else if (i==0) image(ballImg03, 0, 0);//draw balloon
+      } else if (circles.size()==2) {//if 2 ballon left
+        if (i==circles.size()-1) {
+          scale(2.5);
+          image(ropeKnot, 0, 0  );//draw know
+        } else if (i==0) image(ballImg02, 0, 0);//draw first ballon
+        else if (i==1) image(ballImg03, 0, 0);//draw 2 ballon
+      } else {
+        if (i==circles.size()-1) {
+          scale(2.5);
+          image(ropeKnot, 0, 0  );//draw know
+        } else if (i==0) image(ballImg01, 0, 0);//draw first ballon
+        else if (i==1) image(ballImg02, 0, 0);//draw 2 ballon
+        else if (i==2) image(ballImg03, 0, 0);//draw 3 ballon
+      }
       popMatrix();
     }
     popStyle();
@@ -214,6 +262,7 @@ class Player {
     translate(position.x, position.y );
     rotate(-a);
     scale(.05);
+    tint(255);
     image(weightImg, 0, 0);
     if (player.invincible)tint(0, 0, 255, map(invincibleCounter, 20, 0, 255, 25));
     else tint(255);
@@ -255,13 +304,13 @@ class Player {
     }
   }
 
-void updateWeight(){
-  Fixture f =weight.getFixtureList();
-  float value = constrain(map(millis()/1000-timeSinceLastStart,0,500,.1,.5),.1,.5);
-  
-  f.setDensity(value);
-  weight.resetMassData();
-}
+  void updateWeight() {
+    Fixture f =weight.getFixtureList();
+    float value = constrain(map(millis()/1000-timeSinceLastStart, 0, 500, .1, .5), .1, .5);
+
+    f.setDensity(value);
+    weight.resetMassData();
+  }
 
 
   /*
@@ -360,6 +409,8 @@ void updateWeight(){
       //println("deleteball1");
       ball1Alive=false;
       circlesToKill.add(ball1);
+      pop01.play();
+      pop01.amp(.5);
     }
   }
   /*
@@ -371,6 +422,8 @@ void updateWeight(){
       circlesToKill.add(ball2);
       //println("deleteball2");
       ball2Alive=false;
+      pop02.play();
+      pop02.amp(.5);
     }
   }
   /*
@@ -382,6 +435,8 @@ void updateWeight(){
       circlesToKill.add(ball3);
       //println("deleteball3");
       ball3Alive=false;
+      pop03.play();
+      pop03.amp(.5);
     }
   }
 
@@ -398,10 +453,13 @@ void updateWeight(){
     circles = new ArrayList<Circle>();
 
     ball1 = new Circle( new Vec2(startingPostionVec.x, startingPostionVec.y-100), 20, "b1");
+    balloon1=ball1;
     circles.add(ball1);
     ball2 = new Circle( new Vec2(startingPostionVec.x+30, startingPostionVec.y-100), 20, "b2");
+    balloon2=ball2;
     circles.add(ball2);
     ball3 = new Circle( new Vec2(startingPostionVec.x-30, startingPostionVec.y-100), 20, "b3");
+    balloon3=ball3;
     circles.add(ball3);
 
 

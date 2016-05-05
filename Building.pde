@@ -6,7 +6,7 @@ class Building {
     if (toCreate) {
       SetPlat();
       int rand = int(random(2));
-      
+
       switch(rand) {
       case 0:
         MakeStack(pos);
@@ -39,9 +39,23 @@ class Building {
 
   void update() {
     for (Box b : boxes) {
+      Object[] o1 = (Object[])b.body.getUserData();
+     // println(o1[2]);
+      //if (o1[2]!=null) {
+      //  if (o1[2]=="onChain") {
+      //    b.onChainCount++;
+      //    o1[2]="offChain";
+      //  } else {
+      //    b.onChainCount=0;
+      //    o1[2]="offChain";
+      //  }
+      //  if (b.onChainCount>60) {
+      //    boxesToKill.add(b);
+      //  }
+      //}
 
       if (b.parent!=null&&b.parent.getClass()==Building.class) { //Check for parent to see if this is a building piece or rouge block
-        Object[] o1 = (Object[])b.body.getUserData();
+
         if (o1[1]=="dead") {
           boxesToKill.add(b);
         } else if (o1[1]=="deadByPlayer") {
@@ -103,7 +117,7 @@ class Building {
       //d.parent = this;
       boxesToCreate.add(d);
 
-      Box b = new Box(new Vec2(newPos.x+20,newPos.y), new Vec2( 25, 40 ), false, .1, this, false);
+      Box b = new Box(new Vec2(newPos.x+20, newPos.y), new Vec2( 25, 40 ), false, .1, this, false);
       //b.parent = this;
       boxesToCreate.add(b);
 
@@ -114,13 +128,13 @@ class Building {
         pickupsToCreate.add(p);
       }
 
-   
-      Box c = new Box(new Vec2(newPos.x-20,newPos.y), new Vec2( 25, 40 ), false, .1, this, false);
+
+      Box c = new Box(new Vec2(newPos.x-20, newPos.y), new Vec2( 25, 40 ), false, .1, this, false);
       // c.parent = this;  
       boxesToCreate.add(c); 
 
 
-      
+
       newPos.y-=34;
     }
   }
@@ -134,7 +148,7 @@ class Building {
         nb =new Box( b.pos, b.size, b.fixed, b.density, true);
         boxes.add(nb);//add box to the parents boxes list
       }
-      println("Made at" + nb.pos.x);
+      //println("Made at" + nb.pos.x);
       nb.body.setLinearVelocity(new Vec2(b.initVel.x*3, b.initVel.y*3  ));//set velocity to palyers elocity
     }
     this.boxesToCreate=new ArrayList<Box>();
@@ -147,7 +161,27 @@ class Building {
       b.Explode();
       b.destroyBody();
 
-
+      int rand = int(random(5));
+      switch (rand){
+       case 0:
+       rock01.play();
+       break;
+        case 1:
+        rock02.play();
+       break;
+       case 2:
+       rock03.play();
+       break;
+       case 3:
+       rock04.play();
+       break;
+       case 4:
+       rock05.play();
+       break;
+        case 5:
+        rock06.play();
+       break;
+      }
       boxes.remove(b);
       //remove box from its array of boxes in either rope or building
     }

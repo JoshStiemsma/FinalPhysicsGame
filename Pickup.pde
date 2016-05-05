@@ -31,6 +31,16 @@
     Object[] o1 = (Object[]) body.getUserData();
     if (o1[1]=="dead") {
       pickupsToKill.add(this);
+       if (o1[0]=="token"){
+       tokenSound.play();
+     tokenSound.amp(.5);
+   }
+      if (o1[0]=="health"){}
+      if (o1[0]=="invincible"){
+      invin.play();
+     invin.amp(.5);}
+      
+      
     }
   }
 

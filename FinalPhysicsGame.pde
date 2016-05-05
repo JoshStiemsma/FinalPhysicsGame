@@ -1,3 +1,4 @@
+import processing.sound.*;
 import shiffman.box2d.*;
 import org.jbox2d.common.*;
 import org.jbox2d.dynamics.joints.*;
@@ -13,6 +14,24 @@ import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
 
 PFont bubble; //Main font
+
+SoundFile pop01;
+SoundFile pop02;
+SoundFile pop03;
+
+SoundFile rock01;
+SoundFile rock02;
+SoundFile rock03;
+SoundFile rock04;
+SoundFile rock05;
+SoundFile rock06;
+
+SoundFile invin;
+SoundFile tokenSound;
+SoundFile healthSound;
+
+SoundFile basket01;
+SoundFile basket02;
 
 
 PGraphics black;
@@ -128,29 +147,47 @@ void loadImages() {
   black.beginDraw();
   black.background(0);
   black.endDraw();
-  Title = loadImage("Title-01-01.png");
-  ballImg01 = loadImage("balloonBlue-01.png");
-  ballImg02 = loadImage("balloonGreen-01.png");
-  ballImg03 = loadImage("balloonRed-01.png");
-  ropeKnot = loadImage("ropeKnot.png");
-  rope = loadImage("rope-01.png");
-  basketImg01 = loadImage("Player-01.png");
-  basketImg02 = loadImage("PlayerCrack1-01.png");
-  basketImg03 = loadImage("PlayerCrack2-01.png");
-  basketInv = loadImage("PlayerBlue-01.png");
-  token = loadImage("Token-01.png");
-  health =loadImage("Health-01.png");
-  invincible = loadImage("Invincibility-01.png");
-  weightImg = loadImage("Weight.png");
+  Title = loadImage("img/Title-01-01.png");
+  ballImg01 = loadImage("img/balloonBlue-01.png");
+  ballImg02 = loadImage("img/balloonGreen-01.png");
+  ballImg03 = loadImage("img/balloonRed-01.png");
+  ropeKnot = loadImage("img/ropeKnot.png");
+  rope = loadImage("img/rope-01.png");
+  basketImg01 = loadImage("img/Player-01.png");
+  basketImg02 = loadImage("img/PlayerCrack1-01.png");
+  basketImg03 = loadImage("img/PlayerCrack2-01.png");
+  basketInv = loadImage("img/PlayerBlue-01.png");
+  token = loadImage("img/Token-01.png");
+  health =loadImage("img/Health-01.png");
+  invincible = loadImage("img/Invincibility-01.png");
+  weightImg = loadImage("img/Weight.png");
 
-  brick01 =loadImage("brickVariant1-01.png");
-  brick02 =loadImage("brickVariant2.png");
-  brick03 =loadImage("brickVariant3-01.png");
+  brick01 =loadImage("img/brickVariant1-01.png");
+  brick02 =loadImage("img/brickVariant2.png");
+  brick03 =loadImage("img/brickVariant3-01.png");
 }
 
+void loadSounds() {
+  pop01 =new SoundFile(this, "audio/BalloonBurst01.wav");
+  pop02=new SoundFile(this, "audio/BalloonBurst02.wav");
+  pop03=new SoundFile(this, "audio/BalloonBurst03.wav");
+
+  rock01=new SoundFile(this, "audio/rock01.wav");
+  rock02=new SoundFile(this, "audio/rock02.wav");
+  rock03=new SoundFile(this, "audio/rock03.wav");
+  rock04=new SoundFile(this, "audio/rock04.wav");
+  rock05=new SoundFile(this, "audio/rock05.wav");
+  rock06=new SoundFile(this, "audio/rock06.wav");
+  invin =new SoundFile(this, "audio/invincible.wav");
+  tokenSound =new SoundFile(this, "audio/token.wav");
+
+  //basket01=new SoundFile(this, "basket01.mp3");
+  //basket02=new SoundFile(this, "basket02.mp3");
+}
 void setup() {
   size(900, 600, P2D); 
   loadImages();
+  loadSounds();
   canvas = createGraphics(width, height);
 
   //initialize box2d and create the world
@@ -281,7 +318,7 @@ void Update() {
     popMatrix();
 
     pushMatrix();
-   
+
     fill(255);
     textAlign(CENTER);
     translate( camera.position.x, camera.position.y  );
@@ -568,7 +605,7 @@ void CreateChainArray() {
     y-=height-j+300+random(-10, 10);//subtract the height of the view for the new ceilings point
     topLandPoints.add(new Vec2(x, y));//add the point to the end of the vector
     j-=4;
-    println("j  " + j);
+    //println("j  " + j);
     xoff+=0.1;//add to the xoff
     incline+=10;//add to the incline
   }
