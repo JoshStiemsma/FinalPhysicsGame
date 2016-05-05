@@ -208,8 +208,6 @@ class Player {
 
 
 
-    if (player.invincible)tint(0, 0, 255, map(invincibleCounter, 20, 0, 255, 25));
-    else tint(255);
     position = box2d.getBodyPixelCoord(weight);
     a = weight.getAngle();
     pushMatrix();

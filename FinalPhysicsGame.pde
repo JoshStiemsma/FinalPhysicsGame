@@ -12,11 +12,9 @@ import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
 
-PFont bubble;
+PFont bubble; //Main font
 
 
-PShader shader;
-PImage cover;
 PGraphics black;
 float titleFade = 255;
 
@@ -131,7 +129,6 @@ void loadImages() {
   black.background(0);
   black.endDraw();
   Title = loadImage("Title-01-01.png");
-  cover = loadImage("Empty.png");
   ballImg01 = loadImage("balloonBlue-01.png");
   ballImg02 = loadImage("balloonGreen-01.png");
   ballImg03 = loadImage("balloonRed-01.png");
@@ -154,7 +151,6 @@ void loadImages() {
 void setup() {
   size(900, 600, P2D); 
   loadImages();
-  shader = loadShader("frag.glsl");
   canvas = createGraphics(width, height);
 
   //initialize box2d and create the world
