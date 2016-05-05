@@ -272,14 +272,36 @@ void Update() {
     image(black, camera.position.x, camera.position.y);   
     popStyle();
 
-pushMatrix();
+    pushMatrix();
     pushStyle();
     fill(255);
+    textAlign(CENTER);
     translate( camera.position.x, camera.position.y  );
-    scale(.7);
-    text("You Scored  " + int(player.finalDistance), width/2, 200); 
     scale(.5);
-    text("Press enter to play again", width/2+500, 500);
+    text("You Scored  " + int(player.finalDistance), width/2+400, 200); 
+
+    text("Press enter to play again", width/2+400, 300);
+
+    popMatrix();
+
+    pushMatrix();
+   
+    fill(255);
+    textAlign(CENTER);
+    translate( camera.position.x, camera.position.y  );
+    scale(.25);
+    text("Thanks for Playing", width+800, 1000); 
+    fill(255, 0, 0);
+    stroke(255);
+    text("The", width+500, 1500); 
+    fill(0, 255, 0);
+    text("Crate", width+800, 1500); 
+    fill(0, 0, 255);
+    text("Escape", width+1100, 1500); 
+    fill(255);
+    text("by", width+800, 1800); 
+
+    text("Josh Stiemsma      and      Devon Ducharme", width+800, 2200); 
     popStyle();
     popMatrix();
   }
