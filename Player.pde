@@ -208,7 +208,7 @@ class Player {
 
 
 
-    if (player.invincible)tint(0, 0, 255, map(invincibleCounter, 20, 0, 255, 0));
+    if (player.invincible)tint(0, 0, 255, map(invincibleCounter, 20, 0, 255, 25));
     else tint(255);
     position = box2d.getBodyPixelCoord(weight);
     a = weight.getAngle();
@@ -216,6 +216,9 @@ class Player {
     translate(position.x, position.y );
     rotate(-a);
     scale(.05);
+    image(weightImg, 0, 0);
+    if (player.invincible)tint(0, 0, 255, map(invincibleCounter, 20, 0, 255, 25));
+    else tint(255);
     image(weightImg, 0, 0);
     popMatrix();
     popStyle();
@@ -599,7 +602,7 @@ void updateWeight(){
     weight = Weight.body;
     //attach to basket with chain
 
-    for (int i=0; i<=2; i++) {
+    for (int i=0; i<=1; i++) {
       Link = new Box(new Vec2(startingPostionVec.x, startingPostionVec.y-10*(i+1)), new Vec2(2, 10), false, .9, true);
       Link.body.setUserData(new Object[]{"chain", "alive"});//set the Links user data to box that is alive
       boxes.add(Link);
