@@ -317,13 +317,15 @@ class Player {
    */
   void ApplyInput() {
 
-    if (in.Down) Thrust(); //Push down on the basket
+    if (in.Down || pedal.getValue() >= .5) Thrust(); //Push down on the basket
 
 
 
     Vec2 vel = basket.getLinearVelocity();
-    if (in.Left) basket.setLinearVelocity(new Vec2( vel.x-1, vel.y));//Push left
-    if (in.Right) basket.setLinearVelocity(new Vec2( vel.x+1, vel.y));//Push Right
+    if (in.Right || bttnA.pressed()) basket.setLinearVelocity(new Vec2( vel.x + bttnA.getValue()/2, vel.y));//Push left
+    if (in.Left || bttnB.pressed()) basket.setLinearVelocity(new Vec2( vel.x - bttnB.getValue()/2, vel.y));//Push Right
+    if (bttnX.pressed()) basket.setLinearVelocity(new Vec2( vel.x + bttnX.getValue()/2, vel.y - bttnA.getValue()/2));//Push left
+    if (bttnY.pressed()) basket.setLinearVelocity(new Vec2( vel.x - bttnY.getValue()/2, vel.y - bttnA.getValue()/2));//Push Right
 
     if (basket.getAngularVelocity()!=0) {
       basket.setAngularVelocity(basket.getAngularVelocity()*.64);//Re aligns players rotation

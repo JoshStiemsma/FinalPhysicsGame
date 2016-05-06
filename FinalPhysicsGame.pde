@@ -1,3 +1,7 @@
+import net.java.games.input.*;
+import org.gamecontrolplus.*;
+import org.gamecontrolplus.gui.*;
+
 import processing.sound.*;
 import shiffman.box2d.*;
 import org.jbox2d.common.*;
@@ -12,6 +16,8 @@ import org.jbox2d.dynamics.contacts.*;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
+
+
 
 PFont bubble; //Main font
 
@@ -63,6 +69,13 @@ PImage weightImg;
 PImage brick01;
 PImage brick02;
 PImage brick03;
+
+PImage greenPad;
+PImage bluePad;
+PImage redPad;
+PImage yellowPad;
+PImage pedalUI;
+
 
 Camera camera;
 Box2DProcessing box2d;
@@ -165,6 +178,13 @@ void loadImages() {
   brick01 =loadImage("img/brickVariant1-01.png");
   brick02 =loadImage("img/brickVariant2.png");
   brick03 =loadImage("img/brickVariant3-01.png");
+  
+    greenPad =loadImage("img/greenPad-01.png");
+  redPad =loadImage("img/redPad-01.png");
+  bluePad =loadImage("img/bluePad-01.png");
+  yellowPad =loadImage("img/yellowPad.png");
+  pedalUI =loadImage("img/pedal-01.png");
+  
 }
 
 void loadSounds() {
@@ -184,6 +204,15 @@ void loadSounds() {
   //basket01=new SoundFile(this, "basket01.mp3");
   //basket02=new SoundFile(this, "basket02.mp3");
 }
+
+ControlButton bttnA;
+ControlButton bttnB;
+ControlButton bttnX;
+ControlButton bttnY;
+ControlButton pedal;
+ControlButton pause;
+ControlButton back;
+
 void setup() {
   size(900, 600, P2D); 
   loadImages();
@@ -195,6 +224,9 @@ void setup() {
   box2d.createWorld();
   box2d.setGravity(0, -50);
 
+ 
+
+
   box2d.world.setContactListener(new CustomListener());
 
   player=new Player();
@@ -202,11 +234,27 @@ void setup() {
   //CreateChainArray(); 
   //landscape= new Landscape(topLandPoints, lowLandPoints);
   //UpdateChainArray();
+ 
+  
+  ControlIO control = ControlIO.getInstance(this);
+  
+  ControlDevice device = control.getDevice("Drum Kit (Harmonix Drum Kit for Xbox 360)");
+  
+    bttnA = device.getButton("Button 0");
+  bttnB = device.getButton("Button 1");
+  bttnX = device.getButton("Button 2");
+  bttnY = device.getButton("Button 3");
+  pedal = device.getButton("Button 4");
+  pause = device.getButton("Button 7");
+   back = device.getButton("Button 6");
+  
+   println(control.devicesToText(""));
 }
 
 
 
 void draw() {
+  
   ///background color stuff
   float r;
   if (incline>=10000) r = map(incline, 10000, 20000, 10, 255);
@@ -224,7 +272,7 @@ void draw() {
     popMatrix();
 
 
-    if (in.EnterReleased)resetGame=true;//wait for player to press enter then reset game
+    if (in.EnterReleased || bttnA.pressed())resetGame=true;//wait for player to press enter then reset game
     if (resetGame) ResetGame();//if resetGame is true then reset the game by calling the function ResetGame
   } else if (gameState=="Play"||gameState=="Dead") {
 
@@ -240,14 +288,14 @@ void draw() {
     popMatrix();
     drawHud();
 
-    if (in.Pause&&pauseReleased) {
+    if (pause.pressed() && pauseReleased == true) {
       paused=!paused;
       pauseReleased=false;
     }
-    if (!in.Pause&&pauseReleased==false) pauseReleased=true;
+    if (!pause.pressed()&&pauseReleased==false) pauseReleased=true;
 
 
-    if (gameState=="Dead"&&in.EnterReleased==true) endGame();
+    if (gameState=="Dead"&&back.pressed()) endGame();
     if (titleFade>0) {
       pushMatrix();
       scale(.24);
@@ -313,7 +361,7 @@ void Update() {
     scale(.5);
     text("You Scored  " + int(player.finalDistance), width/2+400, 200); 
 
-    text("Press enter to play again", width/2+400, 300);
+    text("Press back to reset", width/2+400, 300);
 
     popMatrix();
 
@@ -471,6 +519,7 @@ void UpdateBoundaries() {
   for (Platform p : platforms)  if (p.position.x-viewOffset<0)platformsToKill.add(p);  
   for (Rope r : ropes) if (r.position.x-viewOffset<0)ropesToKill.add(r);
   for (Pickup p : pickups) if (p.position.x-viewOffset<0)pickupsToKill.add(p);
+    if(player.position.x-viewOffset<0)player.dead=true;
 }
 
 /*
@@ -478,6 +527,24 @@ void UpdateBoundaries() {
  *
  */
 void drawHud() {
+ 
+
+  
+  
+  
+  pushMatrix();
+
+scale(.2);
+  if (bttnA.pressed())image(greenPad, (width-80)/.2, (height-40)/.2);
+  if (pedal.pressed())image(pedalUI, (width-50)/.2, (height-40)/.2);
+  if (bttnY.pressed())image(yellowPad, (width-140)/.2, (height-40)/.2);
+  if (bttnX.pressed())image(bluePad, (width-110)/.2, (height-40)/.2);
+   if (bttnB.pressed())image(redPad, (width-170)/.2, (height-40)/.2);
+  
+  popMatrix();
+  
+  println(camera.position);
+  
 }
 
 
