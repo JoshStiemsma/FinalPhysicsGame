@@ -1,27 +1,31 @@
+//the circle class is a jbox 2d object of the circle type
 class Circle {
-  Vec2 position;
-  float r;
-  Body body;
-  String type;
+  Vec2 position;//the position of the circle
+  float r;//the radius of the circle
+  Body body;//the body named body of the object
+  String type;//the type in string form of the circle, like pickup, or something else
+  //constructor for circle, with position, radius and type
   Circle(Vec2 _pos, float _r, String type) {
-    r=_r;
-    position=_pos;
-    MakeShape();
-    body.setUserData(new Object[]{type, "alive"});
+    r=_r;//set raius
+    position=_pos;//set position
+    MakeShape();//make the shape
+    body.setUserData(new Object[]{type, "alive"});//set the userdata to the type and alive
   }
 
-
+/*
+*The function display is called every frame in the main display function
+*/
   void display(color cl) {
-    position = box2d.getBodyPixelCoord(body);
-    float a = body.getAngle();
+    position = box2d.getBodyPixelCoord(body);//grab the physics based position
+    float a = body.getAngle();//grab the angle
 
-    pushMatrix();
+    pushMatrix();//Enter the matrix neo, it looks fun they said
     translate(position.x, position.y);    // Using the Vec2 position and float angle to
     rotate(-a);              // translate and rotate the rectangle
-    fill(cl);
-    stroke(0);
-    ellipse(0, 0, r*2, r*2);
-    popMatrix();
+    fill(cl);//fill with certain color
+    noStroke();
+    ellipse(0, 0, r*2, r*2);//draw circle twice its size
+    popMatrix();//leave matrix neo
   }//end display
 
   /*
@@ -31,6 +35,9 @@ class Circle {
   void destroyBody() {
     box2d.destroyBody(this.body);
   }
+  /*
+*The function makeShape, makes the cirlces shape within the physics world
+*/
   void MakeShape() {
     // Build Body
     //Set the Type
@@ -55,9 +62,7 @@ class Circle {
     fd.density = .01;
     fd.friction = 0.6;
     fd.restitution = 0.6;
-
-
     // Attach Fixture to Body               
     body.createFixture(fd);
-  }
-}
+  }//close makeshape
+}//close circle class

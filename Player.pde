@@ -1,33 +1,34 @@
 class Player {
 
-  //the players body
+  //the players basket and weight body
   Body basket;
   Box basketBox;
   Body weight;
   Box weightBox;
 
-  Circle CenterLinkCircle;
+  Circle CenterLinkCircle;//the cirlce class object connecting chains from balloons to chains on basket
 
-  int weightAmount = 1;
-  boolean dead= false;
-  int balloonCount = 3;
+  int weightAmount = 1;//variable representing increasing weight on player
 
-  boolean ball1Alive = true;
-  boolean ball2Alive = true;
-  boolean ball3Alive = true;
+  boolean dead= false;//boolean for if player is dead or not
+  int balloonCount = 3;//balloon count of player, when 0 player is dead
 
-  PVector startingPosition = new PVector(500, 500);
-  Vec2 startingPostionVec = new Vec2(500, 500);
-  Vec2 position = new Vec2(0, 0);
-  float LastTerrainUpdate = startingPostionVec.x;
+  boolean ball1Alive = true;//boolean for if balloon1 is alive
+  boolean ball2Alive = true;//boolean for if ball2 is alive
+  boolean ball3Alive = true;//boolean for if ball3 is alive
 
-  boolean invincible =false;
-  float invincibleCounter = 20;
+  PVector startingPosition = new PVector(500, 500);//starting positiong PVector
+  Vec2 startingPostionVec = new Vec2(500, 500);//starting position Vec2
+  Vec2 position = new Vec2(0, 0);//current position Vec2
+  float LastTerrainUpdate = startingPostionVec.x;//last terrain update float related to players x axis progression
+
+  boolean invincible =false;//invin boolean
+  float invincibleCounter = 20;//invin counter, starts at 20
 
 
-  float alphaFade =00;
-  float finalDistance =0;
-  boolean finalSet =false;
+  float alphaFade =00;//alpha fade varaible for invin tin starts at 0
+  float finalDistance =0;//final player distance 
+  boolean finalSet =false;//boolean flagging if final has been set
 
   //These are used for storing relative data when making the body and linking joints
   Circle ball1;
@@ -40,73 +41,72 @@ class Player {
   Body ropeEnd1;
   Body ropeEnd2;
   Circle centerLink;
+
+  //Array lists used to hold chains on the players balls
   ArrayList<Box>ball1chain = new ArrayList<Box>();
   ArrayList<Box>ball2chain = new ArrayList<Box>();
   ArrayList<Box>ball3chain = new ArrayList<Box>();
 
 
-
+  //arraylist of boxes that the player, including chain boxes
   ArrayList<Box>boxes = new ArrayList<Box>();
-  ArrayList<Circle> circles = new ArrayList<Circle>();
-  ArrayList<Box>boxesToKill = new ArrayList<Box>();
-  ArrayList<Circle> circlesToKill = new ArrayList<Circle>();
+  ArrayList<Circle> circles = new ArrayList<Circle>();//players circles araylist
+  ArrayList<Box>boxesToKill = new ArrayList<Box>();//players boxes to kill array list
+  ArrayList<Circle> circlesToKill = new ArrayList<Circle>();//player circles to kill array list
 
 
   //Constructor
   Player() {
-    MakePlayersBody();
-    //platforms.add(new Platform(startingPosition.x-30, startingPosition.y));
-    basket.setUserData(new Object[]{"player", "alive"});
-    weight.setUserData(new Object[]{"weight", "alive"});
+    MakePlayersBody();//make the palyer
+    basket.setUserData(new Object[]{"player", "alive"});//set the weight user data
+    weight.setUserData(new Object[]{"weight", "alive"});//set the baskets user data
   }
 
-  Vec2 playerPrevPos = startingPostionVec;
-  Vec2 prevVel;
-  boolean setPrevVel = false;
-  float timeSinceLastWallHit = 0;
-
+  Vec2 playerPrevPos = startingPostionVec;//set the previouse position to start position at start
+  Vec2 prevVel;//make a Vec2 for previose Velocity
+  boolean setPrevVel = false;//boolean for if player needs to be set to last frames velocity
+  float timeSinceLastWallHit = 0;//Time since last wall hit, to make hits not happen every single frame and too fast
+  /*
+*the function udpate is called every frame within the main update function and handles all the palyer physics update 
+   *
+   */
   void update() {
-    weightAmount =int((millis()/1000-timeSinceLastStart)/10)+1;
+    weightAmount =int((millis()/1000-timeSinceLastStart)/10)+1;//add the the number on the weight object to show increaseing weight
 
-    updateWeight();
+    updateWeight();//also update the actual weight being pplied to the palyer
 
-    if (circles.size()==1)dead=true;
-    //if (!ball1Alive&&!ball2Alive&&!ball3Alive)dead=true;
-    if (!dead) {
-      ApplyInput();
-      ApplyLift();
-
-      float dist = position.x-playerPrevPos.x;
-
-      if (dist>0&&camera.yOffset<=0) {
-        camera.xOffset+=dist;
-        score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp;
-      } else if (dist>0&&camera.yOffset>0) {
-        camera.yOffset-=dist;
+    if (circles.size()==1)dead=true;//if only the center link cirlce is left the all balloons have popped
+    if (!dead) {//if player is not dead
+      ApplyInput();//apply user input
+      ApplyLift();//apply balloon lift
+      float dist = position.x-playerPrevPos.x;//see how much ground the player had moved since last checked
+      if (dist>0&&camera.yOffset<=0) {//if palyer has made posative Xaxis movement
+        camera.xOffset+=dist;//add that to the caera
+        score = int(millis()/1000-timeSinceLastStart)+pointsPickedUp;//add tot he score
+      } else if (dist>0&&camera.yOffset>0) {//if palyer has moved left
+        camera.yOffset-=dist;//track that amount
       } else if (dist<0) {
         camera.yOffset-=dist;
       }
-      camera.position = new Vec2(startingPosition.x+camera.xOffset, position.y-startingPosition.y);
+      camera.position = new Vec2(startingPosition.x+camera.xOffset, position.y-startingPosition.y);//set camera position
 
-      playerPrevPos = position;
+      playerPrevPos = position;//set previose positono
     }
 
 
-    if (invincible) {
-      invincibleCounter-=.1;
-      if (invincibleCounter<=0) { 
-        invincible=false;
-        invincibleCounter=20;
+    if (invincible) {//if invincible 
+      invincibleCounter-=.1;//subtract from invin count down
+      if (invincibleCounter<=0) { //if reached 0 on couner
+        invincible=false;//no more invin
+        invincibleCounter=20;//reset invin amount for enxt time
       }
     }
 
 
-    position = box2d.getBodyPixelCoord(basket);
+    position = box2d.getBodyPixelCoord(basket);//grab and set position of basket
 
-    //Fixture f = basket.getFixtureList();
-    //PolygonShape ps = (PolygonShape) f.getShape();
 
-    CheckBoundaries();
+    CheckBoundaries();//chck bounds
   }
   /*
 *Display presents all the players bodies to the screen in thier proper position
@@ -114,8 +114,8 @@ class Player {
    */
   void display() {
 
-    position = box2d.getBodyPixelCoord(basket);
-    float a = basket.getAngle();
+    position = box2d.getBodyPixelCoord(basket);//grab posiiton in physics world
+    float a = basket.getAngle();//grab angle
 
 
 
@@ -124,22 +124,19 @@ class Player {
     for ( int i = 0; i <boxes.size(); i++) {
       Vec2 pos = box2d.getBodyPixelCoord(boxes.get(i).body);
       float a1 = boxes.get(i).body.getAngle();
-      pushMatrix();
-      imageMode(CENTER);       
-      translate(pos.x, pos.y);
-      rotate(-a1);
-      scale(.09);
-      image(rope, 0, 0);
-
-      popMatrix();
-
-      // b.display(255);
+      pushMatrix();//enter the matrix neo
+      imageMode(CENTER);  //center image     
+      translate(pos.x, pos.y);//transsalte by possition
+      rotate(-a1);//rotate
+      scale(.09);//scale down
+      image(rope, 0, 0);//draw this rope segment
+      popMatrix();//leave matrix
     }
     popStyle();
-    
-    
+
+
     pushStyle();
-    if (ball1Alive&&ball1.body!=null) {
+    if (ball1Alive&&ball1.body!=null) {//if balloon 1 is alive then draw it in it matrix
       Vec2 ball ;
       ball = box2d.getBodyPixelCoord(ball1.body);     
 
@@ -152,7 +149,7 @@ class Player {
       image(ballImg02, 0, 0);
       popMatrix();
     }
-    if (ball2Alive &&ball2.body!=null) {
+    if (ball2Alive &&ball2.body!=null) {//if ball 2 is alive then grab its pos and draw it in its matrix
       Vec2 ball = box2d.getBodyPixelCoord(ball2.body);
 
       float ball1a = ball2.body.getAngle();
@@ -164,7 +161,7 @@ class Player {
       image(ballImg01, 0, 0);
       popMatrix();
     }
-    if (ball3Alive &&ball3.body!=null) {
+    if (ball3Alive &&ball3.body!=null) {//iff balloon 3 is alive then grab its stuff and draw it in its matrix
       Vec2 ball1 = box2d.getBodyPixelCoord(ball3.body);
       float ball1a = ball3.body.getAngle();
       pushMatrix();
@@ -178,54 +175,19 @@ class Player {
     Vec2 pos;
     float a1;
 
-    pos = box2d.getBodyPixelCoord(centerLink.body);
+    pos = box2d.getBodyPixelCoord(centerLink.body);//grab centerlink position and rotation
     a1 = centerLink.body.getAngle();
 
-    pushMatrix();
+    pushMatrix();//enter the matrix neo
     imageMode(CENTER);
     translate(pos.x, pos.y);
     rotate(-a1);
     scale(.04);
 
     scale(2.5);
-    image(ropeKnot, 0, 0  );
-    popMatrix();
-  popStyle();
-    //for (int i=0; i<circles.size(); i++) {
-    //  //draw each balloon img at circls123 position
-
-    //  Vec2 pos = box2d.getBodyPixelCoord(circles.get(i).body);
-    //  float a1 = circles.get(i).body.getAngle();
-    //  pushMatrix();
-    //  imageMode(CENTER);
-    //  translate(pos.x, pos.y);
-    //  rotate(-a1);
-    //  scale(.04);
-    //  if (circles.size()==0) {//if knot left
-    //    scale(2.5);
-    //    image(ropeKnot, 0, 0  );
-    //  } else if (circles.size()==1) {//if one ballon left
-    //    if (i==circles.size()-1) {//draw knot
-    //      scale(2.5);
-    //      image(ropeKnot, 0, 0  );
-    //    } else if (i==0); //image(ballImg03, 0, 0);//draw balloon
-    //  } else if (circles.size()==2) {//if 2 ballon left
-    //    if (i==circles.size()-1) {
-    //      scale(2.5);
-    //      image(ropeKnot, 0, 0  );//draw know
-    //    } else if (i==0) image(ballImg01, 0, 0);//draw first ballon
-    //    else if (i==1) ;//image(ballImg03, 0, 0);//draw 2 ballon
-    //  } else {
-    //    if (i==circles.size()-1) {
-    //      scale(2.5);
-    //      image(ropeKnot, 0, 0  );//draw know
-    //    } else if (i==0) image(ballImg02, 0, 0);//draw first ballon
-    //    else if (i==1) image(ballImg01, 0, 0);//draw 2 ballon
-    //    else if (i==2);// image(ballImg03, 0, 0);//draw 3 ballon
-    //  }
-    //popMatrix();
-    //}
-  
+    image(ropeKnot, 0, 0  );//Draw center link as rope knot
+    popMatrix();//leave the matrix neo
+    popStyle();
 
 
 
@@ -233,7 +195,7 @@ class Player {
 
 
     imageMode(CENTER);
-    pushMatrix();
+    pushMatrix();//enter the matrix neo
     translate(position.x, position.y);
     rotate(-a);
     scale(.3);
@@ -277,7 +239,7 @@ class Player {
     imageMode(CENTER);
     position = box2d.getBodyPixelCoord(weight);
     a = weight.getAngle();
-    
+
     pushMatrix();
     translate(position.x, position.y );
     rotate(-a);
@@ -291,24 +253,21 @@ class Player {
     popStyle();
 
 
-    
+
 
     pushStyle();
     pushMatrix();
     fill(255);
     imageMode(CENTER);
     translate(position.x, position.y );
-    
+
     rotate(-a);
     scale(.2);
     textFont(bubble);
-    if(dead)text(weightAmount + "lb", 5, 20);
+    if (dead)text(weightAmount + "lb", 5, 20);
     else  text(weightAmount + "lb", -30, 20);
     popMatrix();
     popStyle();
-    
-    
-    
   }//end display
 
   /*
@@ -331,11 +290,13 @@ class Player {
       basket.setAngularVelocity(basket.getAngularVelocity()*.64);//Re aligns players rotation
     }
   }
-
+/*
+*the functio update weight adds to the density of the player wight as they progress to make the game increasingly hard
+*
+*/
   void updateWeight() {
     Fixture f =weight.getFixtureList();
     float value = constrain(map(millis()/1000-timeSinceLastStart, 0, 500, .1, .5), .1, .5);
-
     f.setDensity(value);
     weight.resetMassData();
   }
@@ -367,7 +328,7 @@ class Player {
     //ball3.destroyBody();
     //centerLink.destroyBody();
     if (basket!=null)box2d.destroyBody(basket);
-     if (weight!=null)box2d.destroyBody(weight);
+    if (weight!=null)box2d.destroyBody(weight);
   }
 
 
@@ -378,19 +339,7 @@ class Player {
   void ApplyLift() {
 
 
-    //if(ball1Alive){
-    //  Vec2 pos = ball1.body.getWorldCenter();
-    //    ball1.body.applyForce(new Vec2(0, 200  ), pos);
-    //  } 
-    //if(ball2Alive){
-    //  Vec2 pos = ball2.body.getWorldCenter();
-    //    ball2.body.applyForce(new Vec2(0, 200  ), pos);
-    //  } 
-    //  if(ball3Alive){
-    //  Vec2 pos = ball3.body.getWorldCenter();
-    //    ball3.body.applyForce(new Vec2(0, 200  ), pos);
-    //  } 
-    for (Circle c : circles) {
+    for (Circle c : circles) {//for each circle apply lift
       if (balloonCount==3) {
         Vec2 pos = c.body.getWorldCenter();
         c.body.applyForce(new Vec2(0, 130  ), pos);
@@ -437,7 +386,10 @@ class Player {
   }
 
 
-
+/*
+*this function sets the final score of the player based on distance only one
+*
+*/
   void setFinal() {
     if (!finalSet) {
       finalDistance = int(camera.xOffset+500+pointsPickedUp/100);
@@ -497,7 +449,7 @@ class Player {
   void MakePlayersBody() {
     boxes= new ArrayList<Box>();
     circles = new ArrayList<Circle>();
-
+    //make the balloons and add them to circles arrayList
     ball1 = new Circle( new Vec2(startingPostionVec.x, startingPostionVec.y-100), 20, "b1");
     circles.add(ball1);
     ball2 = new Circle( new Vec2(startingPostionVec.x+30, startingPostionVec.y-100), 20, "b2");
@@ -505,12 +457,12 @@ class Player {
     ball3 = new Circle( new Vec2(startingPostionVec.x-30, startingPostionVec.y-100), 20, "b3");
     circles.add(ball3);
 
-
-    FirstBallChain();
-    SecondBallChain();
-    ThirdBallChain();
-    CenterLink();
-    Basket();
+  
+    FirstBallChain();//add first chain
+    SecondBallChain();//add second chain
+    ThirdBallChain();//add third chain
+    CenterLink();//add and attach chains to centerlink
+    Basket();//add the bakset and then weight
   }
 
 

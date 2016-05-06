@@ -17,18 +17,19 @@ class Box {
   float density;
   // the parent building of the box if there is one, initialy null
   Building parent;
-
+  //the Vec2 initVel is the initial velocity of a box used when creating explosions and new boxes
   Vec2 initVel=new Vec2();
-boolean hitByPlayer=false;
-
-int onChainCount = 0;
+  //this boolean Hit by player is used to flag if this box was hit by the player
+  boolean hitByPlayer=false;
+  //the int on chain count is used to tell if this box has been in contact with the players chains for a certain time or not and if it needs ot be deleted
+  int onChainCount = 0;
 
   //Constructor withou parent
   Box(Vec2 _pos, Vec2 size, boolean fixed_, float density, boolean _toCreate) {
     this.density = density;//set density to passed density
     this.pos=_pos;//set position to passed in position
 
-    this.size=size;
+    this.size=size;//set the size
     this.fixed = fixed_;//Fixed makes it Static usualy for rope ends
 
     w = size.x;//set width to size.x
@@ -36,15 +37,14 @@ int onChainCount = 0;
     if (_toCreate==true) {
       MakeBox(_pos);//create the box shape at given position _pos
       //body.setUserData(new Object[]{"box", "alive","offChain"});//set the boxes user data to box that is alive
-     
     }
-    if(body!=null) body.setUserData(new Object[]{"box", "alive","offChain"});//set the boxes user data to box that is alive
+    if (body!=null) body.setUserData(new Object[]{"box", "alive", "offChain"});//set the boxes user data to box that is alive
   }
   //Constructor with parent
   Box(Vec2 _pos, Vec2 size, boolean fixed_, float density, Building parent, boolean _toCreate) {
     this.density = density;//set density to passed density
     this.pos=_pos;//set position to passed in position
-    this.parent=parent;
+    this.parent=parent;//set the parent to the given parent
     this.size=size;
     this.fixed = fixed_;//Fixed makes it Static usualy for rope ends
 
@@ -52,8 +52,7 @@ int onChainCount = 0;
       w = size.x;//set width to size.x
       h = size.y;//set height to size.h
       MakeBox(_pos);//create the box shape at given position _pos
-      body.setUserData(new Object[]{"box", "alive"});//set the boxes user data to box that is alive
-    
+      body.setUserData(new Object[]{"box", "alive", "offChain"});//set the boxes user data to box that is alive and offchain
     }
   }
 
@@ -78,20 +77,14 @@ int onChainCount = 0;
     pos = box2d.getBodyPixelCoord(this.body);//grab the position of the box in pixel coordinates
     float a = body.getAngle();//set a to the rotation
 
-    pushMatrix();
+    pushMatrix();//Enter the matrix neo
     translate(pos.x, pos.y);    // Using the Vec2 position and float angle to
     rotate(-a);              // translate and rotate the rectangle
     fill(cl);//set the fill to this boxes color
     noStroke();
     rectMode(CENTER);
     rect(0, 0, w, h);
-    popMatrix();
-    
-    
-    
-    
-    
-    
+    popMatrix();//leave the matrix neo
   }//end display
 
   void MakeBox( Vec2 pos) {
@@ -108,9 +101,6 @@ int onChainCount = 0;
     bd.position.set(box2d.coordPixelsToWorld(pos.x, pos.y));//set position useing coordinate pixels converted to world
     body = box2d.createBody(bd);//the body equals box2d creating a body of the body def bd
 
-
-
-    // println(bd.type);
     // Define a box
     PolygonShape sd = new PolygonShape();
     //2d width is from center to edge
@@ -123,11 +113,9 @@ int onChainCount = 0;
     FixtureDef fd = new FixtureDef();
     fd.shape = sd;
     // Parameters that affect physics
-    fd.density = this.density;
-    fd.friction = 0.6;
-    fd.restitution = 0.6;
-
-
+    fd.density = this.density;//set the denstiy to this boxes density
+    fd.friction = 0.6;//set the firction
+    fd.restitution = 0.6;//set the rest
     // Attach Fixture to Body               
     body.createFixture(fd);
   }
@@ -140,9 +128,7 @@ int onChainCount = 0;
     //Vec2 newPos = box2d.getBodyPixelCoord(this.body);//grab position
     Vec2 newPos = pos;//grab position
     Vec2 vel = player.weight.getLinearVelocity();//grab linear velocity
-    vel= new Vec2(vel.x/2,vel.y/2  );
-    //newPos.x+=w/2;//move over half of box width
-    //newPos.x+=50;
+    vel= new Vec2(vel.x/2, vel.y/2  );//reduce velocity by half
     Vec2 size = new Vec2(w/3, h/3);//size is a third of previose box size
 
     for (float i=0; i<=w/30; i++) {//for each 30% of each object create a new one a third of the objects size, or a pickup
@@ -156,23 +142,14 @@ int onChainCount = 0;
           Pickup p = new Pickup("invincible", newPos, false);//create new pickup of invincible at the position
           pickupsToCreate.add(p);//add it the the pickups creation list
         } else { //end if, didnt roll any pickup make a box
-
-
-          Box newbox = new Box(new Vec2(newPos.x+(i*10),newPos.y), size, false, .1, false);//make new box
+          Box newbox = new Box(new Vec2(newPos.x+(i*10), newPos.y), size, false, .1, false);//make new box
           parent.boxesToCreate.add(newbox);//add box to the parents boxes list, boom this parts crazy
-          if(hitByPlayer)newbox.initVel=vel;
-          //println("create at " + newbox.pos.x);
+          if (hitByPlayer)newbox.initVel=vel;//if hit by player than set its vel to players vel
         }
-           if (j==h/10){
+        if (j==h/10) {
           newPos.y+=(i+1)*5;//if made ten already then go up a bit on the y for a new row
-        }
-        
-       
-      
-       //newPos.x+=33;
-       //println(newPos.x);
-       
-      }
+        }//end add to height
+      }//end for each row
     }//end creating new objects
   }//end explosion
 }//end box

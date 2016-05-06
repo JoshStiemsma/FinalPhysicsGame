@@ -1,3 +1,4 @@
+//the rope class is a manager for jointed boxes that hang from a stationary box on the cieling
 class Rope {
 
   // Rope properties
@@ -8,10 +9,10 @@ class Rope {
   ArrayList<Box> boxes;
   ArrayList<Box> boxesToKill = new ArrayList<Box>();
 
-
+//position of the entire rope and its base
   Vec2 position;
 
-  // Chain constructor
+  // Chain constructor including length, amount of nodes, position, and toCreate yet or not
   Rope(float l, int n, Vec2 pos, boolean toCreate) {
     this.position = pos;
     totalLength = l;
@@ -19,7 +20,10 @@ class Rope {
     if (toCreate) Create();
   }
 
-
+/*
+*the function create actualy creates the body of the rope based off of the ropes variables
+*
+*/
   void Create() {
     boxes = new ArrayList();
     float len = totalLength / numPoints;
@@ -34,7 +38,6 @@ class Rope {
         b = new Box(new Vec2(position.x, position.y-10), new Vec2(5, 5), true, .10,true);
       } else b = new Box(new Vec2(position.x, position.y+(20*i)), new Vec2(5, 20), false, .10,true);
       boxes.add(b);
-//b.body.setUserData(new Object[]{"rope", "alive","offChain"});//set the boxes user data to box that is alive
       // Connect the particles with a distance joint
       if (i > 0) {
 
@@ -50,14 +53,24 @@ class Rope {
       previouse = b;
     }
   }
-
+/*
+*the fucntion destroy removes all the boxes bdies from the world
+*
+*/
   void destroy() {//remove all boxes
     for (Box b : boxes) b.destroyBody();
   }
+  /*
+*the function remove from array, removes the passed box from the roeps boxes array
+*
+*/
   void removeFromArray(Box b) {
     boxes.remove(b);
   }
-
+/*
+*Update is called int he main update and updates all the boxes of the rope
+*
+*/
   void update() {
     for (int i = 0; i<boxes.size(); i++) {
       Object[] o1 =  (Object[])boxes.get(i).body.getUserData();
@@ -86,7 +99,10 @@ class Rope {
     }
   }
 
-
+/*
+*handle death takes care of all the evil boxes tht need to die at the proper time though, like harry potter so tht they dont break the system
+*
+*/
   void HandleDeaths() {
     for (Box b : boxesToKill) {
       b.destroyBody();

@@ -1,15 +1,16 @@
+//platforms are stationary bxes used at the base of buildings to give them stable ground
 class Platform{
-  Vec2 position = new Vec2();
+  Vec2 position = new Vec2();//position vector
   
   
-  Body b;
+  Body b;//body of plat
   
-  Vec2 size = new Vec2(100,10);
-    float x;
-  float y;
-  float w;
-  float h;
-  
+  Vec2 size = new Vec2(100,10);//chosen size of plat
+    float x;//x postion
+  float y;//y pos
+  float w;//width
+  float h;//height
+  //cunstructor with x and y position
  Platform(float x, float y){
    this.x=x;
    this.y=y;
@@ -20,19 +21,28 @@ class Platform{
 
  }
   
-  
+  /*
+*Destroy the body of the platform fromt he physics world
+*
+*/
   void destroy(){
      box2d.destroyBody(b); 
   }
   
- 
+ /*
+*called withint he main function and draw the plat to screen
+*
+*/
   void display() {
     fill(100);
     noStroke();
     rectMode(CENTER);
     rect(position.x,position.y,size.x,size.y);
   }
-  
+  /*
+*make plat actualy created th platform into the physics world
+*
+*/
   void MakePlat(){
    // Define the polygon
     PolygonShape sd = new PolygonShape();

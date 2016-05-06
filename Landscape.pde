@@ -1,26 +1,27 @@
+//the landscape cass holds the information for the ceiling and floor arrays as well as their jbox 2d bodies
 class Landscape {
 
 
-  ChainShape lowChain;
-  ChainShape topChain;
-  Body lowBody;
-  Body topBody;
+  ChainShape lowChain;//fllor chainshape object
+  ChainShape topChain;//ceiling chain shape object
+  Body lowBody;//fllor Body
+  Body topBody;//ceiling body
 
-
+//cunstructor that is being passed an ArrayList<Vec2> for the ceiling Points and another for the floor points
   Landscape(ArrayList<Vec2> topPoints, ArrayList<Vec2> lowPoints) {
-    lowChain = new ChainShape();
-    topChain = new ChainShape();
+    lowChain = new ChainShape();//set lowchain to new chainshape
+    topChain = new ChainShape();//set top chain to new chainshape
     //With our arraylist  
     //We need to convert them to Box2d coordinates
     Vec2[] lowVerts = new Vec2[lowPoints.size()];
     for (int i = 0; i < lowVerts.length; i ++) {
-      Vec2 edge = box2d.coordPixelsToWorld(lowPoints.get(i));
-      lowVerts[i] = edge;
+      Vec2 edge = box2d.coordPixelsToWorld(lowPoints.get(i));//convert the given point to the world position
+      lowVerts[i] = edge;//create edge at this point
     }
     Vec2[] topVerts = new Vec2[topPoints.size()];
     for (int i = 0; i < topVerts.length; i ++) {
       Vec2 edge = box2d.coordPixelsToWorld(topPoints.get(i));
-      topVerts[i] = edge;
+      topVerts[i] = edge;//create edge at this point
     }
 
     //create the chain
@@ -55,8 +56,8 @@ class Landscape {
     lowBody.createFixture(lowfd);
     topBody.createFixture(topfd);
 
-    lowBody.setUserData(new Object[]{"ground", "alive"});
-    topBody.setUserData(new Object[]{"ground", "alive"});
+    lowBody.setUserData(new Object[]{"ground", "alive"});//set the user data to ground type and alive
+    topBody.setUserData(new Object[]{"ground", "alive"});//setthe user data to ground tpe and alive
   }
 
 
@@ -89,46 +90,39 @@ class Landscape {
 
 
     /////////Bottom layer
-    for (int i =0; i<topLandPoints.size(); i+=20) {
+    for (int i =0; i<topLandPoints.size(); i+=20) {//for every 20 points in the array
       //int k = 0;  
-      beginShape();
-      vertex(topLandPoints.get(i).x, topLandPoints.get(i).y-1000);
+      beginShape();//make a new shape
+      vertex(topLandPoints.get(i).x, topLandPoints.get(i).y-1000);//make apoint aboce the first points first
 
       for (int j = i; j <=i+20; j++) {
-        if (j<topLandPoints.size()) vertex(topLandPoints.get(j).x, topLandPoints.get(j).y);
+        if (j<topLandPoints.size()) vertex(topLandPoints.get(j).x, topLandPoints.get(j).y);//draw the points
       }
-      if (i+20<topLandPoints.size()) vertex(topLandPoints.get(i+20).x, topLandPoints.get(i+20).y-1000);
-      else  vertex(topLandPoints.get(topLandPoints.size()-1-10).x, topLandPoints.get(topLandPoints.size()-1).y-1000);
+      if (i+20<topLandPoints.size()) vertex(topLandPoints.get(i+20).x, topLandPoints.get(i+20).y-1000);//make a point above the last point
+      else  vertex(topLandPoints.get(topLandPoints.size()-1-10).x, topLandPoints.get(topLandPoints.size()-1).y-1000);//if end of array and last points might not exsits,,do this one
+
+      endShape();//end the shape
+    }//end for each 20 points in array
+    popStyle();//end style
 
 
 
-      endShape();
-    }
-    popStyle();
+    for (int i =0; i<topLandPoints.size()-1; i++) {//for each point
 
-
-
-    for (int i =0; i<topLandPoints.size()-1; i++) {
-
-      if (abs(topLandPoints.get(i).x-box2d.getBodyPixelCoord(player.basket).x)<=width) {
+      if (abs(topLandPoints.get(i).x-box2d.getBodyPixelCoord(player.basket).x)<=width) {//if within range of player view, draw a stroke
         strokeWeight(10);
-        float j = topLandPoints.get(i).y-topLandPoints.get(i+1).y;
-        //println(j);
+        float j = topLandPoints.get(i).y-topLandPoints.get(i+1).y;//grab direction of vec between enxt point
+        //set color of stroke based of of angle 
         if (j>=7) {
-          //stroke(50);
-          // stroke(255,0,0);//red
-          //strokeWeight(7);
           stroke(10);
         } else if (j<=-7) {
           stroke(50);
-          //stroke(0,255,0);//green
         } else {
           stroke(50);
-          // stroke(0,0,255);//blue
         }
-        line( topLandPoints.get(i).x, topLandPoints.get(i).y, topLandPoints.get(i+1).x, topLandPoints.get(i+1).y  );
+        line( topLandPoints.get(i).x, topLandPoints.get(i).y, topLandPoints.get(i+1).x, topLandPoints.get(i+1).y  );//draw the line
 
-
+//do the same for low land points
         j = lowLandPoints.get(i).y-lowLandPoints.get(i+1).y;
         if (j>=7) {
           stroke(100);
@@ -143,7 +137,10 @@ class Landscape {
   }//Close Display
 
 
-
+/*
+*this function update terrain, updates the terrain when the player has gone far enough that it needs to lengthened to continue
+*
+*/
   void   UpdateTerrain() {
 
     if (flatLand) {//if peviously rolled a flatLAnd terrain
@@ -159,5 +156,5 @@ class Landscape {
     }
     player.LastTerrainUpdate=player.position.x;
     UpdateChainArray();//update chain array
-  }
-}
+  }//end update terrain
+}//end landscape class
