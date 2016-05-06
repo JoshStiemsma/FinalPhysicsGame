@@ -84,8 +84,7 @@ class CustomListener implements ContactListener {
           if (mag(vel.x, vel.y)>50&&!player.invincible) {//if player was going fast enough, break box
             b2.setUserData(new Object[]{"box", "deadByPlayer", "offChain"});//set box to dead by player
             player.prevVel = player.basket.getLinearVelocity();//set player velocity to not be effected by breaking the box
-            player.setPrevVel=true;/
-            set prev vel boolean to true to do that
+            player.setPrevVel=true;//set prev vel boolean to true to do that
               player.touchedGround();//also damage player for big hit
           }
         } else if (o2[0]=="life") {//if basket/player hits a life
