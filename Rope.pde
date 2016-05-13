@@ -26,7 +26,6 @@ class Rope {
 */
   void Create() {
     boxes = new ArrayList();
-    float len = totalLength / numPoints;
     // Here is the real work, go through and add particles to the chain itself
     Box previouse = null;
     for (int i=0; i < numPoints+1; i++) {

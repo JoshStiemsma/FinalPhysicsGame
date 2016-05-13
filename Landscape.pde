@@ -134,6 +134,7 @@ class Landscape {
         line( lowLandPoints.get(i).x, lowLandPoints.get(i).y, lowLandPoints.get(i+1).x, lowLandPoints.get(i+1).y  );
       }
     }//close for each top point
+    noStroke();
   }//Close Display
 
 

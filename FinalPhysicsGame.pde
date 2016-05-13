@@ -1,6 +1,6 @@
-import net.java.games.input.*;
-import org.gamecontrolplus.*;
-import org.gamecontrolplus.gui.*;
+//import net.java.games.input.*;
+//import org.gamecontrolplus.*;
+//import org.gamecontrolplus.gui.*;
 
 import processing.sound.*;
 import shiffman.box2d.*;
@@ -219,21 +219,18 @@ void loadSounds() {
   rock06=new SoundFile(this, "audio/rock06.wav");
   invin =new SoundFile(this, "audio/invincible.wav");
   tokenSound =new SoundFile(this, "audio/token.wav");
-
-  //basket01=new SoundFile(this, "basket01.mp3");
-  //basket02=new SoundFile(this, "basket02.mp3");
 }
 
-
+/*
 //ControlButtons are the controls input objects
-ControlButton bttnA;
-ControlButton bttnB;
-ControlButton bttnX;
-ControlButton bttnY;
-ControlButton pedal;
-ControlButton pause;
-ControlButton back;
-
+ ControlButton bttnA;
+ ControlButton bttnB;
+ ControlButton bttnX;
+ ControlButton bttnY;
+ ControlButton pedal;
+ ControlButton pause;
+ ControlButton back;
+ */
 
 /*
 *setup is ran first and initiates the game with the first frame
@@ -257,21 +254,22 @@ void setup() {
   //camera is set to new camera
   camera = new Camera();
 
-
+  /*
   //Controller control grabs instance of this
-  ControlIO control = ControlIO.getInstance(this);
-  //device is set to getDevice of Harmonix xbox 360 Drum Kit
-  ControlDevice device = control.getDevice("Drum Kit (Harmonix Drum Kit for Xbox 360)");
-  //Each bttn is assigned its bttn with getButton
-  bttnA = device.getButton("Button 0");
-  bttnB = device.getButton("Button 1");
-  bttnX = device.getButton("Button 2");
-  bttnY = device.getButton("Button 3");
-  pedal = device.getButton("Button 4");
-  pause = device.getButton("Button 7");
-  back = device.getButton("Button 6");
-
-  println(control.devicesToText(""));
+   ControlIO control = ControlIO.getInstance(this);
+   //device is set to getDevice of Harmonix xbox 360 Drum Kit
+   ControlDevice device = control.getDevice("Drum Kit (Harmonix Drum Kit for Xbox 360)");
+   //Each bttn is assigned its bttn with getButton
+   bttnA = device.getButton("Button 0");
+   bttnB = device.getButton("Button 1");
+   bttnX = device.getButton("Button 2");
+   bttnY = device.getButton("Button 3");
+   pedal = device.getButton("Button 4");
+   pause = device.getButton("Button 7");
+   back = device.getButton("Button 6");
+   
+   println(control.devicesToText(""));
+   */
 }
 
 
@@ -298,7 +296,9 @@ void draw() {
     popMatrix();//shut matrix
 
 
-    if (in.EnterReleased || bttnA.pressed())resetGame=true;//wait for player to press enter then reset game
+    //if (in.EnterReleased || bttnA.pressed())resetGame=true;//wait for player to press enter then reset game
+    if (in.EnterReleased)resetGame=true;
+
     if (resetGame) ResetGame();//if resetGame is true then reset the game by calling the function ResetGame
   } else if (gameState=="Play"||gameState=="Dead") {//if gameState is in Play or Dead, so not Title screen
 
@@ -311,20 +311,20 @@ void draw() {
       UpdateBoundaries();//update all boundaries 
       Update();//update
     } else UpdateDisplays();//if game is paused, only update displays
+
     popMatrix();//close camera matrix
-
-
 
     drawHud();//draw hud elements
 
-    if (pause.pressed() && pauseReleased == true) {//if paused pressed then toggle paused
+   if (in.Pause&& pauseReleased == true) {//if paused pressed then toggle paused
       paused=!paused;
       pauseReleased=false;
     }
-    if (!pause.pressed()&&pauseReleased==false) pauseReleased=true;
+    if (in.Pause&&pauseReleased==false) pauseReleased=true;
+    
 
-
-    if (gameState=="Dead"&&back.pressed()) endGame();//if dead and pressed back then endGAme
+    if (gameState=="Dead"&&in.EnterReleased) endGame();//if dead and pressed back then endGAme
+    
     if (titleFade>0) {//if Title fade is bigger that 0  show the title with the fading alpha amount
       pushMatrix();//enter the matrix neo and scale size
       scale(.24);//scale size
@@ -337,7 +337,6 @@ void draw() {
     }
   }//end if Dead or Play 
 
-
   in.update();//Update input class
 }//close Draw
 
@@ -345,6 +344,8 @@ void draw() {
 
 
 void Update() {
+  box2d.step(); //always step the physics world
+
 
   //if score is greater than highscore then thats the new highscore
   if (score>highScore) highScore=score;
@@ -364,7 +365,7 @@ void Update() {
   for (Pickup p : pickups)p.update();
 
 
-  box2d.step(); //always step the physics world
+
 
   if (gameState=="Dead") {//if game state is dead
 
@@ -456,7 +457,10 @@ void endGame() {
  *Things to be reset are   Arrays   Landscape     Player   and alll previouse box2d bodies must be deleted
  */
 void ResetGame() {
+  
   if (starting)player.destroyBodies(); //if we started at the title screen, like we do at start, then destroy the players body tht was created at startt
+  
+  
   starting=false;//set strating boolean to false so we dont do this other than the first time
 
 
@@ -555,15 +559,16 @@ void drawHud() {
   pushMatrix();//enter the matrix neo
 
   scale(.2);//shrink the matrix neo
+
+  /*
   //these if statements will show their given image if the input bttn being asked is true
-  if (bttnA.pressed())image(greenPad, (width-80)/.2, (height-40)/.2);
-  if (pedal.pressed())image(pedalUI, (width-50)/.2, (height-40)/.2);
-  if (bttnY.pressed())image(yellowPad, (width-140)/.2, (height-40)/.2);
-  if (bttnX.pressed())image(bluePad, (width-110)/.2, (height-40)/.2);
-  if (bttnB.pressed())image(redPad, (width-170)/.2, (height-40)/.2);
-
+   if (bttnA.pressed())image(greenPad, (width-80)/.2, (height-40)/.2);
+   if (pedal.pressed())image(pedalUI, (width-50)/.2, (height-40)/.2);
+   if (bttnY.pressed())image(yellowPad, (width-140)/.2, (height-40)/.2);
+   if (bttnX.pressed())image(bluePad, (width-110)/.2, (height-40)/.2);
+   if (bttnB.pressed())image(redPad, (width-170)/.2, (height-40)/.2);
+   */
   popMatrix();//leave the matrix neo
-
 }
 
 
@@ -616,11 +621,11 @@ void UpdateChainArray() {
   topLandPoints = newTopLand;// set top land points to the new top land points
   if (landscape!=null)landscape.killBody();//kill the landscapes body
   landscape = new Landscape(topLandPoints, lowLandPoints);//create new landscape with the new top and low points
-//if Time Since Last DirectionChange is greater that DirectionChange Time  call the GetNextDirection() Function
+  //if Time Since Last DirectionChange is greater that DirectionChange Time  call the GetNextDirection() Function
   if (TSLDirectionChange>=directionChangeTime) GetNextDirection();
-//add to the time since last direction change amount
+  //add to the time since last direction change amount
   TSLDirectionChange++;
-  
+
   switch (direction) {//based off of what direction the string is currently at, adjuct the incline variable
   case "UpRight":
     incline+=10;//add ten to the incline
@@ -638,7 +643,7 @@ void UpdateChainArray() {
 }
 /*
 *this function Get Next Dirction decides what directiont he terrain will go in next 
-*/
+ */
 void GetNextDirection() {
   TSLDirectionChange=0.0;//reset the TSLDC
   targetGap=random(300, 700);//select a new random target gap
@@ -694,7 +699,6 @@ void CreateChainArray() {
     y-=height-j+300+random(-10, 10);//subtract the height of the view for the new ceilings point
     topLandPoints.add(new Vec2(x, y));//add the point to the end of the vector
     j-=4;
-    //println("j  " + j);
     xoff+=0.1;//add to the xoff
     incline+=10;//add to the incline
   }
@@ -723,8 +727,6 @@ void HandleBirths() {
   //for each rope in the ropes creation list, create that rope with its leangth, amount of points, position, and boolean that states the body be made and siaplyed
   for (Rope r : ropesToCreate) ropes.add(new Rope(r.totalLength, r.numPoints, r.position, true));
   ropesToCreate = new ArrayList<Rope>();//once all are created set the array to null
-
-
   //for each pickup in te pickup creations array, create it as its set type, at a position with the boolean stating to actualy create the body and add to main lists
   for (Pickup p : pickupsToCreate) pickups.add(new Pickup(p.type, p.position, true));
   pickupsToCreate= new ArrayList<Pickup>();//once all are created then reset the list for next frame

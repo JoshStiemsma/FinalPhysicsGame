@@ -106,7 +106,7 @@ class Player {
     position = box2d.getBodyPixelCoord(basket);//grab and set position of basket
 
 
-    CheckBoundaries();//chck bounds
+    //CheckBoundaries();//chck bounds
   }
   /*
 *Display presents all the players bodies to the screen in thier proper position
@@ -276,24 +276,24 @@ class Player {
    */
   void ApplyInput() {
 
-    if (in.Down || pedal.getValue() >= .5) Thrust(); //Push down on the basket
-
+    //if (in.Down || pedal.getValue() >= .5) Thrust(); //Push down on the basket
+    if (in.Down ) Thrust(); //Push down on the basket
 
 
     Vec2 vel = basket.getLinearVelocity();
-    if (in.Right || bttnA.pressed()) basket.setLinearVelocity(new Vec2( vel.x + bttnA.getValue()/2, vel.y));//Push left
-    if (in.Left || bttnB.pressed()) basket.setLinearVelocity(new Vec2( vel.x - bttnB.getValue()/2, vel.y));//Push Right
-    if (bttnX.pressed()) basket.setLinearVelocity(new Vec2( vel.x + bttnX.getValue()/2, vel.y - bttnA.getValue()/2));//Push left
-    if (bttnY.pressed()) basket.setLinearVelocity(new Vec2( vel.x - bttnY.getValue()/2, vel.y - bttnA.getValue()/2));//Push Right
+
+
+    if (in.Right ) basket.setLinearVelocity(new Vec2( 10, vel.y));//Push left
+    if (in.Left) basket.setLinearVelocity(new Vec2( -10, vel.y));//Push Right
 
     if (basket.getAngularVelocity()!=0) {
       basket.setAngularVelocity(basket.getAngularVelocity()*.64);//Re aligns players rotation
     }
   }
-/*
+  /*
 *the functio update weight adds to the density of the player wight as they progress to make the game increasingly hard
-*
-*/
+   *
+   */
   void updateWeight() {
     Fixture f =weight.getFixtureList();
     float value = constrain(map(millis()/1000-timeSinceLastStart, 0, 500, .1, .5), .1, .5);
@@ -381,15 +381,15 @@ class Player {
    *And kills the player if they go too far out of view
    */
   void CheckBoundaries() {
-    Vec2 pos =  box2d.getBodyPixelCoord(basket);
+    //Vec2 pos =  box2d.getBodyPixelCoord(basket);
     //if (pos.x>width+viewOffset||pos.y>height-viewOffset+30) player.dead=true;     //Kill Player if the go out of bounds
   }
 
 
-/*
+  /*
 *this function sets the final score of the player based on distance only one
-*
-*/
+   *
+   */
   void setFinal() {
     if (!finalSet) {
       finalDistance = int(camera.xOffset+500+pointsPickedUp/100);
@@ -457,7 +457,7 @@ class Player {
     ball3 = new Circle( new Vec2(startingPostionVec.x-30, startingPostionVec.y-100), 20, "b3");
     circles.add(ball3);
 
-  
+
     FirstBallChain();//add first chain
     SecondBallChain();//add second chain
     ThirdBallChain();//add third chain
